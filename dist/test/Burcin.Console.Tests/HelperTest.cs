@@ -1,0 +1,94 @@
+﻿using System;
+using System.IO;
+using System.Threading;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Burcin.Console.Tests
+{
+	[TestClass]
+	public class HelperTest
+	{
+		private static IServiceProvider _serviceProvider;
+		private static TestContext _testContext;
+        private static ILogger _logger;
+
+		[ClassInitialize]
+		public static void ClassInitialize(TestContext testContext)
+		{
+			_testContext = testContext;
+
+			IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+																		 .AddJsonFile("appsettings.Test.json", true, true)
+                                                                         .Build();
+
+			IServiceCollection serviceCollection = new ServiceCollection();
+			serviceCollection.AddOptions();
+			serviceCollection.AddLogging(loggingBuilder =>  {
+                                                                loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
+                                                                loggingBuilder.AddSeq(configuration.GetSection("Seq"));
+			                                                });
+
+			serviceCollection.AddSingleton(configuration);
+			serviceCollection.AddSingleton<IConfiguration>(configuration);
+		    serviceCollection.AddTransient<Helper>();
+
+            _serviceProvider = serviceCollection.BuildServiceProvider();
+		    _logger = _serviceProvider.GetRequiredService<ILogger<HelperTest>>();
+		}
+
+        [ClassCleanup]
+        public static void ClassCleanup() => Thread.Sleep(TimeSpan.FromSeconds(5));
+
+        [Priority(2)]
+		[TestCategory("Beginner")]
+		[TestMethod]
+		public void Sample1Test()
+        {
+            _logger.LogInformation($"Testing {nameof(Sample1Test)}");
+            const int expectedValue = 13;
+            int actualValue = DateTime.Now.Month;
+			Assert.AreNotEqual(expectedValue, actualValue);
+		}
+
+		[Priority(1)]
+		[TestCategory("Intermediate")]
+		[DataTestMethod]
+		[DataRow("ruya", 28)]
+		[DataRow("cengiz", 8)]
+		public void EchoTest(string name, int number)
+		{
+		    _logger.LogInformation($"Testing {nameof(EchoTest)}");
+            try
+			{
+			    var helper = _serviceProvider.GetService<Helper>();
+                string expectedName = name;
+                string actualName = helper.Echo(name);
+			    Assert.AreEqual(expectedName, actualName);
+            }
+			catch (ArgumentNullException ae) when (string.IsNullOrEmpty(name))
+			{
+				Assert.Fail(ae.Message);
+			}
+			catch (Exception ex)
+			{
+				Assert.Fail(ex.Message);
+			}
+
+		    Assert.IsTrue(number > default(int));
+		}
+
+		[Priority(1)]
+		[TestCategory("Beginner")]
+		[TestMethod]
+        public void Sample2Test()
+		{
+		    _logger.LogInformation($"Testing {nameof(Sample2Test)}");
+            const int maxDaysInAMonth = 31;
+            int input = DateTime.UtcNow.Day;
+		    Assert.IsTrue(maxDaysInAMonth >= input);
+		}
+	}
+}

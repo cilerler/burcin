@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>Burcin.ConsoleTemplate.CSharp</id>
+    <version>0.0.1</version>
+    <description>
+      Creates a Burcin console application
+    </description>
+    <authors>Cengiz Ilerler</authors>
+    <packageTypes>
+      <packageType name="Template" />
+    </packageTypes>
+  </metadata>
+</package>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
+    <VersionPrefix>$(BuildNumber)</VersionPrefix>
+    <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
+    <Product>Burcin.Models</Product>
+    <Authors>(authors)</Authors>
+    <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
+</Project>

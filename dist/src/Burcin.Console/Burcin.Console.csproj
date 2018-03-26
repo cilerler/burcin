@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
+    <VersionPrefix>$(BuildNumber)</VersionPrefix>
+    <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
+    <Product>Burcin.ConsoleApp</Product>
+    <Authors>(authors)</Authors>
+    <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.Enrichers.Context" Version="2.4.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
+    <PackageReference Include="Serilog.Exceptions" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <PackageReference Include="Ruya.AppDomain" Version="1.0.383" />
+    <PackageReference Include="Ruya.Extensions.DependencyInjection" Version="1.0.386" />
+    <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.385" />
+    <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.384" />
+    <PackageReference Include="Ruya.Primitives" Version="1.0.374" />
+  </ItemGroup>
+
+
+
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+    <None Remove="appsettings.Production.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
+
+</Project>

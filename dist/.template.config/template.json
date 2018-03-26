@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Cengiz Ilerler",
+  "classifications": [ "Common", "Console" ],
+  "identity": "Burcin.ConsoleApplicationTemplate.CSharp",
+  "name": "Burcin Console Application",
+  "shortName": "burcinconsole",
+  "tags": {
+    "language": "C#",
+    "type":"project"
+  },
+  "groupIdentity":"Burcin.ConsoleApplicationTemplate",
+	"sourceName": "Burcin",
+  "preferNameDirectory": true,
+  "symbols":{
+    "authors": {
+      "type": "parameter",
+      "defaultValue": "no author",
+      "replaces":"(authors)"
+    },
+    "repositoryUrl": {
+      "type": "parameter",
+      "defaultValue": "https://github.com/cilerler/burcin",
+      "replaces":"(repositoryUrl)"
+    },
+    "databaseName": {
+      "type": "parameter",
+      "defaultValue": "burcin",
+      "replaces":"(databaseName)"
+    },
+    "entityFramework":{
+      "type": "parameter",
+      "dataType":"bool",
+      "defaultValue": "false"
+    },
+    "testFramework":{
+      "type": "parameter",
+      "dataType":"bool",
+      "defaultValue": "false"
+    },
+    "vsCodeDirectory":{
+      "type": "parameter",
+      "dataType":"bool",
+      "defaultValue": "false"
+    },
+    "githubTemplates":{
+      "type": "parameter",
+      "dataType":"bool",
+      "defaultValue": "false"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "condition": "(!entityFramework)",
+          "exclude": [
+            "tools/EntityFramework/**/*",
+            "Burcin.Console/EntityFramework.targets",
+            "Burcin.Console/DbContextFactory.cs",
+            "Burcin.Models/**/*",
+            "Burcin.Data/**/*",
+            "Burcin.Migrations/**/*"
+          ]
+        },
+        {
+          "condition": "(!testFramework)",
+          "exclude": [
+            "test/**/*"
+          ]
+        },
+        {
+          "condition": "(!vsCodeDirectory)",
+          "exclude": [
+            ".vscode/**/*"
+          ]
+        },
+        {
+          "condition": "(!gitHubTemplates)",
+          "exclude": [
+            ".github/**/*"
+          ]
+        }
+      ]
+    }
+  ]
+}

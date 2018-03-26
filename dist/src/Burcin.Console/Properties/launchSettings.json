@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Burcin.Console": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

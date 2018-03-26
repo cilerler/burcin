@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
+    <VersionPrefix>$(BuildNumber)</VersionPrefix>
+    <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
+    <Product>Burcin.Migrations</Product>
+    <Authors>(authors)</Authors>
+    <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Burcin.Data\Burcin.Data.csproj" />
+  </ItemGroup>
+</Project>
