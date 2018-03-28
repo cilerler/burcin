@@ -56,8 +56,9 @@
           "condition": "(!entityFramework)",
           "exclude": [
             "tools/EntityFramework/**/*",
-            "Burcin.Console/EntityFramework.targets",
             "Burcin.Console/DbContextFactory.cs",
+            "Burcin.Console/EntityFramework.targets",
+            "Burcin.Domain/EntityFramework.targets",
             "Burcin.Models/**/*",
             "Burcin.Data/**/*",
             "Burcin.Migrations/**/*"
