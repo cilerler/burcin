@@ -62,7 +62,7 @@ namespace Burcin.Console
         public static void RegisterExternalServices(IServiceCollection serviceCollection, IConfigurationRoot configuration)
         {
             //! Uncomment line below if you are using EntityFramework
-            //serviceCollection.AddDbContext<Data.BurcinDbContext>(options => Microsoft.EntityFrameworkCore.SqlServerDbContextOptionsExtensions.UseSqlServer(options, configuration.GetConnectionString(BurcinDbContextFactory.DatabaseConnectionString), sqlServerOptions => sqlServerOptions.MigrationsAssembly(configuration.GetValue(typeof(string), BurcinDbContextFactory.MigrationAssemblyNameConfiguration).ToString())));
+            //DbContextFactory.RegisterExternalServices(serviceCollection, configuration);
             serviceCollection.Configure<HelperSetting>(configuration.GetSection(HelperSetting.ConfigurationSectionName));
             serviceCollection.AddTransient<Helper>();
         }
