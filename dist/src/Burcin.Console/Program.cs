@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using Ruya.AppDomain;
 using Ruya.Extensions.DependencyInjection;
 using Ruya.Primitives;
-using Bedia.Domain;
+using Burcin.Domain;
 
 namespace Burcin.Console
 {
