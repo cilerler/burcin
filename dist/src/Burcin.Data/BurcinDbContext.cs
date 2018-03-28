@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Burcin.Models.Model;
+using Burcin.Models;
 
 namespace Burcin.Data
 {
