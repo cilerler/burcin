@@ -15,7 +15,7 @@
   "symbols":{
     "authors": {
       "type": "parameter",
-      "defaultValue": "no author",
+      "defaultValue": "anonymous",
       "replaces":"(authors)"
     },
     "repositoryUrl": {
@@ -25,7 +25,7 @@
     },
     "databaseName": {
       "type": "parameter",
-      "defaultValue": "burcin",
+      "defaultValue": "burcindb",
       "replaces":"(databaseName)"
     },
     "entityFramework":{
