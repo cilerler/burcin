@@ -1,4 +1,4 @@
-﻿namespace Burcin.Console
+﻿namespace Burcin.Domain
 {
     public class HelperSetting
     {

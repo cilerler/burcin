@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Burcin.Console
+namespace Burcin.Domain
 {
     public class Helper
     {
@@ -30,7 +30,7 @@ namespace Burcin.Console
         public void DoWork()
         {
             //! Uncomment block below if you are using EntityFramework
-            //var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();            
+            //var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
             //using (var scope = scopeFactory.CreateScope())
             //    using (var context = scope.ServiceProvider.GetRequiredService<Burcin.Data.BurcinDbContext>())
             //    {
