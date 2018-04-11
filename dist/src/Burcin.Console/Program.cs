@@ -78,14 +78,18 @@ namespace Burcin.Console
                                                                             , Thread.CurrentThread.ManagedThreadId
                                                                             , args.ToArray());
 
-                var helper = serviceProvider.GetService<Helper>();
-                string output = helper.Echo("Hello World!");
-                logger.LogInformation(output);
+                Initialize(serviceProvider);
 
                 Ruya.Extensions.Logging.LoggerExtensionsHelper.ProgramStopping(logger
                                                                              , Process.GetCurrentProcess().Id
                                                                              , Thread.CurrentThread.ManagedThreadId);
             }
+        }
+
+        private static void Initialize(IServiceProvider serviceProvider)
+        {
+            var helper = serviceProvider.GetService<Helper>();
+            helper.Echo("Hello World!");
         }
     }
 }
