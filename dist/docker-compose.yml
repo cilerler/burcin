@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  burcin.console:
+    image: burcinconsole
+    build:
+      context: .
+      dockerfile: src/Burcin.Console/Dockerfile
+  burcin.api:
+    image: burcinapi
+    build:
+      context: .
+      dockerfile: src/Burcin.Api/Dockerfile

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Ruya.ConsoleHost;
 using Burcin.Data;
 
-namespace Burcin.Console
+namespace Burcin.Api
 {
     public class DbContextFactory : IDesignTimeDbContextFactory<BurcinDbContext>
     {

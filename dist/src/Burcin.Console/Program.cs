@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Ruya.AppDomain;
-using Ruya.Extensions.DependencyInjection;
+using Ruya.ConsoleHost;
 using Ruya.Primitives;
 using Burcin.Domain;
 
@@ -33,13 +33,7 @@ namespace Burcin.Console
                 }
 
                 #region Enter
-#if DEBUG
-                const string environmentName = Constants.Development;
-#else
-                const string environmentName = Constants.Production;
-#endif
-                StartupInjector.Instance.EnvironmentName = environmentName;
-                StartupInjector.Instance.RegisterExternalServices = RegisterExternalServices;
+                StartupInjector.Instance.ExternalServices = RegisterExternalServices;
                 SerilogHelper.Register(Startup.Instance.Configuration);
                 var unhandledExceptionHelper = new UnhandledExceptionHelper();
                 unhandledExceptionHelper.Register();
@@ -60,7 +54,7 @@ namespace Burcin.Console
             }
         }
 
-        public static void RegisterExternalServices(IServiceCollection serviceCollection, IConfigurationRoot configuration)
+        public static void RegisterExternalServices(IServiceCollection serviceCollection, IConfiguration configuration)
         {
             //! Uncomment line below if you are using EntityFramework
             //DbContextFactory.RegisterExternalServices(serviceCollection, configuration);
@@ -77,7 +71,7 @@ namespace Burcin.Console
             using (Ruya.Extensions.Logging.LoggerExtensionsHelper.ProgramScope(logger, assemblyInfo, applicationGuid.ToString()))
             {
                 Ruya.Extensions.Logging.LoggerExtensionsHelper.ProgramStarted(logger
-                                                                            , EnvironmentHelper.Name
+                                                                            , EnvironmentHelper.EnvironmentName
                                                                             , Environment.UserInteractive
                                                                             , Debugger.IsAttached
                                                                             , Process.GetCurrentProcess().Id

@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Burcin.Domain
 {
@@ -24,7 +27,9 @@ namespace Burcin.Domain
             {
                 throw new ArgumentNullException();
             }
-            return input;
+
+            _logger.LogInformation("Echo requested, input {value}", input);
+            return $"{_options.Prefix} {input}";
         }
 
         public void DoWork()

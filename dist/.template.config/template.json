@@ -12,6 +12,9 @@
   "groupIdentity":"Burcin.ConsoleApplicationTemplate",
 	"sourceName": "Burcin",
   "preferNameDirectory": true,
+  "guids": [
+    "412f3e04-fa62-4566-8e71-3fe15dc33c1c"
+  ],
   "symbols":{
     "authors": {
       "type": "parameter",
@@ -38,6 +41,11 @@
       "dataType":"bool",
       "defaultValue": "false"
     },
+    "dockerSupport":{
+      "type": "parameter",
+      "dataType":"bool",
+      "defaultValue": "false"
+    },
     "vsCodeDirectory":{
       "type": "parameter",
       "dataType":"bool",
@@ -47,6 +55,22 @@
       "type": "parameter",
       "dataType":"bool",
       "defaultValue": "false"
+    },
+    "dockerId":{
+      "type": "generated",
+      "generator": "guid",
+      "replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
+      "parameters": {
+        "format":"D"
+      }
+    },
+    "myconstant": {
+      "type": "generated",
+      "generator": "constant",
+      "parameters": {
+        "value":"5001"
+      },
+      "replaces":"1234"
     }
   },
   "sources": [
@@ -56,18 +80,28 @@
           "condition": "(!entityFramework)",
           "exclude": [
             "tools/EntityFramework/**/*",
-            "Burcin.Console/DbContextFactory.cs",
-            "Burcin.Console/EntityFramework.targets",
-            "Burcin.Domain/EntityFramework.targets",
-            "Burcin.Models/**/*",
-            "Burcin.Data/**/*",
-            "Burcin.Migrations/**/*"
+            "src/Burcin.Console/DbContextFactory.cs",
+            "src/Burcin.Console/EntityFramework.targets",
+            "src/Burcin.Domain/EntityFramework.targets",
+            "src/Burcin.Models/**/*",
+            "src/Burcin.Data/**/*",
+            "src/Burcin.Migrations/**/*"
           ]
         },
         {
           "condition": "(!testFramework)",
           "exclude": [
             "test/**/*"
+          ]
+        },
+        {
+          "condition": "{!dockerSupport}",
+          "exclude": [
+            "src/Burcin.Console/Dockerfile",
+            "src/.dockerignore",
+            "src/docker-compose.dcproj",
+            "src/docker-compose.yml",
+            "src/docker-compose.override.yml"
           ]
         },
         {

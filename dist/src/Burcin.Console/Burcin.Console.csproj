@@ -3,13 +3,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <UserSecretsId>Burcin.Console</UserSecretsId>
+    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
   </PropertyGroup>
 
   <PropertyGroup>
     <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
     <VersionPrefix>$(BuildNumber)</VersionPrefix>
     <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
-    <Product>Burcin.ConsoleApp</Product>
+    <Product>Burcin.Console</Product>
     <Authors>(authors)</Authors>
     <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
   </PropertyGroup>
@@ -25,21 +27,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ruya.AppDomain" Version="1.0.383" />
-    <PackageReference Include="Ruya.Extensions.DependencyInjection" Version="1.0.386" />
-    <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.385" />
-    <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.384" />
-    <PackageReference Include="Ruya.Primitives" Version="1.0.374" />
+    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ruya.AppDomain" Version="1.0.403" />
+    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.411" />
+    <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
+    <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
+    <PackageReference Include="Ruya.Primitives" Version="1.0.409" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="appsettings.Development.json" />
-    <None Remove="appsettings.json" />
-    <None Remove="appsettings.Production.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +50,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="appsettings.Production.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.Migration.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
