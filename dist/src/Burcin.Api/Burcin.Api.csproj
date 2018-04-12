@@ -19,20 +19,31 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.1" />
-  </ItemGroup>
-  <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.3" />
     <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.1" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.411" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.6" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Extensions.HealthChecks.SqlServer" Version="1.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Serilog.Enrichers.Context" Version="2.4.0" />
+    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
+    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
+    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
+    <PackageReference Include="Serilog.Exceptions" Version="4.0.0" />
+    <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.419" />
     <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
     <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
-    <PackageReference Include="Ruya.Primitives" Version="1.0.409" />
+    <PackageReference Include="Ruya.Primitives" Version="1.0.417" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
