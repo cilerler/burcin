@@ -69,27 +69,26 @@ namespace Burcin.Api
         {
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
             healthChecks.WithDefaultCacheDuration(Program.DefaultCacheDuration);
-            healthChecks
-                //.AddHealthCheckGroup("memory"
-                //                   , group => group.AddPrivateMemorySizeCheck((long)Constants.MegaByte * 150)
-                //                                   .AddWorkingSetCheck((long)Constants.MegaByte * 100)
-                //                                   .AddVirtualMemorySizeCheck((long)Constants.TeraByte * 3)
-                //                   , CheckStatus.Unhealthy)
-                //.AddSqlCheck("(databaseName)", connectionString)
+            healthChecks.AddHealthCheckGroup("memory"
+                                           , group => group.AddPrivateMemorySizeCheck((long)Constants.MegaByte * 150)
+                                                           .AddWorkingSetCheck((long)Constants.MegaByte * 100)
+                                                           .AddVirtualMemorySizeCheck((long)Constants.TeraByte * 3)
+                                           , CheckStatus.Unhealthy)
+                        .AddSqlCheck("(databaseName)", connectionString)
 
-                //.AddCheck<CustomHealthCheck>(nameof(CustomHealthCheck))
-                //.AddCheck("long-running"
-                //       , async cancellationToken =>
-                //         {
-                //             await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-                //             return HealthCheckResult.Healthy("OK!");
-                //         })
-                //.AddValueTaskCheck("short-running", () => new ValueTask<IHealthCheckResult>(HealthCheckResult.Healthy("OK!")))
+                        .AddCheck<CustomHealthCheck>(nameof(CustomHealthCheck))
+                        .AddCheck("long-running"
+                                , async cancellationToken =>
+                                  {
+                                      await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+                                      return HealthCheckResult.Healthy("OK!");
+                                  })
+                        .AddValueTaskCheck("short-running", () => new ValueTask<IHealthCheckResult>(HealthCheckResult.Healthy("OK!")))
 
-               .AddHealthCheckGroup("servers"
-                                  , group => group.AddUrlCheck("https://nuget.org")
-                                                  .AddUrlCheck("https://github.com"))
-               .AddUrlCheck("https://ilerler.info");
+                        .AddHealthCheckGroup("servers"
+                                           , group => group.AddUrlCheck("https://nuget.org")
+                                                           .AddUrlCheck("https://github.com"))
+                        .AddUrlCheck("(repositoryUrl)");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
