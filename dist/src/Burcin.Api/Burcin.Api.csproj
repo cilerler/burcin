@@ -44,6 +44,7 @@
     <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
     <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
     <PackageReference Include="Ruya.Primitives" Version="1.0.417" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />

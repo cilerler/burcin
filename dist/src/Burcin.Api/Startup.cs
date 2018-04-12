@@ -18,6 +18,7 @@ using Ruya.Primitives;
 using Ruya.ConsoleHost;
 using Serilog;
 using Burcin.Api.HealthChecks;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Burcin.Api
 {
@@ -48,6 +49,13 @@ namespace Burcin.Api
                                                  options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
                                                  options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                                              });
+
+            services.AddSwaggerGen(c =>
+                                   {
+                                       c.IgnoreObsoleteActions();
+                                       c.IgnoreObsoleteProperties();
+                                       c.SwaggerDoc("v1", new Info { Title = "Burcin API", Version = "1.0" });
+                                   });
 
             services.AddSingleton<CustomHealthCheck>();
             services.AddHealthChecks(HealthChecks);
@@ -100,6 +108,12 @@ namespace Burcin.Api
             //{
             //    app.UseExceptionHandler("/Home/Error");
             //}
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+                             {
+                                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
+                             });
 
             app.UseMvc();
             app.UseWelcomePage();
