@@ -26,7 +26,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Ruya.AppDomain" Version="1.0.418" />
-    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.419" />
+    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.420" />
     <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
     <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
     <PackageReference Include="Ruya.Primitives" Version="1.0.417" />
