@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,12 +8,11 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.HealthChecks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Ruya.Primitives;
 using Ruya.ConsoleHost;
 using Serilog;
 using Burcin.Api.HealthChecks;
+using Burcin.Api.Middlewares;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Burcin.Api
@@ -31,18 +26,25 @@ namespace Burcin.Api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging();
             services.AddOptions();
 
+            services.AddMemoryCache();
+            services.AddDistributedMemoryCache();
             //services.AddDistributedSqlServerCache(options =>
             //                                      {
             //                                          options.ConnectionString = Configuration.GetConnectionString(Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
             //                                          options.SchemaName = Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
             //                                          options.TableName = Configuration.GetValue<string>("Cache:SqlServer:TableName");
             //                                      });
+            //services.AddDistributedRedisCache(options =>
+            //                                  {
+            //                                      options.Configuration = Configuration.GetConnectionString(Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+            //                                      options.InstanceName = Configuration.GetValue<string>("Cache:Redis:InstanceName");
+            //                                      //x Configuration.GetSection("Cache:Redis").Bind(options);
+            //                                  });
 
             services.AddMvc().AddJsonOptions(options =>
                                              {
@@ -91,10 +93,8 @@ namespace Burcin.Api
                         .AddUrlCheck("(repositoryUrl)");
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
         {
-            // Ensure any buffered events are sent at shutdown
             applicationLifetime.ApplicationStopped.Register(ApplicationStoppedActions);
 
             if (env.IsDevelopment())
@@ -113,10 +113,13 @@ namespace Burcin.Api
                              {
                                  c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
                              });
+            
+            app.UseStartTimeHeader();
 
             app.UseMvc();
             app.UseWelcomePage();
             app.UseStatusCodePages();
+
 
             var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
             app.Run(async context =>
@@ -138,4 +141,6 @@ namespace Burcin.Api
 
         public void ApplicationStoppedActions() => Log.CloseAndFlush();
     }
+
+
 }

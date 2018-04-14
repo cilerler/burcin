@@ -6,9 +6,16 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Burcin.Api.Middlewares;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Ruya.Primitives;
 using Serilog;
@@ -78,8 +85,20 @@ namespace Burcin.Api
 
         private static void Initialize(IServiceProvider serviceProvider)
         {
+            DateTimeOffset serverStartTime = DateTime.UtcNow;
+            
+            var memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
+            var memoryCache = serviceProvider.GetService<IMemoryCache>();
+            memoryCache.Set(StartTimeHeader.InMemoryCacheKey, serverStartTime, memoryCacheEntryOptions);
+
+            var value = Encoding.UTF8.GetBytes(serverStartTime.ToString("s"));
+            DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
+            var distributedcache = serviceProvider.GetService<IDistributedCache>();
+            distributedcache.Set(StartTimeHeader.DistributedCacheKey, value, cacheEntryOptions);
+            
             var helper = serviceProvider.GetService<Helper>();
             helper.Echo("Hello World!");
         }
     }
+
 }
