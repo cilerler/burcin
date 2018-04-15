@@ -52,11 +52,12 @@ namespace Burcin.Api
                                                  options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
                                              });
 
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
                                    {
-                                       c.IgnoreObsoleteActions();
-                                       c.IgnoreObsoleteProperties();
-                                       c.SwaggerDoc("v1", new Info { Title = "Burcin API", Version = "1.0" });
+                                       options.DescribeAllEnumsAsStrings();
+                                       options.IgnoreObsoleteActions();
+                                       options.IgnoreObsoleteProperties();
+                                       options.SwaggerDoc("v1", new Info { Title = "Burcin API", Version = "1.0", Description = "Burcin API", TermsOfService = "Terms Of Service" });
                                    });
 
             services.AddSingleton<CustomHealthCheck>();
@@ -83,14 +84,18 @@ namespace Burcin.Api
                                 , async cancellationToken =>
                                   {
                                       await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
-                                      return HealthCheckResult.Healthy("OK!");
+                                      return HealthCheckResult.Healthy("OK");
                                   })
-                        .AddValueTaskCheck("short-running", () => new ValueTask<IHealthCheckResult>(HealthCheckResult.Healthy("OK!")))
+                        .AddValueTaskCheck("short-running", () => new ValueTask<IHealthCheckResult>(HealthCheckResult.Healthy("OK")))
 
                         .AddHealthCheckGroup("servers"
                                            , group => group.AddUrlCheck("https://nuget.org")
                                                            .AddUrlCheck("https://github.com"))
-                        .AddUrlCheck("(repositoryUrl)");
+                        .AddUrlCheck("(repositoryUrl)")
+
+                         // TODO relative URL is not working
+                        //.AddUrlCheck("/liveness", TimeSpan.Zero)
+                ;
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
@@ -116,6 +121,10 @@ namespace Burcin.Api
             
             app.UseStartTimeHeader();
 
+            #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+            app.Map("/liveness", lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
+            #pragma warning restore CS1998
+
             app.UseMvc();
             app.UseWelcomePage();
             app.UseStatusCodePages();
@@ -140,7 +149,6 @@ namespace Burcin.Api
         }
 
         public void ApplicationStoppedActions() => Log.CloseAndFlush();
+
     }
-
-
 }
