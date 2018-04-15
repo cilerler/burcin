@@ -1,10 +1,10 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.HealthChecks;
 
 namespace Burcin.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class HealthCheckController : Controller
     {
         private readonly IHealthCheckService _healthCheck;
