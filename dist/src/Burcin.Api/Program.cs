@@ -40,6 +40,7 @@ namespace Burcin.Api
                    .UseHealthChecks("/health", HealthCheckTimeout)
                    .UseStartup<Startup>()
                    .UseSerilog()
+                   .UseShutdownTimeout(TimeSpan.FromSeconds(5))
                    .Build();
 
         public static void Main(string[] args)
@@ -47,7 +48,6 @@ namespace Burcin.Api
             IWebHost host = BuildWebHost(args);
             IServiceProvider serviceProvider = host.Services;
             RunProgram(serviceProvider, args, host);
-            Thread.Sleep(TimeSpan.FromSeconds(5));
         }
 
         public static void RegisterExternalServices(IServiceCollection serviceCollection, IConfiguration configuration)
@@ -86,7 +86,7 @@ namespace Burcin.Api
         private static void Initialize(IServiceProvider serviceProvider)
         {
             DateTimeOffset serverStartTime = DateTime.UtcNow;
-            
+
             var memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
             var memoryCache = serviceProvider.GetService<IMemoryCache>();
             memoryCache.Set(StartTimeHeader.InMemoryCacheKey, serverStartTime, memoryCacheEntryOptions);
@@ -95,7 +95,7 @@ namespace Burcin.Api
             DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
             var distributedcache = serviceProvider.GetService<IDistributedCache>();
             distributedcache.Set(StartTimeHeader.DistributedCacheKey, value, cacheEntryOptions);
-            
+
             var helper = serviceProvider.GetService<Helper>();
             helper.Echo("Hello World!");
         }
