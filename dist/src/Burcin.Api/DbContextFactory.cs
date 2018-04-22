@@ -1,9 +1,9 @@
 ﻿using System;
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Ruya.ConsoleHost;
 using Burcin.Data;
 
 namespace Burcin.Api
@@ -15,9 +15,14 @@ namespace Burcin.Api
 
         public BurcinDbContext CreateDbContext(string[] args)
         {
-            Ruya.Primitives.EnvironmentHelper.EnvironmentName = "Migration"; //! Do not change the environment to `Development`
-            string connectionString = Startup.Instance.Configuration.GetConnectionString(DatabaseConnectionString);
-            string assemblyName = Startup.Instance.Configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
+            const string configurationJsonFile = "appsettings.Migration.json";
+            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+                                                          .AddJsonFile(configurationJsonFile
+                                                                     , false
+                                                                     , true)
+                                                          .Build();
+            string connectionString = configuration.GetConnectionString(DatabaseConnectionString);
+            string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
 
             var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
             optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
@@ -30,12 +35,12 @@ namespace Burcin.Api
             string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
 
             serviceCollection.AddDbContext<BurcinDbContext>(options => options.UseSqlServer(connectionString,
-                    sqlServerOptions => {
-                                            sqlServerOptions.MigrationsAssembly(assemblyName);
-                                            sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                                                                            maxRetryDelay: TimeSpan.FromSeconds(30),
-                                                                            errorNumbersToAdd: null);
-                                        }));
+                                                                                            sqlServerOptions => {
+                                                                                                sqlServerOptions.MigrationsAssembly(assemblyName);
+                                                                                                sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 5,
+                                                                                                                                      maxRetryDelay: TimeSpan.FromSeconds(30),
+                                                                                                                                      errorNumbersToAdd: null);
+                                                                                            }));
         }
     }
 }

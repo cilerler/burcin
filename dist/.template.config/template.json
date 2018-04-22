@@ -80,6 +80,7 @@
           "condition": "(!entityFramework)",
           "exclude": [
             "tools/EntityFramework/**/*",
+            "src/Burcin.Api/DbContextFactory.cs",
             "src/Burcin.Console/DbContextFactory.cs",
             "src/Burcin.Console/EntityFramework.targets",
             "src/Burcin.Domain/EntityFramework.targets",

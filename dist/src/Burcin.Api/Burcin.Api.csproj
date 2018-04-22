@@ -13,9 +13,6 @@
     <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="DbContextFactory.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
