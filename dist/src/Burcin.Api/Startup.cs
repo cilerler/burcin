@@ -13,6 +13,7 @@ using Ruya.ConsoleHost;
 using Serilog;
 using Burcin.Api.HealthChecks;
 using Burcin.Api.Middlewares;
+using Ruya;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace Burcin.Api
@@ -64,6 +65,8 @@ namespace Burcin.Api
             services.AddHealthChecks(HealthChecks);
 
             SerilogHelper.Register(Configuration);
+            
+            services.AddGracePeriodManagerService(Configuration);
 
             Program.RegisterExternalServices(services, Configuration);
         }
@@ -118,7 +121,7 @@ namespace Burcin.Api
                              {
                                  c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
                              });
-            
+
             app.UseStartTimeHeader();
 
             #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
@@ -149,6 +152,5 @@ namespace Burcin.Api
         }
 
         public void ApplicationStoppedActions() => Log.CloseAndFlush();
-
     }
 }
