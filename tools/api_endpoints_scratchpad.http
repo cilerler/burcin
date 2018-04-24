@@ -1,0 +1,35 @@
+@host = localhost:47920
+
+GET /liveness HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+
+GET /health HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+
+GET /api/v1/healthcheck HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+
+POST /api/v1/healthcheck/checkout HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+Content-Type: application/json
+x-requestid: 69
+
+{
+    "id": "13"
+}
+
+###
+
+GET /api/v1/values HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
