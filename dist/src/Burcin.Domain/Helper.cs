@@ -39,9 +39,27 @@ namespace Burcin.Domain
             //using (var scope = scopeFactory.CreateScope())
             //    using (var context = scope.ServiceProvider.GetRequiredService<Burcin.Data.BurcinDbContext>())
             //    {
+                    // try
+                    // {
+                    //     _logger.LogInformation("Saving changes");
+                    //     context.SaveChanges();
+                    // }
+                    // catch (Microsoft.EntityFrameworkCore.Storage.RetryLimitExceededException)
+                    // {
+                    //     _logger.LogWarning("Unable to save changes. Try again, and if the problem persists, see your system administrator.");
+                    // }
+                    // catch (Microsoft.EntityFrameworkCore.DbUpdateException due)
+                    // {
+                    //     foreach (EntityEntry entry in due.Entries)
+                    //     {
+                    //         _logger.LogError(due, $"Entity of type {entry.Entity.GetType().Name} in state {entry.State} has the following validation errors:");
+                    //     }
+                    // }
+                    // catch (System.Exception)
+                    // {
 
-            //    _logger.LogInformation("Saving changes");
-            //    context.SaveChanges();
+                    //     throw;
+                    // }
             //    }
         }
     }
