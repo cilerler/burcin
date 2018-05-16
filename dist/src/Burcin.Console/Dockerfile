@@ -3,7 +3,7 @@ WORKDIR /app
 
 FROM microsoft/dotnet:2.1-sdk AS build
 WORKDIR /src
-COPY Burcin.Console.sln ./
+COPY Burcin.sln ./
 COPY Burcin.Console/Burcin.Console.csproj Burcin.Console/
 RUN dotnet restore -nowarn:msb3202,nu1503
 COPY . .
