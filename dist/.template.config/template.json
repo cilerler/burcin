@@ -2,9 +2,9 @@
 	"$schema": "http://json.schemastore.org/template",
 	"author": "Cengiz Ilerler",
 	"classifications": ["Console", "WebAPI"],
-	"identity": "Burcin.ConsoleApplicationTemplate.CSharp",
-	"name": "Burcin Console Application",
-	"shortName": "burcinconsole",
+	"identity": "Burcin.BoilerPlate.CSharp",
+	"name": "Burcin BoilerPlate",
+	"shortName": "burcinboilerplate",
 	"tags": {
 		"language": "C#",
 		"type": "project"
