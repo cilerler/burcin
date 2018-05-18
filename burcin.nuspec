@@ -7,10 +7,14 @@
       Creates a boiler plate
     </description>
     <authors>Cengiz Ilerler</authors>
+	<projectUrl>https://github.com/cilerler/burcin</projectUrl>
+    <licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>
   </metadata>
+
   <files>
     <file src="**" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json" />
   </files>
