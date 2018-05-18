@@ -10,8 +10,8 @@
     <VersionPrefix>$(BuildNumber)</VersionPrefix>
     <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
     <Product>Burcin.Models</Product>
-    <Authors>(authors)</Authors>
-    <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
+    <Authors>(authors-xml-encoded)</Authors>
+    <RepositoryUrl>(repositoryUrl-xml-encoded)</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
