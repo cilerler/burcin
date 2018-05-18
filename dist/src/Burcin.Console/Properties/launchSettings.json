@@ -3,6 +3,7 @@
     "Burcin.Console": {
       "commandName": "Project",
       "environmentVariables": {
+        "ENVIRONMENT": "Development",
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
