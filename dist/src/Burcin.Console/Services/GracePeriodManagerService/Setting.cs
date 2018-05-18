@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using NCrontab;
 
-namespace Burcin.Api.Services.GracePeriodManagerService
+namespace Burcin.Console.Services.GracePeriodManagerService
 {
     public class Setting
     {

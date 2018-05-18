@@ -1,5 +1,5 @@
 ﻿using System;
-using Burcin.Api.Services.GracePeriodManagerService;
+using Burcin.Console.Services.GracePeriodManagerService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

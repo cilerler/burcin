@@ -1,54 +1,89 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <UserSecretsId>Burcin.Console</UserSecretsId>
-    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-  </PropertyGroup>
-  <PropertyGroup>
-    <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
-    <VersionPrefix>$(BuildNumber)</VersionPrefix>
-    <VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
-    <Product>Burcin.Console</Product>
-    <Authors>(authors)</Authors>
-    <RepositoryUrl>(repositoryUrl)</RepositoryUrl>
-  </PropertyGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Serilog.Enrichers.Context" Version="2.4.0" />
-    <PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
-    <PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
-    <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
-    <PackageReference Include="Serilog.Exceptions" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
-    <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Ruya.AppDomain" Version="1.0.418" />
-    <PackageReference Include="Ruya.ConsoleHost" Version="1.0.420" />
-    <PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
-    <PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
-    <PackageReference Include="Ruya.Primitives" Version="1.0.417" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.Development.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.Production.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.Migration.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>netcoreapp2.0</TargetFramework>
+		<RuntimeFrameworkVersion>2.0.3</RuntimeFrameworkVersion>
+		<LangVersion>latest</LangVersion>
+		<UserSecretsId>Burcin.Console</UserSecretsId>
+		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+	</PropertyGroup>
+	<!--#if (TemplateEditMode)-->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;</DefineConstants>
+		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
+		<EntityFramework>true</EntityFramework>
+		<CacheSqlServer>true</CacheSqlServer>
+		<CacheRedis>true</CacheRedis>
+		<BackgroundService>true</BackgroundService>
+	</PropertyGroup>
+	<!-- #endif -->
+	<PropertyGroup>
+		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
+		<VersionPrefix>$(BuildNumber)</VersionPrefix>
+		<VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
+		<Product>Burcin.Console</Product>
+		<Authors>(authors-xml-encoded)</Authors>
+		<RepositoryUrl>(repositoryUrl-xml-encoded)</RepositoryUrl>
+	</PropertyGroup>
+	<ItemGroup>
+		<DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.2" />
+		<DotNetCliToolReference Include="Microsoft.Extensions.Caching.SqlConfig.Tools" Version="2.0.2" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.0-rc1-final" />
+		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.1.0-rc1-final" Condition="'$(CacheSqlServer)' == 'true'" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Redis" Version="2.1.0-rc1-final" Condition="'$(CacheRedis)' == 'true'" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+		<PackageReference Include="Serilog.Settings.Configuration" Version="2.6.1" />
+		<PackageReference Include="Serilog.Enrichers.Context" Version="2.4.0" />
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
+		<PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
+		<PackageReference Include="Serilog.Exceptions" Version="4.1.0" />
+		<PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
+		<PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Ruya.AppDomain" Version="1.0.429" />
+		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
+		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
+		<PackageReference Include="Ruya.Primitives" Version="1.0.417" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="ncrontab" Version="3.3.0" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="hostsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="appsettings.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="appsettings.Development.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</Content>
+		<Content Include="appsettings.Production.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<DependentUpon>appsettings.json</DependentUpon>
+		</Content>
+	</ItemGroup>
+	<Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 </Project>

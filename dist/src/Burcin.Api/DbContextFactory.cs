@@ -1,46 +1,40 @@
 ﻿using System;
 using System.IO;
+using Burcin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Burcin.Data;
 
 namespace Burcin.Api
 {
-    public class DbContextFactory : IDesignTimeDbContextFactory<BurcinDbContext>
-    {
-        private const string MigrationAssemblyNameConfiguration = "Migration:AssemblyName";
-        private const string DatabaseConnectionString = "DefaultConnection";
+	public class DbContextFactory : IDesignTimeDbContextFactory<BurcinDbContext>
+	{
+		public const string MigrationAssemblyNameConfiguration = "Migration:AssemblyName";
 
-        public BurcinDbContext CreateDbContext(string[] args)
-        {
-            const string configurationJsonFile = "appsettings.Migration.json";
-            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-                                                          .AddJsonFile(configurationJsonFile
-                                                                     , false
-                                                                     , true)
-                                                          .Build();
-            string connectionString = configuration.GetConnectionString(DatabaseConnectionString);
-            string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
+		public BurcinDbContext CreateDbContext(string[] args)
+		{
+			const string databaseConnectionString = "MigrationConnection";
+			const string configurationFileName = "appsettings.json";
 
-            var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
-            optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
-            return new BurcinDbContext(optionsBuilder.Options);
-        }
+			if (!File.Exists(configurationFileName))
+			{
+				throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
+			}
 
-        public static void RegisterExternalServices(IServiceCollection serviceCollection, IConfiguration configuration)
-        {
-            string connectionString = configuration.GetConnectionString(DatabaseConnectionString);
-            string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
+			IConfiguration configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+			                                                         .AddJsonFile(configurationFileName
+			                                                                    , false
+			                                                                    , true)
+			                                                         .Build();
+			string connectionString = configuration.GetConnectionString(databaseConnectionString);
+			string assemblyName = configuration.GetValue(typeof(string)
+			                                           , MigrationAssemblyNameConfiguration)
+			                                   .ToString();
 
-            serviceCollection.AddDbContext<BurcinDbContext>(options => options.UseSqlServer(connectionString,
-                                                                                            sqlServerOptions => {
-                                                                                                sqlServerOptions.MigrationsAssembly(assemblyName);
-                                                                                                sqlServerOptions.EnableRetryOnFailure(maxRetryCount: 5,
-                                                                                                                                      maxRetryDelay: TimeSpan.FromSeconds(30),
-                                                                                                                                      errorNumbersToAdd: null);
-                                                                                            }));
-        }
-    }
+			var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
+			optionsBuilder.UseSqlServer(connectionString
+			                          , sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
+			return new BurcinDbContext(optionsBuilder.Options);
+		}
+	}
 }

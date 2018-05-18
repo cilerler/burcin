@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Burcin.Api.Services.GracePeriodManagerService
+namespace Burcin.Console.Services.GracePeriodManagerService
 {
     public class Service : BackgroundService
     {
@@ -13,10 +13,10 @@ namespace Burcin.Api.Services.GracePeriodManagerService
         private readonly Setting _options;
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        public Service(ILogger<Service> logger, IOptions<Setting> options)
+        public Service(ILogger<Service> logger, IOptionsMonitor<Setting> options)
         {
             _logger = logger;
-            _options = options.Value;
+            _options = options.CurrentValue;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)

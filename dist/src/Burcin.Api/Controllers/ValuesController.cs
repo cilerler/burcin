@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Burcin.Api.Controllers
@@ -7,6 +7,13 @@ namespace Burcin.Api.Controllers
     [Route("api/v1/[controller]")]
     public class ValuesController : Controller
     {
+        private IServiceProvider _serviceProvider;
+
+        public ValuesController(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
