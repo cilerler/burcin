@@ -11,4 +11,7 @@
       <packageType name="Template" />
     </packageTypes>
   </metadata>
+  <files>
+    <file src="**" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json" />
+  </files>
 </package>
