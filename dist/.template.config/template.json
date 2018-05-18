@@ -178,6 +178,13 @@
 					]
 				},
 				{
+					"condition": "(!BackgroundService)",
+					"exclude": [
+						"src/Burcin.Api/Services/**/*",
+						"src/Burcin.Console/Services/**/*"
+					]
+				},
+				{
 					"condition": "(!HealthChecks)",
 					"exclude": [
 						"src/Burcin.Api/Controllers/HealthCheckController.cs",
