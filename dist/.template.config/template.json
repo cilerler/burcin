@@ -1,123 +1,211 @@
 {
-  "$schema": "http://json.schemastore.org/template",
-  "author": "Cengiz Ilerler",
-  "classifications": [ "Common", "Console" ],
-  "identity": "Burcin.ConsoleApplicationTemplate.CSharp",
-  "name": "Burcin Console Application",
-  "shortName": "burcinconsole",
-  "tags": {
-    "language": "C#",
-    "type":"project"
-  },
-  "groupIdentity":"Burcin.ConsoleApplicationTemplate",
+	"$schema": "http://json.schemastore.org/template",
+	"author": "Cengiz Ilerler",
+	"classifications": ["Console", "WebAPI"],
+	"identity": "Burcin.ConsoleApplicationTemplate.CSharp",
+	"name": "Burcin Console Application",
+	"shortName": "burcinconsole",
+	"tags": {
+		"language": "C#",
+		"type": "project"
+	},
+	"groupIdentity": "Burcin.Templates",
 	"sourceName": "Burcin",
-  "preferNameDirectory": true,
-  "guids": [
-    "412f3e04-fa62-4566-8e71-3fe15dc33c1c"
-  ],
-  "symbols":{
-    "authors": {
-      "type": "parameter",
-      "defaultValue": "anonymous",
-      "replaces":"(authors)"
-    },
-    "repositoryUrl": {
-      "type": "parameter",
-      "defaultValue": "https://github.com/cilerler/burcin",
-      "replaces":"(repositoryUrl)"
-    },
-    "databaseName": {
-      "type": "parameter",
-      "defaultValue": "burcindb",
-      "replaces":"(databaseName)"
-    },
-    "entityFramework":{
-      "type": "parameter",
-      "dataType":"bool",
-      "defaultValue": "false"
-    },
-    "testFramework":{
-      "type": "parameter",
-      "dataType":"bool",
-      "defaultValue": "false"
-    },
-    "dockerSupport":{
-      "type": "parameter",
-      "dataType":"bool",
-      "defaultValue": "false"
-    },
-    "vsCodeDirectory":{
-      "type": "parameter",
-      "dataType":"bool",
-      "defaultValue": "false"
-    },
-    "githubTemplates":{
-      "type": "parameter",
-      "dataType":"bool",
-      "defaultValue": "false"
-    },
-    "dockerId":{
-      "type": "generated",
-      "generator": "guid",
-      "replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
-      "parameters": {
-        "format":"D"
-      }
-    },
-    "myconstant": {
-      "type": "generated",
-      "generator": "constant",
-      "parameters": {
-        "value":"5001"
-      },
-      "replaces":"1234"
-    }
-  },
-  "sources": [
-    {
-      "modifiers": [
-        {
-          "condition": "(!entityFramework)",
-          "exclude": [
-            "tools/EntityFramework/**/*",
-            "src/Burcin.Api/DbContextFactory.cs",
-            "src/Burcin.Console/DbContextFactory.cs",
-            "src/Burcin.Console/EntityFramework.targets",
-            "src/Burcin.Domain/EntityFramework.targets",
-            "src/Burcin.Models/**/*",
-            "src/Burcin.Data/**/*",
-            "src/Burcin.Migrations/**/*"
-          ]
-        },
-        {
-          "condition": "(!testFramework)",
-          "exclude": [
-            "test/**/*"
-          ]
-        },
-        {
-          "condition": "{!dockerSupport}",
-          "exclude": [
-            "src/Burcin.Console/Dockerfile",
-            "src/.dockerignore",
-            "src/docker-compose.dcproj",
-            "src/docker-compose.yml",
-            "src/docker-compose.override.yml"
-          ]
-        },
-        {
-          "condition": "(!vsCodeDirectory)",
-          "exclude": [
-            ".vscode/**/*"
-          ]
-        },
-        {
-          "condition": "(!gitHubTemplates)",
-          "exclude": [
-            ".github/**/*"
-          ]
-        }
-      ]
-    }
-  ]
+	"preferNameDirectory": true,
+	"guids": ["412f3e04-fa62-4566-8e71-3fe15dc33c1c"],
+	"symbols": {
+		"Authors": {
+			"type": "parameter",
+			"datatype": "string",
+			"defaultValue": "anonymous",
+			"replaces": "(authors)"
+		},
+		"AuthorsXmlEncoded": {
+			"type": "derived",
+			"replaces": "(authors-xml-encoded)",
+			"valueSource": "Authors",
+			"valueTransform": "xmlEncode"
+		},
+		"RepositoryUrl": {
+			"type": "parameter",
+			"defaultValue": "https://github.com/cilerler/burcin",
+			"replaces": "(repositoryUrl)"
+		},
+		"RepositoryUrlXmlEncoded": {
+			"type": "derived",
+			"replaces": "(repositoryUrl-xml-encoded)",
+			"valueSource": "RepositoryUrl",
+			"valueTransform": "xmlEncode"
+		},
+		"ConsoleApplication": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"DatabaseName": {
+			"type": "parameter",
+			"defaultValue": "burcindb",
+			"replaces": "(databaseName)"
+		},
+		"EntityFramework": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"TestFramework": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"DockerSupport": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"VsCodeDirectory": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"GithubTemplates": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"HealthChecks": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"BackgroundService": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"Swagger": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"Cache": {
+			"type": "parameter",
+			"datatype": "choice",
+			"choices": [
+				{
+					"choice": "Microsoft SQL Server"
+				},
+				{
+					"choice": "Redis"
+				},
+				{
+					"choice": "All",
+					"description": "Support both cache providers"
+				},
+				{
+					"choice": "None",
+					"description": "No cache provider"
+				}
+			],
+			"defaultValue": "None"
+		},
+		"CacheSqlServer": {
+			"type": "computed",
+			"value": "(Cache == \"Microsoft SQL Server\" || Cache == \"All\")"
+		},
+		"CacheRedis": {
+			"type": "computed",
+			"value": "(Cache == \"Redis\" || Cache == \"All\")"
+		},
+		"CacheExists": {
+			"type": "computed",
+			"value": "(CacheSqlServer == \"true\" || CacheRedis == \"true\")"
+		}
+	},
+	"SkipRestore": {
+		"type": "parameter",
+		"datatype": "bool",
+		"defaultValue": "false",
+		"description": "Skip `dotnet restore`"
+	},
+	"DockerId": {
+		"type": "generated",
+		"generator": "guid",
+		"replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
+		"parameters": {
+			"format": "D"
+		}
+	},
+	"TemplateEditMode": {
+		"type": "generated",
+		"generator": "constant",
+		"parameters": {
+			"value": "false"
+		}
+	},
+	"sources": [
+		{
+			"modifiers": [
+				{
+					"condition": "(!ConsoleApplication)",
+					"exclude": ["src/Burcin.Console/**/*"]
+				},
+				{
+					"condition": "(!EntityFramework)",
+					"exclude": [
+						"tools/EntityFramework/**/*",
+						"src/Burcin.Api/DbContextFactory.cs",
+						"src/Burcin.Console/DbContextFactory.cs",
+						"src/Burcin.Console/EntityFramework.targets",
+						"src/Burcin.Domain/EntityFramework.targets",
+						"src/Burcin.Api/EntityFramework.targets",
+						"src/Burcin.Models/**/*",
+						"src/Burcin.Data/**/*",
+						"src/Burcin.Migrations/**/*"
+					]
+				},
+				{
+					"condition": "(!TestFramework)",
+					"exclude": ["test/**/*"]
+				},
+				{
+					"condition": "{!DockerSupport}",
+					"exclude": [
+						"src/Burcin.Console/Dockerfile",
+						"src/.dockerignore",
+						"src/docker-compose.dcproj",
+						"src/docker-compose.yml",
+						"src/docker-compose.override.yml"
+					]
+				},
+				{
+					"condition": "(!HealthChecks)",
+					"exclude": [
+						"src/Burcin.Api/Controllers/HealthCheckController.cs",
+						"src/Burcin.Api/HealthChecks/**/*"
+					]
+				},
+				{
+					"condition": "(!VsCodeDirectory)",
+					"exclude": [".vscode/**/*"]
+				},
+				{
+					"condition": "(!GitHubTemplates)",
+					"exclude": [".github/**/*"]
+				},
+				{
+					"condition": "(!CacheSqlServer)",
+					"exclude": ["tools/sql-cache.ps1"]
+				}
+			]
+		}
+	],
+	"postActions": [
+		{
+			"condition": "(!skipRestore)",
+			"description": "Restore NuGet packages required by this project.",
+			"manualInstructions": [{ "text": "Run 'dotnet restore'" }],
+			"actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+			"continueOnError": true
+		}
+	]
 }
