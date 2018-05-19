@@ -1,4 +1,4 @@
-version: 1.0.{build}-{branch}+appveyor
+version: 1.0.{build}.2-{branch}+appveyor
 branches:
   only:
     - master
