@@ -30,7 +30,8 @@ deploy:
     branch: master
 notifications:
 - provider: Slack
-  incoming_webhook: {slack}
+  incoming_webhook: 
+	  secure: {slack}
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
