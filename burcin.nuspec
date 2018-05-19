@@ -16,6 +16,6 @@
   </metadata>
 
   <files>
-    <file src="**" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
+    <file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
   </files>
 </package>
