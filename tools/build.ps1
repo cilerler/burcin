@@ -7,8 +7,9 @@ if(Test-Path ..\artifacts) {
 	Remove-Item ..\artifacts -Force -Recurse
 }
 
-Write-Host "build: Version revision is $env:APPVEYOR_BUILD_NUMBER"
 Write-Host "build: Version branch is $env:APPVEYOR_REPO_BRANCH"
+Write-Host "build: Version id is $env:APPVEYOR_BUILD_ID"
+Write-Host "build: Version revision is $env:APPVEYOR_BUILD_NUMBER"
 Write-Host "build: Version version is $env:APPVEYOR_BUILD_VERSION"
 
 Write-Host "build: Attempting to pack file..."
