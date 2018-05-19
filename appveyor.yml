@@ -9,6 +9,9 @@ skip_branch_with_pr: true
 image: Visual Studio 2017
 configuration: Release
 shallow_clone: true
+environment:
+  slack:
+    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -25,10 +28,17 @@ deploy:
   force_update: true
   on:
     branch: master
+- provider: NuGet
+  api_key:
+    secure: TfBqdcEyTsHamc5WaaZcaHUSuh3sUZmJW2C57ypMaKwSDYWa0b4M2Ba+QTL+pt/1
+  skip_symbols: true
+  artifact: /.*\.nupkg/
+  on:
+    branch: /^(master|dev)$/
 notifications:
 - provider: Slack
   incoming_webhook:
-    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
+	  secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
