@@ -7,12 +7,6 @@ if(Test-Path ..\artifacts) {
 	Remove-Item ..\artifacts -Force -Recurse
 }
 
-$branch = @{ $true = $env:APPVEYOR_REPO_BRANCH; $false = $(git symbolic-ref --short -q HEAD) }[$env:APPVEYOR_REPO_BRANCH -ne $NULL];
-$revision = @{ $true = "{0:00000}" -f [convert]::ToInt32("0" + $env:APPVEYOR_BUILD_NUMBER, 10); $false = "local" }[$env:APPVEYOR_BUILD_NUMBER -ne $NULL];
-$suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch.Length)))-$revision"}[$branch -eq "master" -and $revision -ne "local"]
-$version = @{ $true = $env:APPVEYOR_BUILD_VERSION.ToString(); $false = ""}
-
-Write-Host "build: Version suffix is $suffix"
 Write-Host "build: Version revision is $env:APPVEYOR_BUILD_NUMBER"
 Write-Host "build: Version branch is $env:APPVEYOR_REPO_BRANCH"
 Write-Host "build: Version version is $env:APPVEYOR_BUILD_VERSION"
