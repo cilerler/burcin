@@ -1,0 +1,10 @@
+ersion: '{build}'
+skip_tags: true
+image: Visual Studio 2017
+configuration: Release
+build_script:
+- ps: ./tools/Build.ps1
+test: off
+artifacts:
+- path: ./artifacts/*.nupkg
+deploy: off
