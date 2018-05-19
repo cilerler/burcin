@@ -14,7 +14,7 @@ $suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch
 echo "build: Version suffix is $suffix"
 
 echo "Attempting to pack file: burcin.nuspec"
-	& nuget pack ..\burcin.nuspec -NonInteractive -OutputDirectory .\artifacts -Verbosity Detailed -version "$env:$APPVEYOR_BUILD_VERSION"
+	& nuget pack ..\burcin.nuspec -NonInteractive -OutputDirectory .\artifacts -Verbosity Detailed -version 1.0.473.1
     if($LASTEXITCODE -ne 0) { exit 1 }
 
 Pop-Location
