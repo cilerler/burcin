@@ -6,5 +6,5 @@ build_script:
 - ps: ./tools/Build.ps1
 test: off
 artifacts:
-- path: ./artifacts/*.nupkg
+- path: .\artifacts\*.nupkg
 deploy: off
