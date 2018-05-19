@@ -16,4 +16,10 @@ build_script:
 test: off
 artifacts:
 - path: .\artifacts\*.nupkg
-deploy: off
+deploy:
+- provider: GitHub
+  tag: v$(appveyor_build_version)
+  auth_token:
+    secure: 2sAkDb2JefbXhKjc86n1vzG3GCh/HKsOxuR/66BVIJo+eydS8WCyjxfrPmKsOHzv
+  artifact: .\artifacts\*.nupkg
+  force_update: true
