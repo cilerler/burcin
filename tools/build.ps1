@@ -13,8 +13,9 @@ $suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch
 $version = @{ $true = $env.APPVEYOR_BUILD_VERSION; $false = ""}
 
 echo "build: Version suffix is $suffix"
-echo "build: Version suffix is $revision"
-echo "build: Version suffix is $branch"
+echo "build: Version revision is $revision"
+echo "build: Version branch is $branch"
+echo "build: Version version is $version"
 
 echo "Attempting to pack file: burcin.nuspec"
 	& nuget pack ..\burcin.nuspec -NonInteractive -OutputDirectory ..\artifacts -Verbosity Detailed -version 1.0.473.1
