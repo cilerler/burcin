@@ -11,7 +11,7 @@ configuration: Release
 shallow_clone: true
 environment:
   slack:
-    secure: /lcFvwXOpx3jcbNs+ZEfsriDg0xMM1pVCEW5w3mqtu6HMsIkzW+tNgPLXoxtt+1X4z+9X9SvVZHSCv0mIEu1oCYWS7b7WYz7Vu/Go1NE8UQ=
+    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -30,7 +30,7 @@ deploy:
     branch: master
 notifications:
 - provider: Slack
-  incoming_webhook: https://{slack}
+  incoming_webhook: {slack}
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
