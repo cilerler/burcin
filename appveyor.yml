@@ -9,9 +9,6 @@ skip_branch_with_pr: true
 image: Visual Studio 2017
 configuration: Release
 shallow_clone: true
-environment:
-  slack:
-    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -31,7 +28,7 @@ deploy:
 notifications:
 - provider: Slack
   incoming_webhook: 
-    secure: $(slack)
+    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
