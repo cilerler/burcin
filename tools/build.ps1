@@ -1,4 +1,4 @@
-echo "build: Build started"
+Write-Host "build: Build started"
 
 Push-Location $PSScriptRoot
 
@@ -12,13 +12,12 @@ $revision = @{ $true = "{0:00000}" -f [convert]::ToInt32("0" + $env:APPVEYOR_BUI
 $suffix = @{ $true = ""; $false = "$($branch.Substring(0, [math]::Min(10,$branch.Length)))-$revision"}[$branch -eq "master" -and $revision -ne "local"]
 $version = @{ $true = $env:APPVEYOR_BUILD_VERSION.ToString(); $false = ""}
 
-echo "build: Version suffix is $suffix"
-echo "build: Version revision is $revision"
-echo "build: Version branch is $branch"
-echo "build: Version version is $version"
-Write-Host "Version: $env:APPVEYOR_BUILD_VERSION"
+Write-Host "build: Version suffix is $suffix"
+Write-Host "build: Version revision is $env:APPVEYOR_BUILD_NUMBER"
+Write-Host "build: Version branch is $env:APPVEYOR_REPO_BRANCH"
+Write-Host "build: Version version is $env:APPVEYOR_BUILD_VERSION"
 
-Write-Host "Attempting to pack file..."
+Write-Host "build: Attempting to pack file..."
 	& nuget pack ..\burcin.nuspec -NonInteractive -OutputDirectory ..\artifacts -Verbosity Detailed -version 1.0.473.1
     if($LASTEXITCODE -ne 0) { exit 1 }
 
