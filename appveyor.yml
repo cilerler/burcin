@@ -10,7 +10,8 @@ image: Visual Studio 2017
 configuration: Release
 shallow_clone: true
 environment:
-  slack: /lcFvwXOpx3jcbNs+ZEfsriDg0xMM1pVCEW5w3mqtu6HMsIkzW+tNgPLXoxtt+1X4z+9X9SvVZHSCv0mIEu1oCYWS7b7WYz7Vu/Go1NE8UQ=
+  slack:
+    secure: /lcFvwXOpx3jcbNs+ZEfsriDg0xMM1pVCEW5w3mqtu6HMsIkzW+tNgPLXoxtt+1X4z+9X9SvVZHSCv0mIEu1oCYWS7b7WYz7Vu/Go1NE8UQ=
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -20,7 +21,7 @@ artifacts:
 - path: .\artifacts\*.nupkg
 deploy:
 - provider: GitHub
-  tag: v$(appveyor_build_version)
+  tag: $(appveyor_build_version)
   auth_token:
     secure: 2sAkDb2JefbXhKjc86n1vzG3GCh/HKsOxuR/66BVIJo+eydS8WCyjxfrPmKsOHzv
   artifact: /.*\.nupkg/
@@ -30,7 +31,6 @@ deploy:
 notifications:
 - provider: Slack
   incoming_webhook: https://{slack}
-  channel: sourcecontrols
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
