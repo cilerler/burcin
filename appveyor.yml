@@ -1,4 +1,4 @@
-version: 1.0.2.{build}-{branch}
+version: 1.0.{build}.2-{branch}
 pull_requests:
   do_not_increment_build_number: true
 branches:
@@ -9,6 +9,8 @@ skip_branch_with_pr: true
 image: Visual Studio 2017
 configuration: Release
 shallow_clone: true
+environment:
+  slack: /lcFvwXOpx3jcbNs+ZEfsriDg0xMM1pVCEW5w3mqtu6HMsIkzW+tNgPLXoxtt+1X4z+9X9SvVZHSCv0mIEu1oCYWS7b7WYz7Vu/Go1NE8UQ=
 nuget:
   disable_publish_on_pr: true
 build_script:
@@ -25,3 +27,10 @@ deploy:
   force_update: true
   on:
     branch: master
+notifications:
+- provider: Slack
+  incoming_webhook: https://{slack}
+  channel: sourcecontrols
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
