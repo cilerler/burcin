@@ -38,7 +38,7 @@ deploy:
 notifications:
 - provider: Slack
   incoming_webhook:
-	  secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
+    secure: a2FnSHGlcoVzHDV2+FrGWHzIk6e29b01zwFhwmvnHPoYWzN7q9Lz/YaZyQVx5FSPk0QeYaolc2XG/nOr/zMT2sTV022CMsojR0cW2k34OKA=
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
