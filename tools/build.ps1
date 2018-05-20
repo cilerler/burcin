@@ -1,10 +1,14 @@
-nuget pack burcin.nuspec;
-dotnet new -i Burcin.Templates.CSharp.0.0.1.nupkg;
-Remove-Item .\Burcin.Templates.CSharp.0.0.1.nupkg;
-Remove-Item -Recurse -Force "Bedia";
-New-Item -ItemType "directory" -Name "Bedia";
-Set-Location "Bedia";
-dotnet new burcinboilerplate --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --VsCodeDirectory --GithubTemplates --Cache "Both" --DatabaseName "BediaDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
-dotnet new -u Burcin.Templates.CSharp.0.0.1;
-code .;
-cd ..;
+Write-Host "build: Build started"
+
+Push-Location $PSScriptRoot
+
+if(Test-Path ..\artifacts) {
+	echo "build: Cleaning ..\artifacts"
+	Remove-Item ..\artifacts -Force -Recurse
+}
+
+Write-Host "build: Attempting to pack file..."
+	& nuget pack ..\burcin.nuspec -NonInteractive -OutputDirectory ..\artifacts -Verbosity Detailed -version $env:APPVEYOR_BUILD_VERSION
+    if($LASTEXITCODE -ne 0) { exit 1 }
+
+Pop-Location

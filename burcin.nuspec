@@ -4,7 +4,7 @@
     <id>Burcin.Templates.CSharp</id>
     <version>0.0.1</version>
     <description>
-      Creates a boiler plate
+      Boilerplate for .NET CORE Web/Console Application
     </description>
     <authors>Cengiz Ilerler</authors>
 	<projectUrl>https://github.com/cilerler/burcin</projectUrl>
@@ -16,6 +16,6 @@
   </metadata>
 
   <files>
-    <file src="**" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json" />
+    <file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
   </files>
 </package>

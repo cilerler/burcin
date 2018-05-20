@@ -1,0 +1,10 @@
+nuget pack burcin.nuspec;
+dotnet new -i Burcin.Templates.CSharp.0.0.1.nupkg;
+Remove-Item .\Burcin.Templates.CSharp.0.0.1.nupkg;
+Remove-Item -Recurse -Force "Bedia";
+New-Item -ItemType "directory" -Name "Bedia";
+Set-Location "Bedia";
+dotnet new burcin --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --VsCodeDirectory --GithubTemplates --Cache "Both" --DatabaseName "BediaDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
+dotnet new -u Burcin.Templates.CSharp.0.0.1;
+code .;
+cd ..;
