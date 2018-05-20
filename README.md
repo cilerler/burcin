@@ -1,3 +1,6 @@
+
+[![Join the chat at https://gitter.im/cilerler-burcin/Lobby](https://badges.gitter.im/cilerler-burcin/Lobby.svg)](https://gitter.im/cilerler-burcin/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ```
        _ _           _           
       (_) |         | |          
