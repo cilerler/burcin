@@ -33,8 +33,8 @@ namespace Burcin.Console
 	{
 		#if (EntityFramework)
 		public const string DatabaseConnectionString = "DefaultConnection";
-		#endif	
-	
+		#endif
+
 		public static async Task Main(string[] args)
 		{
 			var unhandledExceptionHelper = new UnhandledExceptionHelper();
@@ -217,14 +217,13 @@ namespace Burcin.Console
                                    services.AddGracePeriodManagerService(hostContext.Configuration);
                                    #endif
 
-				                   services.Configure<HelperSetting>(hostContext.Configuration.GetSection(HelperSetting.ConfigurationSectionName));
-				                   services.AddTransient<Helper>();
+				                   services.AddHelper(hostContext.Configuration);
 			                   })
 			.ConfigureLogging((hostContext, loggingBuilder) =>
 			                  {
 				                  loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"))
-				                                .AddDebug()
-				                                .AddConsole()
+				                                //.AddDebug()
+				                                //.AddConsole()
 				                                .AddSerilog(dispose: true);
 
 				                  Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration)
