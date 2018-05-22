@@ -56,9 +56,9 @@
 		<PackageReference Include="Serilog.Sinks.Literate" Version="3.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Ruya.AppDomain" Version="1.0.429" />
-		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.404" />
-		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.406" />
+		<PackageReference Include="Ruya.AppDomain" Version="1.0.438" />
+		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.440" />
+		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.441" />
 		<PackageReference Include="Ruya.Primitives" Version="1.0.417" />
 	</ItemGroup>
 	<ItemGroup>
