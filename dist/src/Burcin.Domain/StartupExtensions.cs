@@ -17,8 +17,13 @@ namespace Burcin.Domain
                 throw new ArgumentNullException(nameof(configuration));
             }
 
-            serviceCollection.Configure<HelperSetting>(options => configuration.GetSection(HelperSetting.ConfigurationSectionName));
-            return serviceCollection.AddTransient<Helper>();
+			// If you reference Microsoft.Extensions.Options use it as below
+			// serviceCollection.Configure<HelperSetting>(options=>configuration.GetSection(HelperSetting.ConfigurationSectionName));
+
+			// IF no reference Microsoft.Extensions.Options.ConfigurationExtensions use it as below
+			serviceCollection.Configure<HelperSetting>(configuration.GetSection(HelperSetting.ConfigurationSectionName));
+
+	        return serviceCollection.AddTransient<Helper>();
         }
     }
 }

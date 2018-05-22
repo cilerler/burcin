@@ -35,9 +35,9 @@ namespace Burcin.Domain
                 throw new ArgumentNullException();
             }
 
-            _logger.LogInformation("Echo requested. {Value} {Options}", input, _options.Prefix);
-	        _logger.LogInformation("Echo requested. {Value} {OptionsSnapShot}", input, _optionsSnapshot.Prefix);
-	        _logger.LogInformation("Echo requested. {Value} {OptionsMonitor}", input, _optionsMonitor.Prefix);
+            _logger.LogInformation("Echo requested. Response via Options {Value} {Options}", input, _options.Prefix);
+	        _logger.LogInformation("Echo requested. Response via OptionsSnapshot {Value} {OptionsSnapShot}", input, _optionsSnapshot.Prefix);
+	        _logger.LogInformation("Echo requested. Response via OptionsMonitor {Value} {OptionsMonitor}", input, _optionsMonitor.Prefix);
 
 
 			return $"{_options.Prefix} {input}";
