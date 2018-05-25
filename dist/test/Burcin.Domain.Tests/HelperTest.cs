@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Burcin.Domain;
 
-namespace Burcin.Console.Tests
+namespace Burcin.Domain.Tests
 {
 	[TestClass]
 	public class HelperTest
