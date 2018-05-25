@@ -22,9 +22,11 @@
 	<PackageReference Include="morelinq" Version="2.10.0" />
   </ItemGroup>
 
+<!--#if (EntityFramework)-->
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Data\Burcin.Data.csproj" />
   </ItemGroup>
+<!-- #endif -->
 
   <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 
