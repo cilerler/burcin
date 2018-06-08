@@ -10,7 +10,7 @@ COPY Burcin.Api/Burcin.Api.csproj Burcin.Api/
 RUN dotnet restore -nowarn:msb3202,nu1503
 COPY . .
 WORKDIR /src/Burcin.Api
-RUN dotnet build -c Release -o /app
+RUN dotnet build -c Release /p:BuildNumber=$(date "+%y.%m%d.%H%M") -o /app
 
 FROM build AS publish
 RUN dotnet publish -c Release -o /app
