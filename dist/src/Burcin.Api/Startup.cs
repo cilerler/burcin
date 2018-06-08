@@ -25,11 +25,7 @@ namespace Burcin.Api
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
-		{
-		}
-
-		public void ConfigureServices(WebHostBuilderContext hostContext, IServiceCollection services)
+		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddMvc()
 			        .AddJsonOptions(options =>
@@ -129,7 +125,7 @@ namespace Burcin.Api
 
 			app.UseWelcomePage();
 			app.UseStatusCodePages();
-			
+
 			var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
 			app.Run(async context =>
 			        {
