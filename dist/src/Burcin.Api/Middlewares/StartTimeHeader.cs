@@ -28,7 +28,7 @@ namespace Burcin.Api.Middlewares
             const string notFound = "Not Found.";
 
             #region inmemory
-            string serverStartTimeOutput = notFound;
+            string serverStartTimeOutput;
             if (_memoryCache.TryGetValue(InMemoryCacheKey, out DateTimeOffset serverStartTime))
             {
                 serverStartTimeOutput = serverStartTime.ToString("s");
@@ -37,12 +37,10 @@ namespace Burcin.Api.Middlewares
             #endregion
 
             #region distributed
-            string distributedStartTimeOutput = notFound;
             var distributedStartTime = await _distributedCache.GetAsync(DistributedCacheKey);
-            if (distributedStartTime != null)
-            {
-                distributedStartTimeOutput = Encoding.UTF8.GetString(distributedStartTime);
-            }
+            string distributedStartTimeOutput = distributedStartTime == null
+	                                                ? notFound
+	                                                : Encoding.UTF8.GetString(distributedStartTime);
             httpContext.Response.Headers.Append("Last-Server-Start-Time", distributedStartTimeOutput);
             #endregion
 
