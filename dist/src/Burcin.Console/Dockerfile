@@ -1,18 +1,17 @@
-FROM microsoft/dotnet:2.1-runtime AS base
+FROM microsoft/dotnet:2.1.0-runtime AS base
 WORKDIR /app
 
-FROM microsoft/dotnet:2.1-sdk AS build
+FROM microsoft/dotnet:2.1.300-sdk AS build
 WORKDIR /src
-COPY nuget.config ./
-COPY Burcin.sln ./
-COPY Burcin.Console/Burcin.Console.csproj Burcin.Console/
-RUN dotnet restore -nowarn:msb3202,nu1503
+COPY nuget.config src/
+COPY src/Burcin.Console/Burcin.Console.csproj src/Burcin.Console/
+RUN dotnet restore src/Burcin.Console/Burcin.Console.csproj
 COPY . .
-WORKDIR /src/Burcin.Console
-RUN dotnet build -c Release -o /app
+WORKDIR /src/src/Burcin.Console
+RUN dotnet build Burcin.Console.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish Burcin.Console.csproj -c Release -o /app /p:BuildNumber=$(date "+%y.%m%d.%H%M")
 
 FROM base AS final
 WORKDIR /app
