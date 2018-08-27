@@ -175,7 +175,10 @@ namespace Burcin.Console
 			.ConfigureServices((hostContext, services) =>
 			                   {
 				                   services.AddLogging();
-				                   services.AddOptions();
+				                   Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration).CreateLogger();
+								   services.AddSingleton(Log.Logger);
+
+								   services.AddOptions();
 
 				                   services.AddMemoryCache();
 				                   services.AddDistributedMemoryCache();
@@ -224,10 +227,9 @@ namespace Burcin.Console
 				                  loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"))
 				                                //.AddDebug()
 				                                //.AddConsole()
-				                                .AddSerilog(dispose: true);
-
-				                  Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration)
-				                                                        .CreateLogger();
+				                                .AddSerilog(loggingBuilder.Services.BuildServiceProvider()
+				                                                          .GetRequiredService<Serilog.ILogger>()
+				                                          , dispose: true);
 			                  })
 			.UseConsoleLifetime()
 			.Build();

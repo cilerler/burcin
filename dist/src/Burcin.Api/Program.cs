@@ -122,6 +122,9 @@ namespace Burcin.Api
 			                    .ConfigureServices((hostContext, services) =>
 			                                       {
 				                                       services.AddLogging();
+													   Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration).CreateLogger();
+													   services.AddSingleton(Log.Logger);
+
 				                                       services.AddOptions();
 
 				                                       services.AddMemoryCache();
@@ -170,12 +173,11 @@ namespace Burcin.Api
 			                    .ConfigureLogging((hostContext, loggingBuilder) =>
 			                                      {
 				                                      loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"))
-				                                                    .AddDebug()
-				                                                    .AddConsole()
-				                                                    .AddSerilog(dispose: true);
-
-				                                      Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration)
-				                                                                            .CreateLogger();
+				                                                    //.AddDebug()
+				                                                    //.AddConsole()
+																	.AddSerilog(loggingBuilder.Services.BuildServiceProvider()
+																							.GetRequiredService<Serilog.ILogger>()
+																			, dispose: true);
 			                                      })
 			                    .UseIISIntegration()
 			                    .UseDefaultServiceProvider((context, options) => options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
