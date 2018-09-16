@@ -32,10 +32,10 @@ dotnet new --uninstall "Burcin.Templates.CSharp"
 ## Help
 
 ```
-dotnet new burcinboilerplate --help
+dotnet new burcin --help
 ```
 
 ## Run
 ```
-dotnet new burcinboilerplate --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --VsCodeDirectory --GithubTemplates --Cache "All" --DatabaseName "BurcinDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
+dotnet new burcin --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName "BurcinDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
 ```
