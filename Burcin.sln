@@ -16,7 +16,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Console", "dist\src\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{68B15B3F-B149-496D-93B9-97C7356C766D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Console.Tests", "dist\test\Burcin.Console.Tests\Burcin.Console.Tests.csproj", "{8284A6EE-AC8A-4873-98D0-9CE0728D82BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Domain.Tests", "dist\test\Burcin.Domain.Tests\Burcin.Domain.Tests.csproj", "{8284A6EE-AC8A-4873-98D0-9CE0728D82BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Domain", "dist\src\Burcin.Domain\Burcin.Domain.csproj", "{7D57CA58-E663-4FC0-9A0E-AFD346728462}"
 EndProject
