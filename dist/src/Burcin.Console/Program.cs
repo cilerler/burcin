@@ -57,37 +57,38 @@ namespace Burcin.Console
 				{
 					const string message = "Another instance is running.";
 					Debug.WriteLine(message);
+					Trace.WriteLine(message);
 					return;
+				}
+
+				var argsRetrievedFromEnvironmentVariable= false;
+				if (!args.Any())
+				{
+					args = EnvironmentHelper.EnvironmentArgs;
+					argsRetrievedFromEnvironmentVariable = !args.Any();
 				}
 
 				IHost host = BuildHost(args);
 				var logger = host.Services.GetService<ILogger<Program>>();
-				AssemblyName assemblyName = Assembly.GetExecutingAssembly()
-				                                    .GetName();
-				string assemblyInfo = $"{assemblyName.Name} v{assemblyName.Version}";
+
+				AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
 				Guid applicationGuid = Guid.NewGuid();
 
-				//using (logger.BeginScope("{ApplicationName} :: {ApplicationVersion} :: {ApplicationGuid}", assemblyName.Name, assemblyName.Version, applicationGuid))
-				//logger.LogInformation($"{new string('-', 19)} Start {nameof(RunProgram)} Environment.UserInteractive {{Environment_UserInteractive}}, Debugger.IsAttached {{Debugger_IsAttached}}, {{ProcessId}}, {{ThreadId}}, Arguments {{Args}}", Environment.UserInteractive, Debugger.IsAttached, Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId, args);
-				//logger.LogInformation($"{new string('-', 19)} Stop {nameof(RunProgram)} {{ProcessId}}, {{ThreadId}}", Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId);
-
-				using (logger.ProgramScope(assemblyInfo
-				                         , applicationGuid.ToString()))
+				using (logger.ProgramScope(assemblyName.Name, assemblyName.Version.ToString(), applicationGuid.ToString()))
 				{
-					logger.ProgramStarted(EnvironmentHelper.EnvironmentName
-					                    , Environment.UserInteractive
-					                    , Debugger.IsAttached
-					                    , Process.GetCurrentProcess()
-					                             .Id
-					                    , Thread.CurrentThread.ManagedThreadId
-					                    , args.ToArray());
+					logger.ProgramStarted(Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId);
+
+					logger.ProgramInitial(EnvironmentHelper.EnvironmentName
+					                                    , EnvironmentHelper.IsDocker
+					                                    , Environment.UserInteractive
+					                                    , Debugger.IsAttached
+					                                    , argsRetrievedFromEnvironmentVariable
+					                                    , args.ToArray());
 
 					Initialize(host.Services);
 					await host.RunAsync();
 
-					logger.ProgramStopping(Process.GetCurrentProcess()
-					                              .Id
-					                     , Thread.CurrentThread.ManagedThreadId);
+					logger.ProgramStopping(Process.GetCurrentProcess().Id, Thread.CurrentThread.ManagedThreadId);
 				}
 			}
 
@@ -104,8 +105,8 @@ namespace Burcin.Console
 
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
 
-			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
-			var memoryCache = serviceProvider.GetService<IMemoryCache>();
+			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
+			var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 			memoryCache.Set(StartTimeHeader.InMemoryCacheKey
 			              , serverStartTime
 			              , memoryCacheEntryOptions);
@@ -181,7 +182,9 @@ namespace Burcin.Console
 								   services.AddOptions();
 
 				                   services.AddMemoryCache();
+								   #if (!CacheSqlServer && !CacheRedis)
 				                   services.AddDistributedMemoryCache();
+								   #endif
 
 				                   #if (CacheSqlServer)
 				                   services.AddDistributedSqlServerCache(options =>
