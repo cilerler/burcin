@@ -28,11 +28,9 @@ namespace Burcin.Api.Middlewares
             const string notFound = "Not Found.";
 
             #region inmemory
-            string serverStartTimeOutput;
-            if (_memoryCache.TryGetValue(InMemoryCacheKey, out DateTimeOffset serverStartTime))
-            {
-                serverStartTimeOutput = serverStartTime.ToString("s");
-            }
+	        string serverStartTimeOutput = _memoryCache.TryGetValue(InMemoryCacheKey, out DateTimeOffset serverStartTime)
+		                                       ? serverStartTime.ToString("s")
+		                                       : DateTimeOffset.UtcNow.ToString("s");
             httpContext.Response.Headers.Append("Server-Start-Time", serverStartTimeOutput);
             #endregion
 
