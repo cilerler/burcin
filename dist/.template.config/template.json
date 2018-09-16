@@ -67,7 +67,7 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
-		"GithubTemplates": {
+		"GitHubTemplates": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false"
@@ -119,13 +119,13 @@
 		"CacheExists": {
 			"type": "computed",
 			"value": "(CacheSqlServer == \"true\" || CacheRedis == \"true\")"
+		},
+		"SkipRestore": {
+			"type": "parameter",
+			"datatype": "bool",
+			"defaultValue": "false",
+			"description": "Skip `dotnet restore`"
 		}
-	},
-	"SkipRestore": {
-		"type": "parameter",
-		"datatype": "bool",
-		"defaultValue": "false",
-		"description": "Skip `dotnet restore`"
 	},
 	"DockerId": {
 		"type": "generated",
