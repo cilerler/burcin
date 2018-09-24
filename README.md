@@ -20,8 +20,17 @@ All `Burcin` words under `dist` folder will be changed to the folder name
 
 ## Install
 
+Command below should pull the latest, however it constantly retrieves very early version which is `1.0.442`
+
 ```
 dotnet new --install "Burcin.Templates.CSharp"
+```
+
+Make sure you change the `<VERSION>` tag below with the latest one [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg)](https://www.nuget.org/packages/Burcin.Templates.CSharp)
+
+
+```
+dotnet new --install "Burcin.Templates.CSharp::<VERSION>"
 ```
 
 ## Uninstall
