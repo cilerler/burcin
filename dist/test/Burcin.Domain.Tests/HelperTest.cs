@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Burcin.Domain;
 
 namespace Burcin.Domain.Tests
@@ -29,8 +31,9 @@ namespace Burcin.Domain.Tests
 			serviceCollection.AddOptions();
 			serviceCollection.AddLogging(loggingBuilder =>  {
                                                                 loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
-                                                                loggingBuilder.AddSeq(configuration.GetSection("Seq"));
-			                                                });
+																loggingBuilder.AddSerilog(dispose: true);
+							                             });
+			Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
 
 			serviceCollection.AddSingleton(configuration);
 			serviceCollection.AddSingleton<IConfiguration>(configuration);
