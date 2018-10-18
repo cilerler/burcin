@@ -3,7 +3,9 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
 	<LangVersion>latest</LangVersion>
     <UserSecretsId>Burcin.Api</UserSecretsId>
+	<!--#if (DockerSupport)-->
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+    <!-- #endif -->
   </PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
