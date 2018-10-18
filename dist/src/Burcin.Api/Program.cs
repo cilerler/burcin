@@ -129,7 +129,7 @@ namespace Burcin.Api
 			                                       {
 				                                       services.AddLogging();
 													   Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration).CreateLogger();
-													   services.AddSingleton(Log.Logger);
+													   //x services.AddSingleton(Log.Logger);
 
 				                                       services.AddOptions();
 
@@ -183,9 +183,9 @@ namespace Burcin.Api
 				                                      loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"))
 				                                                    //.AddDebug()
 				                                                    //.AddConsole()
-																	.AddSerilog(loggingBuilder.Services.BuildServiceProvider()
-																							.GetRequiredService<Serilog.ILogger>()
-																			, dispose: true);
+																	.AddSerilog(
+																		//x loggingBuilder.Services.BuildServiceProvider().GetRequiredService<Serilog.ILogger>(),
+																		dispose: true);
 			                                      })
 			                    .UseIISIntegration()
 			                    .UseDefaultServiceProvider((context, options) => options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
@@ -201,7 +201,7 @@ namespace Burcin.Api
 			                                   , HealthCheckTimeout)
 			                     #endif
 			                    .UseStartup<Startup>()
-			                    .UseSerilog(dispose: true)
+			                    //x .UseSerilog(dispose: true)
 			                    .UseShutdownTimeout(TimeSpan.FromSeconds(5))
 			                    .Build();
 	}
