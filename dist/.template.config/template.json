@@ -168,13 +168,14 @@
 					"exclude": ["test/**/*"]
 				},
 				{
-					"condition": "{!DockerSupport}",
+					"condition": "(!DockerSupport)",
 					"exclude": [
-						"src/Burcin.Console/Dockerfile",
-						"src/.dockerignore",
-						"src/docker-compose.dcproj",
-						"src/docker-compose.yml",
-						"src/docker-compose.override.yml"
+						"docker-compose.dcproj",
+						"docker-compose.yml",
+						"docker-compose.override.yml",
+						".dockerignore",
+						"src/Burcin.Api/Dockerfile",
+						"src/Burcin.Console/Dockerfile"
 					]
 				},
 				{
