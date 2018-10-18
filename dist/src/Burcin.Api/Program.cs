@@ -6,19 +6,21 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using Burcin.Api.Middlewares;
-using Burcin.Data;
-using Burcin.Domain;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
-using Serilog;
+using Burcin.Api.Middlewares;
+using Burcin.Domain;
+#if (EntityFramework)
+using Microsoft.EntityFrameworkCore;
+using Burcin.Data;
+#endif
 
 namespace Burcin.Api
 {
