@@ -1,9 +1,11 @@
 version: '3.4'
 
 services:
+#//#if (ConsoleApplication)
   burcin.console:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+#//#endif
   burcin.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development

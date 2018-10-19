@@ -1,11 +1,13 @@
 version: '3.4'
 
 services:
+#//#if (ConsoleApplication)
   burcin.console:
     image: ${DOCKER_REGISTRY}burcinconsole
     build:
       context: .
       dockerfile: src/Burcin.Console/Dockerfile
+#//#endif
   burcin.api:
     image: ${DOCKER_REGISTRY}burcinapi
     build:
