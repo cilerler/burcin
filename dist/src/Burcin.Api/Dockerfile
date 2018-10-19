@@ -1,19 +1,18 @@
-FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
+FROM microsoft/dotnet:2.1.5-aspnetcore-runtime AS base
 WORKDIR /app
 EXPOSE 80
 
-FROM microsoft/dotnet:2.1.300-sdk AS build
+FROM microsoft/dotnet:2.1.403-sdk AS build
 WORKDIR /src
-COPY nuget.config ./
-COPY Burcin.sln ./
-COPY Burcin.Api/Burcin.Api.csproj Burcin.Api/
-RUN dotnet restore -nowarn:msb3202,nu1503
+COPY nuget.config src/
+COPY src/Burcin.Api/Burcin.Api.csproj src/Burcin.Api/
+RUN dotnet restore src/Burcin.Api/Burcin.Api.csproj
 COPY . .
-WORKDIR /src/Burcin.Api
-RUN dotnet build -c Release /p:BuildNumber=$(date "+%y.%m%d.%H%M") -o /app
+WORKDIR /src/src/Burcin.Api
+RUN dotnet build Burcin.Api.csproj -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish Burcin.Api.csproj -c Release -o /app /p:BuildNumber=$(date "+%y.%m%d.%H%M")
 
 FROM base AS final
 WORKDIR /app
