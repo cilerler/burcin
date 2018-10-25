@@ -5,6 +5,15 @@
 	<LangVersion>latest</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
   <PropertyGroup>
     <BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
     <VersionPrefix>$(BuildNumber)</VersionPrefix>
