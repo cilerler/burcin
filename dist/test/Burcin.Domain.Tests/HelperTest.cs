@@ -22,29 +22,12 @@ namespace Burcin.Domain.Tests
 		public static void ClassInitialize(TestContext testContext)
 		{
 			_testContext = testContext;
+		    _logger = Initialize.ServiceProvider.GetRequiredService<ILogger<HelperTest>>();
 
-			IConfigurationRoot configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
-																		 .AddJsonFile("appsettings.Test.json", true, true)
-                                                                         .Build();
-
-			IServiceCollection serviceCollection = new ServiceCollection();
-			serviceCollection.AddOptions();
-			serviceCollection.AddLogging(loggingBuilder =>  {
-                                                                loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
-																loggingBuilder.AddSerilog(dispose: true);
-							                             });
-			Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(configuration).CreateLogger();
-
-			serviceCollection.AddSingleton(configuration);
-			serviceCollection.AddSingleton<IConfiguration>(configuration);
+		    IServiceCollection serviceCollection = new ServiceCollection();
 		    serviceCollection.AddTransient<Helper>();
-
             _serviceProvider = serviceCollection.BuildServiceProvider();
-		    _logger = _serviceProvider.GetRequiredService<ILogger<HelperTest>>();
 		}
-
-        [ClassCleanup]
-        public static void ClassCleanup() => Thread.Sleep(TimeSpan.FromSeconds(5));
 
         [Priority(2)]
 		[TestCategory("Beginner")]
