@@ -115,8 +115,8 @@ namespace Burcin.Console
 
 			var value = Encoding.UTF8.GetBytes(serverStartTime.ToString("s"));
 			DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
-			var distributedcache = serviceProvider.GetService<IDistributedCache>();
-			distributedcache.Set(StartTimeHeader.DistributedCacheKey
+			var distributedCache = serviceProvider.GetService<IDistributedCache>();
+			distributedCache.Set(StartTimeHeader.DistributedCacheKey
 			                   , value
 			                   , cacheEntryOptions);
 
