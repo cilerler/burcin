@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-	<LangVersion>latest</LangVersion>
+    <LangVersion>latest</LangVersion>
     <UserSecretsId>Burcin.Api</UserSecretsId>
-	<!--#if (DockerSupport)-->
+    <!--#if (DockerSupport)-->
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
     <!-- #endif -->
   </PropertyGroup>
@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ncrontab" Version="3.3.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" Condition="'$(Swagger)' == 'true'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
