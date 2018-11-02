@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
-using Burcin.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Burcin.Data;
 
 namespace Burcin.Api
 {
@@ -26,15 +26,13 @@ namespace Burcin.Api
 			                                                                    , false
 			                                                                    , true)
 			                                                         .Build();
-			string connectionString = configuration.GetConnectionString(databaseConnectionString);
-			string assemblyName = configuration.GetValue(typeof(string)
-			                                           , MigrationAssemblyNameConfiguration)
-			                                   .ToString();
 
-			var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
-			optionsBuilder.UseSqlServer(connectionString
-			                          , sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
-			return new BurcinDbContext(optionsBuilder.Options);
+            string connectionString = configuration.GetConnectionString(databaseConnectionString);
+            string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
+
+            var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
+            optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
+            return new BurcinDbContext(optionsBuilder.Options);
 		}
 	}
 }

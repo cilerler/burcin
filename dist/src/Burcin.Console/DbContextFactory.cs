@@ -21,7 +21,7 @@ namespace Burcin.Console
                 throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
             }
 
-            var configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+            IConfiguration configuration = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
                                                           .AddJsonFile(configurationFileName
                                                                      , false
                                                                      , true)
