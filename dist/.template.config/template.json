@@ -82,6 +82,11 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
+		"WindowsService": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"Swagger": {
 			"type": "parameter",
 			"dataType": "bool",
@@ -183,6 +188,13 @@
 					"exclude": [
 						"src/Burcin.Api/Services/**/*",
 						"src/Burcin.Console/Services/**/*"
+					]
+				},
+				{
+					"condition": "(!WindowsService)",
+					"exclude": [
+						"src/Burcin.Console/ServiceBaseLifetime.cs",
+						"tools/windows-service.ps1"
 					]
 				},
 				{

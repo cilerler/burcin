@@ -7,3 +7,4 @@
 4. scaffold.ps1
 5. migrate.ps1
 6. build.ps1
+7. windows-service.ps1
