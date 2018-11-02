@@ -7,21 +7,21 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Burcin.Domain;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 using Ruya.AppDomain;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
-using Serilog;
+using Burcin.Domain;
+
 #if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
 using Burcin.Data;
-
 #endif
 
 namespace Burcin.Console
@@ -270,9 +270,9 @@ namespace Burcin.Console
 			}
 			else
 			{
-				#endif
+			#endif
 				hostBuilder.UseConsoleLifetime();
-				#if (WindowsService)
+			#if (WindowsService)
 			}
 			#endif
 			return hostBuilder.Build();
