@@ -22,7 +22,7 @@ namespace Burcin
             }
 
             serviceCollection.Configure<Setting>(configuration.GetSection(Setting.ConfigurationSectionName));
-            return serviceCollection.AddSingleton<IHostedService, Service>();
+	        return serviceCollection.AddHostedService<Service>(); //x serviceCollection.AddSingleton<IHostedService, Service>(); 
         }
     }
 }
