@@ -105,12 +105,13 @@ namespace Burcin.Api
 			app.UseResponseCompression();
 			app.UseResponseCaching();
 
-			app.UseStartTimeHeader();
-
 			#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 			app.Map("/liveness"
 			      , lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
 			#pragma warning restore CS1998
+
+			app.UseStartTimeHeader();
+			app.UseRequestResponseLogging(); //x app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 			app.UseMvc();
 
