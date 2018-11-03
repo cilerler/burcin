@@ -34,10 +34,6 @@ namespace Burcin.Console
 
 	public class Program
 	{
-		#if (EntityFramework)
-		public const string DatabaseConnectionString = "DefaultConnection";
-		#endif
-
 		public static async Task Main(string[] args)
 		{
 			var unhandledExceptionHelper = new UnhandledExceptionHelper();
@@ -139,21 +135,13 @@ namespace Burcin.Console
 		public static IHost BuildHost(string[] args)
 		{
 			IHostBuilder hostBuilder = new HostBuilder();
-
-			#if (WindowsService)
-			bool isService = !Debugger.IsAttached && !args.Contains("--console");
-			if (isService)
-			{
-			}
-
 			string pathToExe = Process.GetCurrentProcess()
 			                          .MainModule.FileName;
 			string pathToContentRoot = Path.GetDirectoryName(pathToExe);
 			Environment.CurrentDirectory = pathToContentRoot;
-			hostBuilder.UseContentRoot(pathToContentRoot);
-			#endif
+			hostBuilder.UseContentRoot(pathToContentRoot)
 
-			hostBuilder.ConfigureHostConfiguration(hostConfig =>
+						.ConfigureHostConfiguration(hostConfig =>
 			                                       {
 				                                       hostConfig.AddJsonFile("hostsettings.json"
 				                                                            , false
@@ -206,7 +194,6 @@ namespace Burcin.Console
 				                              services.AddLogging();
 				                              Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration)
 				                                                                    .CreateLogger();
-				                              //x services.AddSingleton(Log.Logger);
 
 				                              services.AddOptions();
 
@@ -264,6 +251,7 @@ namespace Burcin.Console
 				                                                       dispose: true);
 			                             });
 			#if (WindowsService)
+			bool isService = !Debugger.IsAttached && !args.Contains("--console");
 			if (isService)
 			{
 				hostBuilder.UseServiceBaseLifetime();

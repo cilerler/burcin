@@ -27,10 +27,6 @@ namespace Burcin.Api
 {
 	public class Program
 	{
-		#if (EntityFramework)
-		public const string DatabaseConnectionString = "DefaultConnection";
-		#endif
-
 		private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(15);
 		internal static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromSeconds(5);
 

@@ -66,7 +66,7 @@ namespace Burcin.Api
 				                                                        , CheckStatus.Unhealthy)
 				                                      #if (EntityFramework)
 				                                     .AddSqlCheck("(databaseName)"
-				                                                , Program.DatabaseConnectionString)
+				                                                , "DefaultConnection")
 				                                      #endif
 				                                     .AddCheck<CustomHealthCheck>(nameof(CustomHealthCheck))
 				                                     .AddCheck("long-running"
