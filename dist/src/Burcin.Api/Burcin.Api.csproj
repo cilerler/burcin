@@ -9,8 +9,9 @@
   </PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
+		<DefineConstants>$(DefineConstants);BlazorApplication;EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
 		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
+		<BlazorApplication>true</BlazorApplication>
 		<EntityFramework>true</EntityFramework>
 		<CacheSqlServer>true</CacheSqlServer>
 		<CacheRedis>true</CacheRedis>
@@ -41,7 +42,10 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.5" />
+    <!--#if (BlazorApplication)-->
+    <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.6.0" />
+	<!-- #endif -->
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
@@ -73,6 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
+    <!--#if (BlazorApplication)-->
+    <ProjectReference Include="..\Burcin.Web\Burcin.Web.csproj" />
+	<!-- #endif -->
   </ItemGroup>
   <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 </Project>

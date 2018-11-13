@@ -35,7 +35,16 @@ namespace Burcin.Api
 			                        });
 
 			services.AddResponseCaching();
-			services.AddResponseCompression();
+            services.AddResponseCompression(options =>
+            {
+				#if (Blazor)
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
+                {
+                    MediaTypeNames.Application.Octet,
+                    WasmMediaTypeNames.Application.Wasm,
+                });
+				#endif
+            });
 
 			#if (Swagger)
 			services.AddSwaggerGen(options =>
@@ -94,7 +103,9 @@ namespace Burcin.Api
 		{
 			if (env.IsDevelopment())
 			{
-				app.UseBrowserLink();
+				#if (!BlazorApplication)
+					app.UseBrowserLink();
+				#endif
 				app.UseDeveloperExceptionPage();
 				app.UseDatabaseErrorPage();
 			}
@@ -113,7 +124,14 @@ namespace Burcin.Api
 			app.UseStartTimeHeader();
 			app.UseRequestResponseLogging(); //x app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
-			app.UseMvc();
+			app.UseMvc(routes =>
+            {
+                routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
+            });
+
+			#if (BlazorApplication)
+            app.UseBlazor<Web.Startup>();
+			#endif
 
 			#if (Swagger)
 			app.UseSwagger();

@@ -6,6 +6,10 @@ dotnet sln Burcin.sln add src/Burcin.Api/Burcin.Api.csproj;
 dotnet sln Burcin.sln add src/Burcin.Console/Burcin.Console.csproj;
 #//#endif
 
+#//#if (BlazorApplication)
+dotnet sln Burcin.sln add src/Burcin.Web/Burcin.Web.csproj;
+#//#endif
+
 #//#if (EntityFramework)
 dotnet sln Burcin.sln add src/Burcin.Models/Burcin.Models.csproj;
 dotnet sln Burcin.sln add src/Burcin.Data/Burcin.Data.csproj;
