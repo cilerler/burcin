@@ -62,6 +62,11 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
+		"DocFx": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"DockerSupport": {
 			"type": "parameter",
 			"dataType": "bool",
@@ -184,6 +189,10 @@
 				{
 					"condition": "(!TestFramework)",
 					"exclude": ["test/**/*"]
+				},
+				{
+					"condition": "(!DocFx)",
+					"exclude": ["docs/docfx/**/*"]
 				},
 				{
 					"condition": "(!DockerSupport)",

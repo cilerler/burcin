@@ -352,6 +352,9 @@ $RECYCLE.BIN/
 # Kubernetes
 .kube
 
+# DocFx
+_site
+
 # =========================
 # Ignores
 # =========================
