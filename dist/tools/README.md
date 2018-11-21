@@ -1,10 +1,12 @@
-1. createSolutionFile.ps1
-2. sql-cache.ps1
-    - create database `DistributedCache`
-    - create schema `cache`
-    - run the script
-3. user-secrets.ps1
-4. scaffold.ps1
-5. migrate.ps1
-6. build.ps1
-7. windows-service.ps1
+# Steps
+
+- createSolutionFile.ps1
+- sql-cache.ps1
+    1. create database `DistributedCache`
+    2. create schema `cache`
+    3. run the script
+- user-secrets.ps1
+- scaffold.ps1
+- migrate.ps1 
+- build.ps1
+- windows-service.ps1
