@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 
-namespace Bedia.Api.Middlewares
+namespace Burcin.Api.Middlewares
 {
 	public class RequestResponseLoggingMiddleware
 	{
@@ -23,7 +23,7 @@ namespace Bedia.Api.Middlewares
 		{
 			//First, get the incoming request
 			string request = await FormatRequest(context.Request);
-			
+
 			//Copy a pointer to the original response body stream
 			Stream originalBodyStream = context.Response.Body;
 
