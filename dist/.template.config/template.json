@@ -249,5 +249,22 @@
 			"actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
 			"continueOnError": true
 		}
-	]
+	],
+	"SpecialCustomOperations": {
+		"**/*.md": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["<!--#if"],
+						"else": ["<!--#else"],
+						"elseif": ["<!--#elseif", "<!--#elif"],
+						"endif": ["<!--#endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		}
+	}
 }
