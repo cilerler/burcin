@@ -37,7 +37,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Data\Burcin.Data.csproj" />
   </ItemGroup>
-<!-- #endif -->
+<!--#endif-->
 
   <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 

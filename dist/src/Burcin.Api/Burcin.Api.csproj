@@ -5,7 +5,7 @@
     <UserSecretsId>Burcin.Api</UserSecretsId>
     <!--#if (DockerSupport)-->
     <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-    <!-- #endif -->
+    <!--#endif-->
   </PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
@@ -20,7 +20,7 @@
 		<Swagger>true</Swagger>
 		<ResponseCaching>true</ResponseCaching>
 	</PropertyGroup>
-	<!-- #endif -->
+	<!--#endif-->
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
@@ -46,7 +46,7 @@
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
     <!--#if (BlazorApplication)-->
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
-	<!-- #endif -->
+	<!--#endif-->
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.1.1" />
@@ -73,13 +73,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ncrontab" Version="3.3.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" Condition="'$(Swagger)' == 'true'" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" Condition="'$(Swagger)' == 'true'" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
     <!--#if (BlazorApplication)-->
     <ProjectReference Include="..\Burcin.Web\Burcin.Web.csproj" />
-	<!-- #endif -->
+	<!--#endif-->
   </ItemGroup>
   <Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 </Project>

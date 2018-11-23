@@ -4,12 +4,12 @@
 		<TargetFramework>netcoreapp2.1</TargetFramework>
 		<!--#if (WindowsService)-->
 		<RuntimeIdentifier>win7-x64</RuntimeIdentifier>
-		<!-- #endif -->
+		<!--#endif-->
 		<LangVersion>latest</LangVersion>
 		<UserSecretsId>Burcin.Console</UserSecretsId>
 		<!--#if (DockerSupport)-->
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-		<!-- #endif -->
+		<!--#endif-->
 	</PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
@@ -21,7 +21,7 @@
 		<BackgroundService>true</BackgroundService>
 		<WindowsService>true</WindowsService>
 	</PropertyGroup>
-	<!-- #endif -->
+	<!--#endif-->
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
@@ -42,7 +42,7 @@
 	<ItemGroup>
 		<!--#if (WindowsService)-->
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
-		<!-- #endif -->
+		<!--#endif-->
 		<PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.1" />
