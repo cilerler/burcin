@@ -7,5 +7,6 @@ New-Item -ItemType "directory" -Name $repository;
 Set-Location $repository;
 dotnet new burcin --ConsoleApplication --BlazorApplication --BackgroundService --WindowsService --HealthChecks --EntityFramework --TestFramework --DocFx --DockerSupport --Swagger --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName $repository"Db" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
 dotnet new -u Burcin.Templates.CSharp.0.0.1;
+&".\tools\createSolutionFile.ps1";
 code .;
-cd ..;
+Set-Location ..;
