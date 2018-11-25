@@ -14,19 +14,27 @@ namespace Burcin.Domain.Tests
 	[TestClass]
 	public class HelperTest
 	{
-		private static IServiceProvider _serviceProvider;
 		private static TestContext _testContext;
+		private static IServiceProvider _serviceProvider;
         private static ILogger _logger;
 
 		[ClassInitialize]
 		public static void ClassInitialize(TestContext testContext)
 		{
 			_testContext = testContext;
-		    _logger = Initialize.ServiceProvider.GetRequiredService<ILogger<HelperTest>>();
-
 		    IServiceCollection serviceCollection = new ServiceCollection();
-		    serviceCollection.AddTransient<Helper>();
-            _serviceProvider = serviceCollection.BuildServiceProvider();
+			using (IEnumerator<ServiceDescriptor> sc = Initialize.ServiceCollection.GetEnumerator())
+		    {
+				while (sc.MoveNext())
+			    {
+				    serviceCollection.Add(sc.Current);
+			    }
+			}
+
+			serviceCollection.AddTransient<Helper>();
+
+			_serviceProvider = serviceCollection.BuildServiceProvider();
+		    _logger =_serviceProvider.GetRequiredService<ILogger<HelperTest>>();
 		}
 
         [Priority(2)]

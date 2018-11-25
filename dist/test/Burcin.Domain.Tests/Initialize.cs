@@ -13,6 +13,7 @@ namespace Burcin.Domain.Tests
     [TestClass]
     public class Initialize
     {
+		public static IServiceCollection ServiceCollection { get; private set; }
         public static IServiceProvider ServiceProvider { get; private set; }
         private static ILogger _logger;
         private static TestContext _testContext;
@@ -27,20 +28,19 @@ namespace Burcin.Domain.Tests
                                                                                     , true)
                                                                          .Build();
 
-            IServiceCollection serviceCollection = new ServiceCollection();
-            serviceCollection.AddSingleton(configuration);
-            serviceCollection.AddSingleton<IConfiguration>(configuration);
-            serviceCollection.AddOptions();
-            serviceCollection.AddLogging(loggingBuilder =>
+            ServiceCollection = new ServiceCollection();
+            ServiceCollection.AddSingleton(configuration);
+            ServiceCollection.AddSingleton<IConfiguration>(configuration);
+            ServiceCollection.AddOptions();
+            ServiceCollection.AddLogging(loggingBuilder =>
                                          {
                                              loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
                                              loggingBuilder.AddSerilog(dispose: true);
                                          });
 
-            ServiceProvider = serviceCollection.BuildServiceProvider();
+            ServiceProvider = ServiceCollection.BuildServiceProvider();
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(ServiceProvider.GetRequiredService<IConfiguration>())
                                                   .CreateLogger();
-
         }
 
         [AssemblyCleanup]
