@@ -42,7 +42,7 @@
     <Folder Include="wwwroot\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.6" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.AspNetCore.App" Version="2.1.6" />
     <!--#if (BlazorApplication)-->
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
