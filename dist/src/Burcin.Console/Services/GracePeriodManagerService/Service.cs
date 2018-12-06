@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
@@ -13,23 +14,33 @@ namespace Burcin.Console.Services.GracePeriodManagerService
         private readonly Setting _options;
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        public Service(ILogger<Service> logger, IOptionsMonitor<Setting> options)
+        public Service(ILogger<Service> logger, IOptions<Setting> options)
         {
             _logger = logger;
-            _options = options.CurrentValue;
+	        try
+	        {
+		        _options = options.Value;
+			}
+			catch (OptionsValidationException ex)
+	        {
+		        _logger.LogError(ex.Failures.First());
+				throw;
+	        }
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            cancellationToken.Register(() => _logger.LogDebug("Cancellation request received for background task"));
-
-            while (!cancellationToken.IsCancellationRequested)
+			cancellationToken.Register(() => _logger.LogDebug("Cancellation request received for background task"));
+	        if (!_options.IsEnabled)
+	        {
+		        await StopAsync(cancellationToken);
+				return;
+	        }
+			while (!cancellationToken.IsCancellationRequested)
             {
                 _logger.LogDebug("Service is calling task");
                 DoWork(cancellationToken);
-                DateTime nextOccurence = DateTime.Parse(_options.DelayTime);
-                DateTime now = DateTime.Now;
-                TimeSpan delay = nextOccurence - now;
+                TimeSpan delay = _options.NextOccurence - DateTime.Now;
                 _logger.LogTrace("Delay before call {DelayTime}", delay);
                 await Task.Delay(delay
                                , cancellationToken);

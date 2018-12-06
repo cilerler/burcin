@@ -163,7 +163,7 @@ namespace Burcin.Api
 				                                                                    });
 				                              #endif
 				                              #if (CacheRedis)
-				                              services.AddDistributedRedisCache(options =>
+				                              services.AddStackExchangeRedisCache(options =>
 				                                                                {
 					                                                                options.Configuration = hostContext.Configuration.GetConnectionString(hostContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
 					                                                                options.InstanceName = hostContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
