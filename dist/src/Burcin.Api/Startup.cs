@@ -18,7 +18,6 @@ using Burcin.Api.HealthChecks;
 #endif
 #if (Swagger)
 using Swashbuckle.AspNetCore.Swagger;
-
 #endif
 
 namespace Burcin.Api

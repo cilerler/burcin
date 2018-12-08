@@ -77,7 +77,9 @@
 		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.486" />
 	</ItemGroup>
 	<ItemGroup>
+<!--#if (BackgroundService)-->
 		<PackageReference Include="ncrontab" Version="3.3.0" />
+<!--#endif-->
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
