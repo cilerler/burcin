@@ -134,7 +134,7 @@ namespace Burcin.Api
 					                                      }
 				                                      }
 
-				                                      appConfig.AddEnvironmentVariables();
+				                                      appConfig..AddEnvironmentVariables(prefix: "ASPNETCORE_")
 				                                      if (args != null)
 				                                      {
 					                                      appConfig.AddCommandLine(args);
