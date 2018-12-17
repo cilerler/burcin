@@ -46,5 +46,5 @@ dotnet new burcin --help
 
 ## Run
 ```
-dotnet new burcin --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName "BurcinDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
+dotnet new burcin --ConsoleApplication --BackgroundService --HealthChecks --EntityFramework --TestFramework --DockerSupport --Swagger --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName "BurcinDb" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
 ```

@@ -102,6 +102,11 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
+		"PrivateNugetSource": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"Cache": {
 			"type": "parameter",
 			"datatype": "choice",
@@ -265,6 +270,21 @@
 					}
 				}
 			]
-		}
+		},
+		"**/nuget.config": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["<!--#if"],
+						"else": ["<!--#else"],
+						"elseif": ["<!--#elseif", "<!--#elif"],
+						"endif": ["<!--#endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
 	}
 }
