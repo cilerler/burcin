@@ -2,12 +2,22 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "build-console",
             "command": "dotnet",
             "type": "process",
             "args": [
                 "build",
                 "${workspaceFolder}/src/Burcin.Console/Burcin.Console.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+		},
+        {
+            "label": "build-api",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/Burcin.Api/Burcin.Api.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

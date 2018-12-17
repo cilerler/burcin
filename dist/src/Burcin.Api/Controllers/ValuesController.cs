@@ -1,17 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using DomainMatcherPolicy;
 
 namespace Burcin.Api.Controllers
 {
     [Route("api/v1/[controller]")]
-    public class ValuesController : Controller
+	[ApiController]
+    public class ValuesController : ControllerBase
     {
         private IServiceProvider _serviceProvider;
 
         public ValuesController(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+        }
+
+		[Domain("*:5000", "*:5001", "127.0.0.1")]
+		[Route("[action]")]
+        [HttpGet()]
+        public string GetForLocalhost()
+        {
+            return "*:5000,*:5001,127.0.0.1:*";
         }
 
         // GET api/values

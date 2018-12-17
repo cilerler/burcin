@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>412f3e04-fa62-4566-8e71-3fe15dc33c1c</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
-    <DockerServiceUrl>http://localhost:{ServicePort}/api/healthcheck</DockerServiceUrl>
+    <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/api/healthcheck</DockerServiceUrl>
     <DockerServiceName>burcin.api</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>

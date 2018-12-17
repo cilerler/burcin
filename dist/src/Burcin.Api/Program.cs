@@ -8,12 +8,16 @@ using System.Text;
 using System.Threading;
 using Burcin.Api.Middlewares;
 using Burcin.Domain;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
 using Serilog;
@@ -25,7 +29,7 @@ using Burcin.Data;
 
 namespace Burcin.Api
 {
-	public class Program
+	public sealed class Program
 	{
 		private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(15);
 		internal static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromSeconds(5);
@@ -100,10 +104,24 @@ namespace Burcin.Api
 
 		public static IWebHost BuildHost(string[] args)
 		{
+			string pathToExe = Assembly.GetExecutingAssembly().Location;
+			string pathToContentRoot = Path.GetDirectoryName(pathToExe);
+			Environment.CurrentDirectory = pathToContentRoot;
+
 			var hostBuilder = new WebHostBuilder();
-			hostBuilder.UseKestrel()
-			           .UseContentRoot(Directory.GetCurrentDirectory())
-			           .ConfigureAppConfiguration((hostContext, appConfig) =>
+            if (string.IsNullOrEmpty(hostBuilder.GetSetting(WebHostDefaults.ContentRootKey)))
+            {
+                hostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+            }
+
+            if (args != null)
+            {
+                hostBuilder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args)
+                                                                       .Build());
+            }
+
+			hostBuilder.UseKestrel((builderContext, options) => options.Configure(builderContext.Configuration.GetSection("Kestrel")))
+			           .ConfigureAppConfiguration((hostingContext, appConfig) =>
 			                                      {
 				                                      appConfig.SetBasePath(Environment.CurrentDirectory);
 				                                      appConfig.AddInMemoryCollection(new Dictionary<string, string>());
@@ -116,16 +134,17 @@ namespace Burcin.Api
 					                                      throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
 				                                      }
 
+                                                      IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
 				                                      appConfig.AddJsonFile(configurationFileName
-				                                                          , false
+				                                                          , true
 				                                                          , true);
-				                                      appConfig.AddJsonFile($"{configurationFileNameWithoutExtension}.{hostContext.HostingEnvironment.EnvironmentName}{configurationExtension}"
+				                                      appConfig.AddJsonFile($"{configurationFileNameWithoutExtension}.{hostingEnvironment.EnvironmentName}{configurationExtension}"
 				                                                          , true
 				                                                          , true);
 
-				                                      if (hostContext.HostingEnvironment.IsDevelopment())
+				                                      if (hostingEnvironment.IsDevelopment())
 				                                      {
-					                                      Assembly assembly = Assembly.Load(new AssemblyName(hostContext.HostingEnvironment.ApplicationName));
+					                                      Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
 					                                      if (assembly != null)
 					                                      {
 						                                      //x appConfig.AddUserSecrets<Startup>();
@@ -134,18 +153,70 @@ namespace Burcin.Api
 					                                      }
 				                                      }
 
-				                                      appConfig..AddEnvironmentVariables(prefix: "ASPNETCORE_")
-				                                      if (args != null)
+				                                      appConfig.AddEnvironmentVariables(prefix: "ASPNETCORE_");
+				                                      if (args == null)
 				                                      {
-					                                      appConfig.AddCommandLine(args);
-				                                      }
+														  return;
+													  }
+					                                  appConfig.AddCommandLine(args);
 			                                      })
-			           .ConfigureServices((hostContext, services) =>
+			           .ConfigureLogging((hostingContext, loggingBuilder) =>
+			                             {
+				                             loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
+															//.AddConsole()
+				                                            //.AddDebug()
+															//.AddEventSourceLogger();
+				                                           .AddSerilog(dispose: true);
+			                             })
+			           .ConfigureServices((hostingContext, services) =>
 			                              {
+                                             services.PostConfigure((Action<HostFilteringOptions>) (options =>
+                                                                                                     {
+                                                                                                         if (options.AllowedHosts != null
+                                                                                                          && options.AllowedHosts.Count != 0)
+                                                                                                         {
+                                                                                                             return;
+                                                                                                         }
+
+                                                                                                         string str = hostingContext.Configuration["AllowedHosts"];
+                                                                                                         string[] strArray1;
+                                                                                                         if (str == null)
+                                                                                                         {
+                                                                                                             strArray1 = null;
+                                                                                                         }
+                                                                                                         else
+                                                                                                         {
+                                                                                                             strArray1 = str.Split(new char[1]
+                                                                                                                                   {
+                                                                                                                                       ';'
+                                                                                                                                   }
+                                                                                                                                 , StringSplitOptions.RemoveEmptyEntries);
+                                                                                                         }
+
+                                                                                                         string[] strArray2 = strArray1;
+                                                                                                         HostFilteringOptions filteringOptions = options;
+                                                                                                         string[] strArray3;
+                                                                                                         if (strArray2 == null
+                                                                                                          || strArray2.Length == 0)
+                                                                                                         {
+                                                                                                             strArray3 = new string[1]
+                                                                                                                         {
+                                                                                                                             "*"
+                                                                                                                         };
+                                                                                                         }
+                                                                                                         else
+                                                                                                         {
+                                                                                                             strArray3 = strArray2;
+                                                                                                         }
+
+                                                                                                         filteringOptions.AllowedHosts = strArray3;
+                                                                                                     }));
+                                              services.AddSingleton((IOptionsChangeTokenSource<HostFilteringOptions>) new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));
+											  services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();
+
 				                              services.AddLogging();
-				                              Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostContext.Configuration)
+				                              Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostingContext.Configuration)
 				                                                                    .CreateLogger();
-				                              //x services.AddSingleton(Log.Logger);
 
 				                              services.AddOptions();
 
@@ -157,24 +228,24 @@ namespace Burcin.Api
 				                              #if (CacheSqlServer)
 				                              services.AddDistributedSqlServerCache(options =>
 				                                                                    {
-					                                                                    options.ConnectionString = hostContext.Configuration.GetConnectionString(hostContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
-					                                                                    options.SchemaName = hostContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
-					                                                                    options.TableName = hostContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
+					                                                                    options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
+					                                                                    options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
+					                                                                    options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
 				                                                                    });
 				                              #endif
 				                              #if (CacheRedis)
 				                              services.AddStackExchangeRedisCache(options =>
 				                                                                {
-					                                                                options.Configuration = hostContext.Configuration.GetConnectionString(hostContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
-					                                                                options.InstanceName = hostContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
-					                                                                //x hostContext.Configuration.GetSection("Cache:Redis").Bind(options);
+					                                                                options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+					                                                                options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
+					                                                                //x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
 				                                                                });
 				                              #endif
 
 				                              #if (EntityFramework)
 				                              const string databaseConnectionString = "DefaultConnection";
-				                              string connectionString = hostContext.Configuration.GetConnectionString(databaseConnectionString);
-				                              string assemblyName = hostContext.Configuration.GetValue(typeof(string)
+				                              string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
+				                              string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
 				                                                                                     , DbContextFactory.MigrationAssemblyNameConfiguration)
 				                                                               .ToString();
 				                              services.AddDbContext<BurcinDbContext>(options => options.UseSqlServer(connectionString
@@ -188,37 +259,35 @@ namespace Burcin.Api
 				                              #endif
 
 				                              #if (BackgroundService)
-				                              services.AddGracePeriodManagerService(hostContext.Configuration);
+				                              services.AddGracePeriodManagerService(hostingContext.Configuration);
 				                              #endif
 
-				                              services.AddHelper(hostContext.Configuration);
+				                              services.AddHelper(hostingContext.Configuration);
 			                              })
-			           .ConfigureLogging((hostContext, loggingBuilder) =>
-			                             {
-				                             loggingBuilder.AddConfiguration(hostContext.Configuration.GetSection("Logging"))
-				                                            //.AddDebug()
-				                                            //.AddConsole()
-				                                           .AddSerilog(
-				                                                       //x loggingBuilder.Services.BuildServiceProvider().GetRequiredService<Serilog.ILogger>(),
-				                                                       dispose: true);
-			                             })
+					   .UseIIS()
 			           .UseIISIntegration()
 			           .UseDefaultServiceProvider((context, options) => options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
 			            //!++ Following line fixes System.InvalidOperationException: 'Cannot resolve 'Burcin.Domain.Helper' from root provider because it requires scoped service 'Microsoft.Extensions.Options.IOptionsSnapshot`1[Burcin.Domain.HelperSetting]'.' for Development environment
 			           .UseDefaultServiceProvider(options => options.ValidateScopes = false)
-			           .CaptureStartupErrors(true)
+			           .UseStartup<Startup>()
+					   .CaptureStartupErrors(true)
 			           .UseSetting("detailedErrors"
 			                     , "true")
 			           .UseApplicationInsights()
-			            #if (HealthChecks)
-			            //.UseHealthChecks(911, HealthCheckTimeout)
-			           .UseHealthChecks("/health"
-			                          , HealthCheckTimeout)
-			            #endif
-			           .UseStartup<Startup>()
-			            //x .UseSerilog(dispose: true)
 			           .UseShutdownTimeout(TimeSpan.FromSeconds(5));
 			return hostBuilder.Build();
+		}
+	}
+
+	internal class HostFilteringStartupFilter : IStartupFilter
+	{
+		public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
+		{
+		return (Action<IApplicationBuilder>) (app =>
+		{
+			app.UseHostFiltering();
+			next(app);
+		});
 		}
 	}
 }

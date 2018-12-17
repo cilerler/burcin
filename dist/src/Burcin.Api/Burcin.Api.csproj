@@ -2,6 +2,8 @@
 	<PropertyGroup>
 		<TargetFramework>netcoreapp2.2</TargetFramework>
 		<LangVersion>latest</LangVersion>
+		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<UserSecretsId>Burcin.Api</UserSecretsId>
 		<!--#if (DockerSupport)-->
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
@@ -50,11 +52,23 @@
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.5.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.HealthChecks" Version="1.0.0" Condition="'$(HealthChecks)' == 'true'" />
-		<PackageReference Include="Microsoft.Extensions.HealthChecks.SqlServer" Version="1.0.0" Condition="'$(HealthChecks)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.2.0" Condition="'$(CacheSqlServer)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.0" Condition="'$(CacheRedis)' == 'true'" />
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" Condition="'$(HealthChecks)' == 'true'" />
 	</ItemGroup>
+	<!--#if (HealthChecks)-->
+	<ItemGroup>
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.4" />
+		<PackageReference Include="AspNetCore.HealthChecks.System" Version="2.2.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="2.2.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="2.2.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="2.2.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="2.2.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.1" />
+		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="2.2.0" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.1" />
+	</ItemGroup>
+	<!--#endif-->
 	<ItemGroup>
 		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
@@ -84,6 +98,17 @@
 		<!--#if (BlazorApplication)-->
 		<ProjectReference Include="..\Burcin.Web\Burcin.Web.csproj" />
 		<!--#endif-->
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Update="appsettings.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="appsettings.Development.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Update="appsettings.Production.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 	<Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
 </Project>

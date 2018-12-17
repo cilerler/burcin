@@ -7,26 +7,13 @@
 			"sslPort": 0
 		}
 	},
+	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"profiles": {
 		"IIS Express": {
 			"commandName": "IISExpress",
 			"launchBrowser": true,
 			//#if (HealthChecks)
-			"launchUrl": "api/healthcheck",
-			//#elseif (BlazorApplication)
-			"launchUrl": "",
-			//#else
-			"launchUrl": "api/values",
-			//#endif
-			"environmentVariables": {
-				"ASPNETCORE_ENVIRONMENT": "Development"
-			}
-		},
-		"Burcin.Api": {
-			"commandName": "Project",
-			"launchBrowser": true,
-			//#if (HealthChecks)
-			"launchUrl": "api/healthcheck",
+			"launchUrl": "health/beatpulse-ui",
 			//#elseif (BlazorApplication)
 			"launchUrl": "",
 			//#else
@@ -35,7 +22,28 @@
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development"
 			},
-			"applicationUrl": "http://localhost:47921/"
-		}
+			"use64Bit": true,
+			"ancmHostingModel": "InProcess"
+		},
+		"Burcin.Api": {
+			"commandName": "Project",
+			"launchBrowser": true,
+			//#if (HealthChecks)
+			"launchUrl": "health/beatpulse-ui",
+			//#elseif (BlazorApplication)
+			"launchUrl": "",
+			//#else
+			"launchUrl": "api/values",
+			//#endif
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"applicationUrl": "https://localhost:47923/;http://localhost:47922/"
+		},
+		"Docker": {
+			"commandName": "Docker",
+			"launchBrowser": true,
+			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/values"
+		  }
 	}
 }

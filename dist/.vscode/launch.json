@@ -8,11 +8,29 @@
 			"name": ".NET Core Launch (console)",
 			"type": "coreclr",
 			"request": "launch",
-			"preLaunchTask": "build",
+			"preLaunchTask": "build-console",
 			// If you have changed target frameworks, make sure to update the program path.
-			"program": "${workspaceFolder}/src/Burcin.Console/bin/Debug/netcoreapp2.0/Burcin.Console.dll",
+			"program": "${workspaceFolder}/src/Burcin.Console/bin/Debug/netcoreapp2.2/Burcin.Console.dll",
 			"args": [],
 			"cwd": "${workspaceFolder}/src/Burcin.Console",
+			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
+			"console": "internalConsole",
+			"stopAtEntry": false,
+			"internalConsoleOptions": "openOnSessionStart",
+			"env": {
+				"ENVIRONMENT": "Development",
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			}
+		},
+		{
+			"name": ".NET Core Launch (api)",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build-api",
+			// If you have changed target frameworks, make sure to update the program path.
+			"program": "${workspaceFolder}/src/Burcin.Api/bin/Debug/netcoreapp2.2/Burcin.Api.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/src/Burcin.Api",
 			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
 			"console": "internalConsole",
 			"stopAtEntry": false,

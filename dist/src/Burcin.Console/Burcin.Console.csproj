@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>netcoreapp2.1</TargetFramework>
+		<TargetFramework>netcoreapp2.2</TargetFramework>
 		<!--#if (WindowsService)-->
 		<RuntimeIdentifier>win7-x64</RuntimeIdentifier>
 		<!--#endif-->
 		<LangVersion>latest</LangVersion>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<UserSecretsId>Burcin.Console</UserSecretsId>
 		<!--#if (DockerSupport)-->
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>

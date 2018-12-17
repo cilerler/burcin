@@ -7,7 +7,8 @@ using Burcin.Domain;
 namespace Burcin.Api.Controllers
 {
     [Route("api/v1/[controller]")]
-    public class BlazorValuesController : Controller
+    [ApiController]
+    public class BlazorValuesController : ControllerBase
     {
         private IServiceProvider _serviceProvider;
 

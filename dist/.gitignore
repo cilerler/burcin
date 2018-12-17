@@ -360,3 +360,6 @@ _site
 # =========================
 *.ignore
 *.ignore/
+
+# HealthCheckDb
+healthchecksdb
