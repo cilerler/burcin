@@ -1,0 +1,60 @@
+version: '3.4'
+services:
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - "5341:5341"
+      - "15341:80"
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - ./data.ignore/seq:/data
+    container_name: seq
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    ports:
+      - "5433:1433"
+    environment:
+      - SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    volumes:
+      - ./data.ignore/mssql:/var/opt/mssql
+    container_name: mssql
+  rabbitmq:
+    image: rabbitmq:3.7.8-management-alpine
+    command: bash -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./data.ignore/rabbitmq:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
+    hostname: rabbit-1
+    container_name: rabbitmq
+  redis:
+    image: redis:5.0.1-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data.ignore/redis:/data
+    container_name: redis
+  redisCommander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "16379:8081"
+    depends_on:
+      - redis
+    container_name: redisCommander
+  healthchecksui:
+    image: xabarilcoding/healthchecksui:latest
+    ports:
+      - "5000:80"
+    environment:
+      - HealthChecks-UI:EvaluationTimeOnSeconds=10
+      - HealthChecks-UI:MinimumSecondsBetweenFailureNotifications=60
+      - HealthChecks-UI:HealthChecks:0:Name=httpBasic
+      - HealthChecks-UI:HealthChecks:0:Uri=http://localhost:47920/health
+    container_name: healthchecksui
