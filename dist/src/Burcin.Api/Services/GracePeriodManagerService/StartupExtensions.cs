@@ -42,7 +42,8 @@ namespace Burcin
 									   }
 									 , "Update the crontab settings of the `appsettings.json` file to `0 * * * 0-6`")
 				;
-	        return serviceCollection.AddHostedService<Service>(); //x serviceCollection.AddSingleton<IHostedService, Service>(); 
+	        return serviceCollection.AddHostedService<Service>();
+			//x return serviceCollection.AddSingleton<IHostedService, Service>();
         }
     }
 }

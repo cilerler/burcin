@@ -2,6 +2,7 @@
 using Burcin.Console.Services.GracePeriodManagerService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 // ReSharper disable once CheckNamespace
 namespace Burcin
@@ -40,8 +41,7 @@ namespace Burcin
 									   }
 									 , "Update the crontab settings of the `appsettings.json` file to `0 * * * 0-6`")
 				;
-
 	        return serviceCollection.AddHostedService<Service>();
-		}
+        }
     }
 }
