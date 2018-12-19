@@ -1,6 +1,7 @@
 {
     "version": "2.0.0",
     "tasks": [
+		//#if (ConsoleApplication)
         {
             "label": "build-console",
             "command": "dotnet",
@@ -11,6 +12,7 @@
             ],
             "problemMatcher": "$msCompile"
 		},
+		//#endif
         {
             "label": "build-api",
             "command": "dotnet",
