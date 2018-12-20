@@ -22,7 +22,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Polly.Timeout;
 using HealthChecks.UI.Client;
-using Bedia.Api.HealthChecks;
+using Burcin.Api.HealthChecks;
 #endif
 #if (Swagger)
 using Swashbuckle.AspNetCore.Swagger;
