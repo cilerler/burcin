@@ -18,6 +18,9 @@ using Serilog;
 #if (HealthChecks)
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Timeout;
 using HealthChecks.UI.Client;
 using Bedia.Api.HealthChecks;
 #endif
@@ -77,6 +80,12 @@ namespace Burcin.Api
 			#endif
 
 			#if (HealthChecks)
+			var retryPolicy = HttpPolicyExtensions
+               .HandleTransientHttpError()
+               .Or<TimeoutRejectedException>()
+               .RetryAsync(5);
+            services.AddHttpClient("Remote Services").AddPolicyHandler(retryPolicy);
+
 			services.AddSingleton<CustomHealthCheck>();
 			services.AddHealthChecks()
 			        .AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
