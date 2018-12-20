@@ -1,28 +1,30 @@
 dotnet new sln;
 
+#--if (WebApiApplicationExists)
 dotnet sln Burcin.sln add src/Burcin.Api/Burcin.Api.csproj;
+#--endif
 
-#//#if (ConsoleApplication)
+#--if (ConsoleApplicationExists)
 dotnet sln Burcin.sln add src/Burcin.Console/Burcin.Console.csproj;
-#//#endif
+#--endif
 
-#//#if (BlazorApplication)
+#--if (BlazorApplication)
 dotnet sln Burcin.sln add src/Burcin.Web/Burcin.Web.csproj;
-#//#endif
+#--endif
 
-#//#if (EntityFramework)
+#--if (EntityFramework)
 dotnet sln Burcin.sln add src/Burcin.Models/Burcin.Models.csproj;
 dotnet sln Burcin.sln add src/Burcin.Data/Burcin.Data.csproj;
 dotnet sln Burcin.sln add src/Burcin.Migrations/Burcin.Migrations.csproj;
-#//#endif
+#--endif
 
 dotnet sln Burcin.sln add src/Burcin.Domain/Burcin.Domain.csproj;
 
-#//#if (DockerSupport)
+#--if (DockerSupport)
 dotnet sln Burcin.sln add docker-compose.dcproj;
-#//#endif
+#--endif
 
-#//#if (TestFramework)
+#--if (TestFramework)
 dotnet sln Burcin.sln add test/Burcin.Domain.Tests/Burcin.Domain.Tests.csproj;
-#//#endif
+#--endif
 

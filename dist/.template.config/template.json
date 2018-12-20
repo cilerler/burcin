@@ -37,6 +37,11 @@
 			"valueSource": "RepositoryUrl",
 			"valueTransform": "xmlEncode"
 		},
+		"WebApiApplication": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"ConsoleApplication": {
 			"type": "parameter",
 			"dataType": "bool",
@@ -140,6 +145,14 @@
 			"type": "computed",
 			"value": "(CacheSqlServer == \"true\" || CacheRedis == \"true\")"
 		},
+		"ConsoleApplicationExists": {
+			"type": "computed",
+			"value": "(ConsoleApplication == \"true\" || WindowsService == \"true\")"
+		},
+		"WebApiApplicationExists": {
+			"type": "computed",
+			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" || HealthChecks == \"true\" || Swagger == \"true\")"
+		},
 		"SkipRestore": {
 			"type": "parameter",
 			"datatype": "bool",
@@ -166,7 +179,11 @@
 		{
 			"modifiers": [
 				{
-					"condition": "(!ConsoleApplication)",
+					"condition": "(!WebApiApplicationExists)",
+					"exclude": ["src/Burcin.Api/**/*"]
+				},
+				{
+					"condition": "(!ConsoleApplicationExists)",
 					"exclude": ["src/Burcin.Console/**/*"]
 				},
 				{
@@ -256,6 +273,36 @@
 		}
 	],
 	"SpecialCustomOperations": {
+		"**/*.ps1": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["#--if"],
+						"else": ["#--else"],
+						"elseif": ["#--elseif", "#--elif"],
+						"endif": ["#--endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
+		"**/*.yml": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["#--if"],
+						"else": ["#--else"],
+						"elseif": ["#--elseif", "#--elif"],
+						"endif": ["#--endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
 		"**/*.md": {
 			"operations": [
 				{

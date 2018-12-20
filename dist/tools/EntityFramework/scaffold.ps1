@@ -5,7 +5,14 @@
 #   c. add `using Burcin.Models.(databaseName);` to the top
 #   d. move it into `Burcin.Data` project
 
+#--if (WebApiApplicationExists)
 Set-Location ".\src\Burcin.Api";
+#--endif
+
+#--if (ConsoleApplicationExists)
+Set-Location ".\src\Burcin.Console";
+#--endif
+
 dotnet ef dbcontext scaffold "data source=localhost;initial catalog=(databaseName);Trusted_Connection=True;MultipleActiveResultSets=True;App=Burcin" Microsoft.EntityFrameworkCore.SqlServer -f -d -o "..\Burcin.Models\(databaseName)" -c "BurcinDbContext" --schema MySchema -t MySchema.MyTable1 -t MySchema.MyTable2;
 Set-Location "..\Burcin.Models\(databaseName)";
 Get-ChildItem "." -Recurse | ForEach-Object { (Get-Content $_ | ForEach-Object  { $_ -replace "namespace Burcin.Api", "namespace Burcin.Models.(databaseName)" }) | Set-Content $_ };

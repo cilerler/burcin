@@ -1,13 +1,15 @@
 version: '3.4'
 
 services:
-#//#if (ConsoleApplication)
+#--if (ConsoleApplicationExists)
   burcin.console:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-#//#endif
+#--endif
+#--if (WebApiApplicationExists)
   burcin.api:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "80"
+#--endif

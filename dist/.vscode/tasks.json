@@ -1,7 +1,7 @@
 {
     "version": "2.0.0",
     "tasks": [
-		//#if (ConsoleApplication)
+		//#if (ConsoleApplicationExists)
         {
             "label": "build-console",
             "command": "dotnet",
@@ -11,8 +11,12 @@
                 "${workspaceFolder}/src/Burcin.Console/Burcin.Console.csproj"
             ],
             "problemMatcher": "$msCompile"
-		},
+		}
 		//#endif
+		//#if (ConsoleApplicationExists && WebApiApplicationExists)
+		,
+		//#endif
+		//#if (WebApiApplicationExists)
         {
             "label": "build-api",
             "command": "dotnet",
@@ -22,6 +26,7 @@
                 "${workspaceFolder}/src/Burcin.Api/Burcin.Api.csproj"
             ],
             "problemMatcher": "$msCompile"
-        }
+		}
+		//#endif
     ]
 }
