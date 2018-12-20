@@ -188,7 +188,7 @@ namespace Burcin.Api
 				                                "services"
 			                                })
 			        .AddApplicationInsightsPublisher();
-			services.AddHealthChecksUI("beatpulsedb-Burcin");
+			services.AddHealthChecksUI();
 			#endif
 		}
 
