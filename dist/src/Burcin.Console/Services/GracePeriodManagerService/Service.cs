@@ -62,6 +62,12 @@ namespace Burcin.Console.Services.GracePeriodManagerService
         private void DoWork(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Task is running");
+			var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
+            using (var scope = scopeFactory.CreateScope())
+            using (var context = scope.ServiceProvider.GetRequiredService<Helper>())
+            {
+				context.Echo("Hello World from the Background Service!");
+			}
         }
     }
 }
