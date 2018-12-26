@@ -134,12 +134,17 @@ namespace Burcin.Console
 
 		public static IHost BuildHost(string[] args)
 		{
-			IHostBuilder hostBuilder = new HostBuilder();
-			string pathToExe = Process.GetCurrentProcess()
-			                          .MainModule.FileName;
+			string pathToExe;
+			#if (WindowsService)
+			bool isService = !Debugger.IsAttached && !args.Contains("--console");
+			pathToExe = Process.GetCurrentProcess().MainModule.FileName;
+			#else
+			pathToExe = Assembly.GetExecutingAssembly().Location;
+			#endif
 			string pathToContentRoot = Path.GetDirectoryName(pathToExe);
 			Environment.CurrentDirectory = pathToContentRoot;
 
+			IHostBuilder hostBuilder = new HostBuilder();
 			hostBuilder.UseContentRoot(pathToContentRoot)
 
 			           .ConfigureHostConfiguration(hostConfig =>
@@ -253,16 +258,15 @@ namespace Burcin.Console
 				                              services.AddHelper(hostingContext.Configuration);
 			                              });
 			#if (WindowsService)
-			bool isService = !Debugger.IsAttached && !args.Contains("--console");
 			if (isService)
 			{
 				hostBuilder.UseServiceBaseLifetime();
 			}
 			else
 			{
-				#endif
+			#endif
 				hostBuilder.UseConsoleLifetime();
-				#if (WindowsService)
+			#if (WindowsService)
 			}
 			#endif
 			return hostBuilder.Build();
