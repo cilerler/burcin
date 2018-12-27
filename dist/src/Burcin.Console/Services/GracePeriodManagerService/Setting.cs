@@ -10,6 +10,7 @@ namespace Burcin.Console.Services.GracePeriodManagerService
         public const string ConfigurationSectionName = nameof(GracePeriodManagerService);
 
 	    [Crontab(ErrorMessage = "Crontab argument is not valid.")]
+		[Required]
 	    public string DelayTime { get; set; }
 
 	    public bool IsEnabled => !string.IsNullOrWhiteSpace(DelayTime);
@@ -27,7 +28,7 @@ namespace Burcin.Console.Services.GracePeriodManagerService
 			}
 		}
     }
-	
+
 	public class CrontabAttribute : ValidationAttribute
 	{
 		public CrontabSchedule GetCrontab(string value)
