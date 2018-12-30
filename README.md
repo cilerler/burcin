@@ -49,5 +49,5 @@ dotnet new burcin --help
 
 ```powershell
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
-dotnet new burcin --WebApiApplication --ConsoleApplication --BlazorApplication --BackgroundService --WindowsService --HealthChecks --EntityFramework --TestFramework --DocFx --DockerSupport --Swagger --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName $repository"Db" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
+dotnet new burcin --WebApiApplication --ConsoleApplication --BlazorApplication --BackgroundService --WindowsService --HealthChecks --EntityFramework --TestFramework --DocFx --DockerSupport --Swagger --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName $repository"Db" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
 ```
