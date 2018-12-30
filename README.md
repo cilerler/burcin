@@ -22,29 +22,32 @@ All `Burcin` words under `dist` folder will be changed to the folder name
 
 Command below should pull the latest, however it constantly retrieves very early version which is `1.0.442`
 
-```
+```powershell
 dotnet new --install "Burcin.Templates.CSharp"
 ```
 
 Make sure you change the `<VERSION>` tag below with the latest one [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg)](https://www.nuget.org/packages/Burcin.Templates.CSharp)
 
 
-```
+```powershell
 dotnet new --install "Burcin.Templates.CSharp::<VERSION>"
 ```
 
 ## Uninstall
-```
+
+```powershell
 dotnet new --uninstall "Burcin.Templates.CSharp"
 ```
 
 ## Help
 
-```
+```powershell
 dotnet new burcin --help
 ```
 
 ## Run
-```
+
+```powershell
+cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
 dotnet new burcin --WebApiApplication --ConsoleApplication --BlazorApplication --BackgroundService --WindowsService --HealthChecks --EntityFramework --TestFramework --DocFx --DockerSupport --Swagger --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName $repository"Db" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
 ```
