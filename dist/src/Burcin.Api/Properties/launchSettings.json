@@ -39,11 +39,14 @@
 				"ASPNETCORE_ENVIRONMENT": "Development"
 			},
 			"applicationUrl": "https://localhost:47923/;http://localhost:47922/"
-		},
+		}
+		//#if (DockerSupport)
+		,
 		"Docker": {
 			"commandName": "Docker",
 			"launchBrowser": true,
 			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/values"
 		  }
+		//#endif
 	}
 }
