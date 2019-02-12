@@ -64,7 +64,7 @@
 	<ItemGroup>
 		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
-		<PackageReference Include="Serilog.Enrichers.Context" Version="4.0.0" />
+		<PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
 		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
 		<PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
@@ -79,7 +79,7 @@
 	</ItemGroup>
 	<ItemGroup>
 <!--#if (BackgroundService)-->
-		<PackageReference Include="ncrontab" Version="3.3.0" />
+		<PackageReference Include="ncrontab" Version="3.3.1" />
 <!--#endif-->
 	</ItemGroup>
 	<ItemGroup>
