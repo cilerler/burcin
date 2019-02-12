@@ -20,7 +20,7 @@ All `Burcin` words under `dist` folder will be changed to the folder name
 
 ## Install
 
-Command below should pull the latest, however it constantly retrieves very early version which is `1.0.442`
+Command below should pull the latest, however it constantly retrieves very early version which is `1.0.442` and reported [here](https://github.com/NuGet/Home/issues/7711)
 
 ```powershell
 dotnet new --install "Burcin.Templates.CSharp"
