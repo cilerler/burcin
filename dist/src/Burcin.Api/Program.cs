@@ -24,7 +24,6 @@ using Serilog;
 #if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
 using Burcin.Data;
-
 #endif
 
 namespace Burcin.Api
