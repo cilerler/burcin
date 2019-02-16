@@ -146,7 +146,6 @@ namespace Burcin.Console
 
 			IHostBuilder hostBuilder = new HostBuilder();
 			hostBuilder.UseContentRoot(pathToContentRoot)
-
 			           .ConfigureHostConfiguration(hostConfig =>
 			                                       {
 				                                       hostConfig.AddJsonFile("hostsettings.json"
@@ -191,11 +190,10 @@ namespace Burcin.Console
 				                                      }
 
 				                                      appConfig.AddEnvironmentVariables(prefix: "ASPNETCORE_");
-				                                      if (args == null)
+				                                      if (args != null)
 				                                      {
-					                                      return;
+					                                      appConfig.AddCommandLine(args);
 				                                      }
-				                                      appConfig.AddCommandLine(args);
 			                                      })
 			           .ConfigureLogging((hostingContext, loggingBuilder) =>
 			                             {
