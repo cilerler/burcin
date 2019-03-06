@@ -67,7 +67,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="2.2.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="2.2.1" />
-		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.1" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.3" />
 	</ItemGroup>
 	<!--#endif-->
 	<ItemGroup>
