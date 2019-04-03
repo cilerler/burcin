@@ -16,3 +16,5 @@
 <!--#if (WindowsService)-->
 - windows-service.ps1
 <!--#endif-->
+
+=== DO NOT REMOVE THIS LINE ===
