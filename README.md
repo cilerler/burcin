@@ -16,17 +16,17 @@
 ![](https://img.shields.io/github/downloads/cilerler/burcin/latest/total.svg)
 
 
-All `Burcin` words under `dist` folder will be changed to the folder name
+The template will change all `Burcin` words under the `dist` folder to the folder name.
 
 ## Install
 
-Command below should pull the latest, however it constantly retrieves very early version which is `1.0.442` and reported [here](https://github.com/NuGet/Home/issues/7711)
+> :warning: Command below should pull the latest; however it constantly retrieves very early version which is `1.0.442` and reported [here](https://github.com/NuGet/Home/issues/7711)  
+>
+> ```powershell
+> dotnet new --install "Burcin.Templates.CSharp"
+> ```
 
-```powershell
-dotnet new --install "Burcin.Templates.CSharp"
-```
-
-Make sure you change the `<VERSION>` tag below with the latest one [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg)](https://www.nuget.org/packages/Burcin.Templates.CSharp)
+Therefore, until the Nuget team fixes the issue, make sure you use the command below instead, and change the `<VERSION>` tag below with the latest one [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg)](https://www.nuget.org/packages/Burcin.Templates.CSharp) _(without the `v` prefix)_
 
 
 ```powershell
@@ -49,5 +49,5 @@ dotnet new burcin --help
 
 ```powershell
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
-dotnet new burcin --WebApiApplication --ConsoleApplication --BlazorApplication --BackgroundService --WindowsService --HealthChecks --EntityFramework --TestFramework --DocFx --DockerSupport --Swagger --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --DatabaseName $repository"Db" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/burcin" --SkipRestore;
+dotnet new burcin --WebApiApplication --BlazorApplication --HealthChecks --Swagger --ConsoleApplication --WindowsService --BackgroundService --EntityFramework --DatabaseName "ChangeMeDb" --TestFramework --DocFx --DockerSupport --PrivateNugetSource --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
 ```
