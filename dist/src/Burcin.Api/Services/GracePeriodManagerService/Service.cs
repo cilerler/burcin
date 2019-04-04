@@ -2,20 +2,24 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Burcin.Domain;
 
 namespace Burcin.Api.Services.GracePeriodManagerService
 {
     public class Service : BackgroundService
     {
+		private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<Service> _logger;
         private readonly Setting _options;
 
         // ReSharper disable once SuggestBaseTypeForParameter
-        public Service(ILogger<Service> logger, IOptions<Setting> options)
+        public Service(IServiceProvider serviceProvider, ILogger<Service> logger, IOptions<Setting> options)
         {
+			_serviceProvider = serviceProvider;
             _logger = logger;
 	        try
 	        {
@@ -63,9 +67,10 @@ namespace Burcin.Api.Services.GracePeriodManagerService
         {
             _logger.LogInformation("Task is running");
 			var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
-            using (var scope = scopeFactory.CreateScope())
-            using (var context = scope.ServiceProvider.GetRequiredService<Helper>())
+            using (IServiceScope scope = scopeFactory.CreateScope())
+            //x using (var context = scope.ServiceProvider.GetRequiredService<Helper>())
             {
+				var context = scope.ServiceProvider.GetRequiredService<Helper>();
 				context.Echo("Hello World from the Background Service!");
 			}
         }
