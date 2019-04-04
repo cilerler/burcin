@@ -28,3 +28,4 @@ dotnet sln Burcin.sln add docker-compose.dcproj;
 dotnet sln Burcin.sln add test/Burcin.Domain.Tests/Burcin.Domain.Tests.csproj;
 #--endif
 
+# === DO NOT REMOVE THIS LINE ===

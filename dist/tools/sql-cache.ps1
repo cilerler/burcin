@@ -12,3 +12,4 @@ dotnet sql-cache create "data source=localhost;initial catalog=DistributedCache;
 
 #--endif
 
+# === DO NOT REMOVE THIS LINE ===

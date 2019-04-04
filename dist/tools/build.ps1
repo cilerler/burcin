@@ -12,3 +12,4 @@ dotnet publish /p:BuildNumber=$buildNumber -c Release;
 docfx docs\docfx\docfx.json --serve;
 #--endif
 
+# === DO NOT REMOVE THIS LINE ===

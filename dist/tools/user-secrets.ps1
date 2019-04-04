@@ -8,3 +8,5 @@ dotnet user-secrets --project ".\src\Burcin.Api" set ConnectionStrings:DefaultCo
 Set-Location ".\src\Burcin.Console";
 dotnet user-secrets set ConnectionStrings:DefaultConnection "data source=localhost;initial catalog=(databaseName);Trusted_Connection=True;MultipleActiveResultSets=True;App=Burcin.Console";
 #--endif
+
+# === DO NOT REMOVE THIS LINE ===
