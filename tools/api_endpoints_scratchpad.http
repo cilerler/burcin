@@ -1,22 +1,23 @@
 @host = localhost:47920
 
+### @name LivenessCheck
 GET /liveness HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-###
+### @name Health
 
 GET /health HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-###
+### @name HealthCheck
 
 GET /api/v1/healthcheck HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-###
+### @name HealthCheckCheckout
 
 POST /api/v1/healthcheck/checkout HTTP/1.1
 Host: {{host}}
@@ -28,7 +29,7 @@ x-requestid: 69
     "id": "13"
 }
 
-###
+### @name V1ApiValues
 
 GET /api/v1/values HTTP/1.1
 Host: {{host}}
