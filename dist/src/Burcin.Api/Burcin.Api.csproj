@@ -11,9 +11,12 @@
 	</PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);BlazorApplication;EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
+		<DefineConstants>$(DefineConstants);EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
 		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
+		<!--
 		<BlazorApplication>true</BlazorApplication>
+		BlazorApplication;
+		-->
 		<EntityFramework>true</EntityFramework>
 		<CacheSqlServer>true</CacheSqlServer>
 		<CacheRedis>true</CacheRedis>
@@ -44,7 +47,7 @@
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.2" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.AspNetCore.App" />
 		<!--#if (BlazorApplication)-->
 		<PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
@@ -59,22 +62,22 @@
 	</ItemGroup>
 	<!--#if (HealthChecks)-->
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.11" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="2.2.27" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="2.2.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="2.2.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="2.2.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="2.2.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="2.2.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="2.2.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="2.2.2" />
 		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="2.2.1" />
-		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.1" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.4" />
 	</ItemGroup>
 	<!--#endif-->
 	<ItemGroup>
 		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
-		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.2" />
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.3" />
 		<PackageReference Include="Serilog.Enrichers.Process" Version="2.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
 		<PackageReference Include="Serilog.Exceptions" Version="5.0.0" />
@@ -102,13 +105,13 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="appsettings.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="appsettings.Development.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	  <Content Update="appsettings.Production.json">
-	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
 	</ItemGroup>
 	<Import Project="EntityFramework.targets" Condition="Exists('EntityFramework.targets')" />
