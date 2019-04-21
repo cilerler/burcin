@@ -1,5 +1,17 @@
 @host = localhost:47920
 
+### @name V1ApiValues
+
+GET /api/v1/values HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name HealthCheck
+
+GET /api/healthcheck HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
 ### @name LivenessCheck
 GET /liveness HTTP/1.1
 Host: {{host}}
@@ -11,26 +23,46 @@ GET /health HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-### @name HealthCheck
+### @name HealthReady
 
-GET /api/v1/healthcheck HTTP/1.1
+GET /health/ready HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-### @name HealthCheckCheckout
 
-POST /api/v1/healthcheck/checkout HTTP/1.1
+### @name HealthLive
+
+GET /health/live HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
-Content-Type: application/json
-x-requestid: 69
 
-{
-    "id": "13"
-}
+### @name HealthCustom
 
-### @name V1ApiValues
+GET /health/custom HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
 
-GET /api/v1/values HTTP/1.1
+
+### @name HealthBeatpulse
+
+GET /health/beatpulse HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name HealthBeatpulseApi
+
+GET /health/beatpulse-api HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name HealthBeatpulseWebhooks
+
+GET /health/beatpulse-webhooks HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name HealthBeatpulseUi
+
+GET /health/beatpulse-ui HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
