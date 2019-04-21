@@ -14,8 +14,6 @@
 			"launchBrowser": true,
 			//#if (HealthChecks)
 			"launchUrl": "health/beatpulse-ui",
-			//#elseif (BlazorApplication)
-			"launchUrl": "",
 			//#else
 			"launchUrl": "api/values",
 			//#endif
@@ -30,8 +28,6 @@
 			"launchBrowser": true,
 			//#if (HealthChecks)
 			"launchUrl": "health/beatpulse-ui",
-			//#elseif (BlazorApplication)
-			"launchUrl": "",
 			//#else
 			"launchUrl": "api/values",
 			//#endif

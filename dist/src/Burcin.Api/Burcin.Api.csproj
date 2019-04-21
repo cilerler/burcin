@@ -13,10 +13,6 @@
 	<PropertyGroup>
 		<DefineConstants>$(DefineConstants);EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
 		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
-		<!--
-		<BlazorApplication>true</BlazorApplication>
-		BlazorApplication;
-		-->
 		<EntityFramework>true</EntityFramework>
 		<CacheSqlServer>true</CacheSqlServer>
 		<CacheRedis>true</CacheRedis>
@@ -47,11 +43,8 @@
 		<Folder Include="wwwroot\" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.AspNetCore.App" />
-		<!--#if (BlazorApplication)-->
-		<PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="0.7.0" />
-		<!--#endif-->
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Extensions.Http.Polly" Version="2.2.0" />
@@ -99,9 +92,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
-		<!--#if (BlazorApplication)-->
-		<ProjectReference Include="..\Burcin.Web\Burcin.Web.csproj" />
-		<!--#endif-->
 	</ItemGroup>
 	<ItemGroup>
 	  <Content Update="appsettings.json">

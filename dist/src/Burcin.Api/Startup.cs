@@ -11,10 +11,10 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Ruya.Primitives;
-using Serilog;
 #if (HealthChecks)
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -44,164 +44,155 @@ namespace Burcin.Api
 		{
 			services.AddMvc()
 					.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-			        .AddJsonOptions(options =>
-			                        {
-				                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
-				                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-			                        });
+					.AddJsonOptions(options =>
+									{
+										options.SerializerSettings.Converters.Add(new StringEnumConverter());
+										options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+									});
 			services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, DomainMatcherPolicy.DomainMatcherPolicy>());
 			services.AddResponseCaching();
-            services.AddResponseCompression(options =>
-            {
-				#if (Blazor)
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
-                {
-                    MediaTypeNames.Application.Octet,
-                    WasmMediaTypeNames.Application.Wasm,
-                });
-				#endif
-            });
+			services.AddResponseCompression();
 
 			#if (Swagger)
 			services.AddSwaggerGen(options =>
-			                       {
-				                       options.DescribeAllEnumsAsStrings();
-				                       options.IgnoreObsoleteActions();
-				                       options.IgnoreObsoleteProperties();
-				                       options.SwaggerDoc("v1"
-				                                        , new Info
-				                                          {
-					                                          Title = "Burcin API"
-					                                        , Version = "1.0"
-					                                        , Description = "Burcin API"
-					                                        , TermsOfService = "Terms Of Service"
-				                                          });
-			                       });
+								   {
+									   options.DescribeAllEnumsAsStrings();
+									   options.IgnoreObsoleteActions();
+									   options.IgnoreObsoleteProperties();
+									   options.SwaggerDoc("v1"
+														, new Info
+														  {
+															  Title = "Burcin API"
+															, Version = "1.0"
+															, Description = "Burcin API"
+															, TermsOfService = "Terms Of Service"
+														  });
+								   });
 			#endif
 
 			#if (HealthChecks)
 			var retryPolicy = HttpPolicyExtensions
-               .HandleTransientHttpError()
-               .Or<TimeoutRejectedException>()
-               .RetryAsync(5);
-            services.AddHttpClient("Remote Services").AddPolicyHandler(retryPolicy);
+			   .HandleTransientHttpError()
+			   .Or<TimeoutRejectedException>()
+			   .RetryAsync(5);
+			services.AddHttpClient("Remote Services").AddPolicyHandler(retryPolicy);
 
 			services.AddSingleton<CustomHealthCheck>();
 			services.AddHealthChecks()
-			        .AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
-			                                   , failureStatus: HealthStatus.Degraded
-			                                   , tags: new[]
-			                                           {
-				                                           "ready"
-			                                           })
-			        .AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
-			                                           , failureStatus: null
-			                                           , tags: new[]
-			                                                   {
-				                                                   "ready"
-			                                                   })
-			        .AddAsyncCheck(name: "long_running"
-			                     , check: async cancellationToken =>
-			                              {
-				                              await Task.Delay(TimeSpan.FromSeconds(5)
-				                                             , cancellationToken);
-				                              return HealthCheckResult.Healthy("OK");
-			                              }
-			                     , tags: new[]
-			                             {
-				                             "self"
-			                             })
-			        .AddWorkingSetHealthCheck((long)Constants.GigaByte * 1
-			                                , name: "Memory (WorkingSet)"
-			                                , failureStatus: HealthStatus.Degraded
-			                                , tags: new[]
-			                                        {
-				                                        "self"
-			                                        })
-			        .AddDiskStorageHealthCheck(check =>
-			                                   {
-				                                   check.AddDrive("C:\\"
-				                                                , 1024);
-			                                   }
-			                                 , name: "Disk Storage"
-			                                 , failureStatus: HealthStatus.Degraded
-			                                 , tags: new[]
-			                                         {
-				                                         "self"
-			                                         })
-			        .AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
-			                                , name: "DNS"
-			                                , failureStatus: HealthStatus.Degraded
-			                                , tags: new[]
-			                                        {
-				                                        "self"
-			                                        })
-			        .AddPingHealthCheck(setup => setup.AddHost("burcin.local"
-			                                                 , (int)TimeSpan.FromSeconds(3)
-			                                                                .TotalMilliseconds)
-			                          , name: "Ping"
-			                          , failureStatus: HealthStatus.Degraded
-			                          , tags: new[]
-			                                  {
-				                                  "3rdParty"
-			                                  })
-			        .AddUrlGroup(new[]
-			                     {
-				                     new Uri("https://burcin.local")
-			                     }
-						       , name: "Remote Services"
-			                   , failureStatus: HealthStatus.Degraded
-			                   , tags: new[]
-			                           {
-				                           "3rdParty"
-			                           })
+					.AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
+											   , failureStatus: HealthStatus.Degraded
+											   , tags: new[]
+													   {
+														   "ready"
+													   })
+					.AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
+													   , failureStatus: null
+													   , tags: new[]
+															   {
+																   "ready"
+															   })
+					.AddAsyncCheck(name: "long_running"
+								 , check: async cancellationToken =>
+										  {
+											  await Task.Delay(TimeSpan.FromSeconds(5)
+															 , cancellationToken);
+											  return HealthCheckResult.Healthy("OK");
+										  }
+								 , tags: new[]
+										 {
+											 "self"
+										 })
+					.AddWorkingSetHealthCheck((long)Constants.GigaByte * 1
+											, name: "Memory (WorkingSet)"
+											, failureStatus: HealthStatus.Degraded
+											, tags: new[]
+													{
+														"self"
+													})
+					.AddDiskStorageHealthCheck(check =>
+											   {
+												   check.AddDrive("C:\\"
+																, 1024);
+											   }
+											 , name: "Disk Storage"
+											 , failureStatus: HealthStatus.Degraded
+											 , tags: new[]
+													 {
+														 "self"
+													 })
+					.AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
+											, name: "DNS"
+											, failureStatus: HealthStatus.Degraded
+											, tags: new[]
+													{
+														"self"
+													})
+					.AddPingHealthCheck(setup => setup.AddHost("burcin.local"
+															 , (int)TimeSpan.FromSeconds(3)
+																			.TotalMilliseconds)
+									  , name: "Ping"
+									  , failureStatus: HealthStatus.Degraded
+									  , tags: new[]
+											  {
+												  "3rdParty"
+											  })
+					.AddUrlGroup(new[]
+								 {
+									 new Uri("https://burcin.local")
+								 }
+							   , name: "Remote Services"
+							   , failureStatus: HealthStatus.Degraded
+							   , tags: new[]
+									   {
+										   "3rdParty"
+									   })
 
 					#if (EntityFramework)
 					// TODO: Make the `DefaultConnection` string constant. It exists in Program.cs too.
-			        .AddSqlServer(connectionString: Configuration["ConnectionStrings:DefaultConnection"]
-			                    , name: "Microsoft SQL"
-			                    , tags: new[]
-			                            {
-				                            "services"
-			                            })
+					.AddSqlServer(connectionString: Configuration["ConnectionStrings:DefaultConnection"]
+								, name: "Microsoft SQL"
+								, tags: new[]
+										{
+											"services"
+										})
 					#endif
 					#if (CacheSqlServer)
-			        .AddSqlServer(connectionString: Configuration["ConnectionStrings:SqlCacheConnection"]
-			                    , name: "Microsoft SQL (Cache)"
-			                    , tags: new[]
-			                            {
-				                            "services"
-			                            })
+					.AddSqlServer(connectionString: Configuration["ConnectionStrings:SqlCacheConnection"]
+								, name: "Microsoft SQL (Cache)"
+								, tags: new[]
+										{
+											"services"
+										})
 					#endif
 					#if (CacheRedis)
-			        .AddRedis(redisConnectionString: Configuration["ConnectionStrings:RedisCacheConnection"]
-			                , name: "Redis"
-			                , failureStatus: HealthStatus.Degraded
-			                , tags: new[]
-			                        {
-				                        "services"
-			                        })
+					.AddRedis(redisConnectionString: Configuration["ConnectionStrings:RedisCacheConnection"]
+							, name: "Redis"
+							, failureStatus: HealthStatus.Degraded
+							, tags: new[]
+									{
+										"services"
+									})
 					#endif
-			        .AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
-			                   , name: "RabbitMq"
-			                   , failureStatus: HealthStatus.Unhealthy
-			                   , tags: new[]
-			                           {
-				                           "services"
-			                           })
-			        .AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
-			                        , name: "ElasticSearch"
-			                        , failureStatus: HealthStatus.Degraded
-			                        , tags: new[]
-			                                {
-				                                "services"
-			                                })
-			        .AddApplicationInsightsPublisher();
+					.AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
+							   , name: "RabbitMq"
+							   , failureStatus: HealthStatus.Unhealthy
+							   , tags: new[]
+									   {
+										   "services"
+									   })
+					.AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
+									, name: "ElasticSearch"
+									, failureStatus: HealthStatus.Degraded
+									, tags: new[]
+											{
+												"services"
+											})
+					.AddApplicationInsightsPublisher();
 			services.AddHealthChecksUI();
 			#endif
 		}
 
-		public static void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime applicationLifetime)
+		public static void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, Microsoft.AspNetCore.Hosting.IApplicationLifetime applicationLifetime)
 		{
 			if (env.IsDevelopment())
 			{
@@ -212,7 +203,7 @@ namespace Burcin.Api
 			{
 			   // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 			   app.UseHsts();
-               app.UseHttpsRedirection();
+			   app.UseHttpsRedirection();
 			}
 
 			app.UseResponseCompression();
@@ -220,39 +211,39 @@ namespace Burcin.Api
 
 			#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 			app.Map("/liveness"
-			      , lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
+				  , lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
 			#pragma warning restore CS1998
 
 			#if (HealthChecks)
 			//x app.UseHealthChecks("/health", 911);
 			app.UseHealthChecks("/health", new HealthCheckOptions
-			                               {
-				                               Predicate = check => true,
-			                               });
+										   {
+											   Predicate = check => true,
+										   });
 
 			app.UseHealthChecks("/health/ready", new HealthCheckOptions
-			                                     {
-				                                     Predicate = check => check.Tags.Contains("ready"),
-			                                     });
+												 {
+													 Predicate = check => check.Tags.Contains("ready"),
+												 });
 
 			app.UseHealthChecks("/health/live", new HealthCheckOptions
-			                                    {
-				                                    Predicate = check => false,
-			                                    });
+												{
+													Predicate = check => false,
+												});
 
 			app.UseHealthChecks("/health/custom"
-			                  , new HealthCheckOptions
-			                    {
-				                    Predicate = _ => true
-				                  , ResponseWriter = CustomWriteResponse.WriteResponse
-			                    });
+							  , new HealthCheckOptions
+								{
+									Predicate = _ => true
+								  , ResponseWriter = CustomWriteResponse.WriteResponse
+								});
 
 			app.UseHealthChecks("/health/beatpulse"
-			                  , new HealthCheckOptions
-			                    {
-				                    Predicate = check => true
-				                   ,ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-			                    });
+							  , new HealthCheckOptions
+								{
+									Predicate = check => true
+								   ,ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+								});
 
 			app.UseHealthChecksUI(setup =>
 						{
@@ -266,21 +257,17 @@ namespace Burcin.Api
 			app.UseRequestResponseLogging(); //x app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 			app.UseMvc(routes =>
-            {
-                routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
-            });
-
-			#if (BlazorApplication)
-            app.UseBlazor<Web.Startup>();
-			#endif
+			{
+				routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
+			});
 
 			#if (Swagger)
 			app.UseSwagger();
 			app.UseSwaggerUI(c =>
-			                 {
-				                 c.SwaggerEndpoint("/swagger/v1/swagger.json"
-				                                 , "Burcin");
-			                 });
+							 {
+								 c.SwaggerEndpoint("/swagger/v1/swagger.json"
+												 , "Burcin");
+							 });
 			#endif
 
 			app.UseWelcomePage();
@@ -288,21 +275,21 @@ namespace Burcin.Api
 
 			var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
 			app.Run(async context =>
-			        {
-				        context.Response.ContentType = "text/html";
-				        await context.Response.WriteAsync("<p>Hosted by Kestrel<p>");
-				        if (Environment.GetEnvironmentVariable("ASPNETCORE_PORT") != null)
-				        {
-					        await context.Response.WriteAsync("Using IIS as reverse proxy.");
-				        }
+					{
+						context.Response.ContentType = "text/html";
+						await context.Response.WriteAsync("<p>Hosted by Kestrel<p>");
+						if (Environment.GetEnvironmentVariable("ASPNETCORE_PORT") != null)
+						{
+							await context.Response.WriteAsync("Using IIS as reverse proxy.");
+						}
 
-				        if (serverAddressesFeature != null)
-				        {
-					        await context.Response.WriteAsync($"<p>Listening on the following addresses: {string.Join(", " , serverAddressesFeature.Addresses)}<p>");
-				        }
+						if (serverAddressesFeature != null)
+						{
+							await context.Response.WriteAsync($"<p>Listening on the following addresses: {string.Join(", " , serverAddressesFeature.Addresses)}<p>");
+						}
 
-				        await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}</p>");
-			        });
+						await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}</p>");
+					});
 		}
 	}
 }

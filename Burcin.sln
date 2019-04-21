@@ -24,8 +24,6 @@ Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "dist\dock
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Api", "dist\src\Burcin.Api\Burcin.Api.csproj", "{3C9C3289-F29D-4019-AA60-39AC4CE6942B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Web", "dist\src\Burcin.Web\Burcin.Web.csproj", "{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -132,18 +130,6 @@ Global
 		{3C9C3289-F29D-4019-AA60-39AC4CE6942B}.Release|x64.Build.0 = Release|Any CPU
 		{3C9C3289-F29D-4019-AA60-39AC4CE6942B}.Release|x86.ActiveCfg = Release|Any CPU
 		{3C9C3289-F29D-4019-AA60-39AC4CE6942B}.Release|x86.Build.0 = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|x64.Build.0 = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Debug|x86.Build.0 = Debug|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|x64.ActiveCfg = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|x64.Build.0 = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|x86.ActiveCfg = Release|Any CPU
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -159,7 +145,6 @@ Global
 		{7D57CA58-E663-4FC0-9A0E-AFD346728462} = {5447E82C-8BD0-4A30-B358-8DA3B50DAED1}
 		{412F3E04-FA62-4566-8E71-3FE15DC33C1C} = {1D6BC34A-B114-4C32-945F-D43CAAAF2787}
 		{3C9C3289-F29D-4019-AA60-39AC4CE6942B} = {5447E82C-8BD0-4A30-B358-8DA3B50DAED1}
-		{36EADE9E-374F-4EEE-B2D4-212D7A3BB8F0} = {5447E82C-8BD0-4A30-B358-8DA3B50DAED1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6C69CE08-6AEF-4E3D-82EA-BD99F031E00F}

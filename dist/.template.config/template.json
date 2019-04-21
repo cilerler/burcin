@@ -47,11 +47,6 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
-		"BlazorApplication": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
 		"DatabaseName": {
 			"type": "parameter",
 			"defaultValue": "burcindb",
@@ -151,7 +146,7 @@
 		},
 		"WebApiApplicationExists": {
 			"type": "computed",
-			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" || HealthChecks == \"true\" || Swagger == \"true\")"
+			"value": "(WebApiApplication == \"true\" || HealthChecks == \"true\" || Swagger == \"true\")"
 		},
 		"SkipRestore": {
 			"type": "parameter",
@@ -185,14 +180,6 @@
 				{
 					"condition": "(!ConsoleApplicationExists)",
 					"exclude": ["src/Burcin.Console/**/*"]
-				},
-				{
-					"condition": "(!BlazorApplication)",
-					"exclude": [
-						"src/Burcin.Web/**/*",
-						"src/Burcin.Api/Controllers/BlazorValuesController.cs",
-						"src/Burcin.Domain/Blazor*.cs"
-					]
 				},
 				{
 					"condition": "(!EntityFramework)",
