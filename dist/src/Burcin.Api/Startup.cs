@@ -189,7 +189,8 @@ namespace Burcin.Api
 										{
 											"services"
 										})
-					.AddApplicationInsightsPublisher();
+					.AddApplicationInsightsPublisher()
+					.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"]);
 			services.AddHealthChecksUI();
 			#endif
 		}
