@@ -1,4 +1,5 @@
 {
+	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"iisSettings": {
 		"windowsAuthentication": false,
 		"anonymousAuthentication": true,
@@ -7,13 +8,12 @@
 			"sslPort": 0
 		}
 	},
-	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"profiles": {
 		"IIS Express": {
 			"commandName": "IISExpress",
 			"launchBrowser": true,
 			//#if (HealthChecks)
-			"launchUrl": "health/beatpulse-ui",
+			"launchUrl": "beatpulse-ui",
 			//#else
 			"launchUrl": "api/values",
 			//#endif
@@ -27,7 +27,7 @@
 			"commandName": "Project",
 			"launchBrowser": true,
 			//#if (HealthChecks)
-			"launchUrl": "health/beatpulse-ui",
+			"launchUrl": "beatpulse-ui",
 			//#else
 			"launchUrl": "api/values",
 			//#endif

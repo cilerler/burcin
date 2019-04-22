@@ -140,53 +140,55 @@ namespace Burcin.Api
 								 {
 									 new Uri("https://burcin.local")
 								 }
-							   , name: "Remote Services"
+							   , name: "Remote Urls"
 							   , failureStatus: HealthStatus.Degraded
 							   , tags: new[]
 									   {
 										   "3rdParty"
 									   })
 
-					#if (EntityFramework)
-					// TODO: Make the `DefaultConnection` string constant. It exists in Program.cs too.
-					.AddSqlServer(connectionString: Configuration["ConnectionStrings:DefaultConnection"]
-								, name: "Microsoft SQL"
-								, tags: new[]
-										{
-											"services"
-										})
-					#endif
-					#if (CacheSqlServer)
-					.AddSqlServer(connectionString: Configuration["ConnectionStrings:SqlCacheConnection"]
+				#if (EntityFramework)
+					 // TODO: Make the `DefaultConnection` string constant. It exists in Program.cs too.
+					 .AddSqlServer(connectionString: Configuration["ConnectionStrings:DefaultConnection"]
+					 			, name: "Microsoft SQL"
+								, failureStatus: HealthStatus.Unhealthy
+					 			, tags: new[]
+					 					{
+					 						"services"
+					 					})
+				#endif
+				#if (CacheSqlServer)
+					.AddSqlServer(connectionString: Configuration["ConnectionStrings:SqlServerCacheConnection"]
 								, name: "Microsoft SQL (Cache)"
+								, failureStatus: HealthStatus.Degraded
 								, tags: new[]
 										{
-											"services"
+										 	"services"
 										})
-					#endif
-					#if (CacheRedis)
+				#endif
+				#if (CacheRedis)
 					.AddRedis(redisConnectionString: Configuration["ConnectionStrings:RedisCacheConnection"]
-							, name: "Redis"
-							, failureStatus: HealthStatus.Degraded
-							, tags: new[]
+								, name: "Redis"
+								, failureStatus: HealthStatus.Degraded
+								, tags: new[]
 									{
 										"services"
 									})
-					#endif
+				#endif
 					.AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
 							   , name: "RabbitMq"
 							   , failureStatus: HealthStatus.Unhealthy
 							   , tags: new[]
-									   {
-										   "services"
-									   })
+										{
+											"services"
+										})
 					.AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
-									, name: "ElasticSearch"
-									, failureStatus: HealthStatus.Degraded
-									, tags: new[]
-											{
-												"services"
-											})
+								, name: "ElasticSearch"
+								, failureStatus: HealthStatus.Unhealthy
+								, tags: new[]
+										{
+											"services"
+										})
 					.AddApplicationInsightsPublisher();
 			services.AddHealthChecksUI();
 			#endif
@@ -210,8 +212,7 @@ namespace Burcin.Api
 			app.UseResponseCaching();
 
 			#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			app.Map("/liveness"
-				  , lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
+			app.Map("/liveness", lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
 			#pragma warning restore CS1998
 
 			#if (HealthChecks)
@@ -231,24 +232,29 @@ namespace Burcin.Api
 													Predicate = check => false,
 												});
 
-			app.UseHealthChecks("/health/custom"
-							  , new HealthCheckOptions
-								{
-									Predicate = _ => true
-								  , ResponseWriter = CustomWriteResponse.WriteResponse
-								});
+			app.UseHealthChecks("/health/custom", new HealthCheckOptions
+												{
+													Predicate = _ => true
+													, ResponseWriter = CustomWriteResponse.WriteResponse
+												});
 
-			app.UseHealthChecks("/health/beatpulse"
-							  , new HealthCheckOptions
-								{
-									Predicate = check => true
-								   ,ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-								});
+			app.UseHealthChecks("/health/beatpulse", new HealthCheckOptions
+													{
+														Predicate = check => true
+														, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+														, ResultStatusCodes =
+															{
+																[HealthStatus.Healthy] = StatusCodes.Status200OK,
+																[HealthStatus.Degraded] = StatusCodes.Status200OK,
+																[HealthStatus.Unhealthy] = StatusCodes.Status200OK
+															}
+													});
 
 			app.UseHealthChecksUI(setup =>
 						{
 							setup.ApiPath = "/health/beatpulse-api";
-							setup.UIPath = "/health/beatpulse-ui";
+							//! do not make UIPath multilevel https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/issues/159
+							setup.UIPath = "/beatpulse-ui";
 							setup.WebhookPath = "/health/beatpulse-webhooks";
 						});
 			#endif
@@ -266,7 +272,7 @@ namespace Burcin.Api
 			app.UseSwaggerUI(c =>
 							 {
 								 c.SwaggerEndpoint("/swagger/v1/swagger.json"
-												 , "Burcin");
+												, "Burcin");
 							 });
 			#endif
 
