@@ -63,6 +63,6 @@ Cache-Control: no-cache
 
 ### @name HealthBeatpulseUi
 
-GET /health/beatpulse-ui HTTP/1.1
+GET /beatpulse-ui HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
