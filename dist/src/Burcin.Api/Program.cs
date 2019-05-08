@@ -48,31 +48,31 @@ namespace Burcin.Api
 			EnvironmentHelper.EnvironmentName = hostingEnvironment.EnvironmentName;
 
 			AssemblyName assemblyName = Assembly.GetExecutingAssembly()
-			                                    .GetName();
+												.GetName();
 			Guid applicationGuid = Guid.NewGuid();
 
 			using (logger.ProgramScope(assemblyName.Name
-			                         , assemblyName.Version.ToString()
-			                         , applicationGuid.ToString()))
+									 , assemblyName.Version.ToString()
+									 , applicationGuid.ToString()))
 			{
 				logger.ProgramStarted(Process.GetCurrentProcess()
-				                             .Id
-				                    , Thread.CurrentThread.ManagedThreadId);
+											 .Id
+									, Thread.CurrentThread.ManagedThreadId);
 
 				logger.ProgramInitial(EnvironmentHelper.EnvironmentName
-				                    , EnvironmentHelper.IsDocker
-				                    , Environment.UserInteractive
-				                    , Debugger.IsAttached
-				                    , argsRetrievedFromEnvironmentVariable
-				                    , args.ToArray());
+									, EnvironmentHelper.IsDocker
+									, Environment.UserInteractive
+									, Debugger.IsAttached
+									, argsRetrievedFromEnvironmentVariable
+									, args.ToArray());
 
 				Initialize(host.Services);
 
 				host.Run();
 
 				logger.ProgramStopping(Process.GetCurrentProcess()
-				                              .Id
-				                     , Thread.CurrentThread.ManagedThreadId);
+											  .Id
+									 , Thread.CurrentThread.ManagedThreadId);
 			}
 		}
 
@@ -80,22 +80,22 @@ namespace Burcin.Api
 		{
 			// Waiting for https://github.com/serilog/serilog-aspnetcore/issues/49
 			serviceProvider.GetRequiredService<IApplicationLifetime>()
-			               .ApplicationStopped.Register(Log.CloseAndFlush);
+						   .ApplicationStopped.Register(Log.CloseAndFlush);
 
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
 
 			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
 			var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 			memoryCache.Set(StartTimeHeader.InMemoryCacheKey
-			              , serverStartTime
-			              , memoryCacheEntryOptions);
+						  , serverStartTime
+						  , memoryCacheEntryOptions);
 
 			byte[] value = Encoding.UTF8.GetBytes(serverStartTime.ToString("s"));
 			DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
 			var distributedCache = serviceProvider.GetService<IDistributedCache>();
 			distributedCache.Set(StartTimeHeader.DistributedCacheKey
-			                   , value
-			                   , cacheEntryOptions);
+							   , value
+							   , cacheEntryOptions);
 
 			var helper = serviceProvider.GetService<Helper>();
 			helper.Echo("Hello World!");
@@ -108,172 +108,180 @@ namespace Burcin.Api
 			Environment.CurrentDirectory = pathToContentRoot;
 
 			var hostBuilder = new WebHostBuilder();
-            if (string.IsNullOrEmpty(hostBuilder.GetSetting(WebHostDefaults.ContentRootKey)))
-            {
-                hostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
-            }
+			if (string.IsNullOrEmpty(hostBuilder.GetSetting(WebHostDefaults.ContentRootKey)))
+			{
+				hostBuilder.UseContentRoot(Directory.GetCurrentDirectory());
+			}
 
-            if (args != null)
-            {
-                hostBuilder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args)
-                                                                       .Build());
-            }
+			if (args != null)
+			{
+				hostBuilder.UseConfiguration(new ConfigurationBuilder().AddCommandLine(args)
+																	   .Build());
+			}
 
 			hostBuilder.UseKestrel((builderContext, options) => options.Configure(builderContext.Configuration.GetSection("Kestrel")))
-			           .ConfigureAppConfiguration((hostingContext, appConfig) =>
-			                                      {
-				                                      appConfig.SetBasePath(Environment.CurrentDirectory);
-				                                      appConfig.AddInMemoryCollection(new Dictionary<string, string>());
+					   .ConfigureAppConfiguration((hostingContext, appConfig) =>
+												  {
+													  appConfig.SetBasePath(Environment.CurrentDirectory);
+													  appConfig.AddInMemoryCollection(new Dictionary<string, string>());
 
-				                                      const string configurationExtension = ".json";
-				                                      const string configurationFileNameWithoutExtension = "appsettings";
-				                                      string configurationFileName = $"{configurationFileNameWithoutExtension}{configurationExtension}";
-				                                      if (!File.Exists(configurationFileName))
-				                                      {
-					                                      throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
-				                                      }
+													  const string configurationExtension = ".json";
+													  const string configurationFileNameWithoutExtension = "appsettings";
+													  string configurationFileName = $"{configurationFileNameWithoutExtension}{configurationExtension}";
+													  if (!File.Exists(configurationFileName))
+													  {
+														  throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
+													  }
 
-                                                      IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
-				                                      appConfig.AddJsonFile(configurationFileName
-				                                                          , true
-				                                                          , true);
-				                                      appConfig.AddJsonFile($"{configurationFileNameWithoutExtension}.{hostingEnvironment.EnvironmentName}{configurationExtension}"
-				                                                          , true
-				                                                          , true);
+													  IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
+													  appConfig.AddJsonFile(configurationFileName
+																		  , true
+																		  , true);
+													  appConfig.AddJsonFile($"{configurationFileNameWithoutExtension}.{hostingEnvironment.EnvironmentName}{configurationExtension}"
+																		  , true
+																		  , true);
 
-				                                      if (hostingEnvironment.IsDevelopment())
-				                                      {
-					                                      Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
-					                                      if (assembly != null)
-					                                      {
-						                                      //x appConfig.AddUserSecrets<Startup>();
-						                                      appConfig.AddUserSecrets(assembly
-						                                                             , true);
-					                                      }
-				                                      }
+													  if (hostingEnvironment.IsDevelopment())
+													  {
+														  Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
+														  if (assembly != null)
+														  {
+															  //x appConfig.AddUserSecrets<Startup>();
+															  appConfig.AddUserSecrets(assembly
+																					 , true);
+														  }
+													  }
 
-				                                      appConfig.AddEnvironmentVariables(prefix: "ASPNETCORE_");
-				                                      if (args == null)
-				                                      {
+													  appConfig.AddEnvironmentVariables(prefix: "ASPNETCORE_");
+													  if (args == null)
+													  {
 														  return;
 													  }
-					                                  appConfig.AddCommandLine(args);
-			                                      })
-			           .ConfigureLogging((hostingContext, loggingBuilder) =>
-			                             {
-				                             loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
+													  appConfig.AddCommandLine(args);
+												  })
+					   .ConfigureLogging((hostingContext, loggingBuilder) =>
+										 {
+											 loggingBuilder.AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
 															//.AddConsole()
-				                                            //.AddDebug()
+															//.AddDebug()
 															//.AddEventSourceLogger();
-				                                           .AddSerilog(dispose: true);
-			                             })
-			           .ConfigureServices((hostingContext, services) =>
-			                              {
-                                             services.PostConfigure((Action<HostFilteringOptions>) (options =>
-                                                                                                     {
-                                                                                                         if (options.AllowedHosts != null
-                                                                                                          && options.AllowedHosts.Count != 0)
-                                                                                                         {
-                                                                                                             return;
-                                                                                                         }
+														   .AddSerilog(dispose: true);
+										 })
+					   .ConfigureServices((hostingContext, services) =>
+										  {
+											 services.PostConfigure((Action<HostFilteringOptions>) (options =>
+																									 {
+																										 if (options.AllowedHosts != null
+																										  && options.AllowedHosts.Count != 0)
+																										 {
+																											 return;
+																										 }
 
-                                                                                                         string str = hostingContext.Configuration["AllowedHosts"];
-                                                                                                         string[] strArray1;
-                                                                                                         if (str == null)
-                                                                                                         {
-                                                                                                             strArray1 = null;
-                                                                                                         }
-                                                                                                         else
-                                                                                                         {
-                                                                                                             strArray1 = str.Split(new char[1]
-                                                                                                                                   {
-                                                                                                                                       ';'
-                                                                                                                                   }
-                                                                                                                                 , StringSplitOptions.RemoveEmptyEntries);
-                                                                                                         }
+																										 string str = hostingContext.Configuration["AllowedHosts"];
+																										 string[] strArray1;
+																										 if (str == null)
+																										 {
+																											 strArray1 = null;
+																										 }
+																										 else
+																										 {
+																											 strArray1 = str.Split(new char[1]
+																																   {
+																																	   ';'
+																																   }
+																																 , StringSplitOptions.RemoveEmptyEntries);
+																										 }
 
-                                                                                                         string[] strArray2 = strArray1;
-                                                                                                         HostFilteringOptions filteringOptions = options;
-                                                                                                         string[] strArray3;
-                                                                                                         if (strArray2 == null
-                                                                                                          || strArray2.Length == 0)
-                                                                                                         {
-                                                                                                             strArray3 = new string[1]
-                                                                                                                         {
-                                                                                                                             "*"
-                                                                                                                         };
-                                                                                                         }
-                                                                                                         else
-                                                                                                         {
-                                                                                                             strArray3 = strArray2;
-                                                                                                         }
+																										 string[] strArray2 = strArray1;
+																										 HostFilteringOptions filteringOptions = options;
+																										 string[] strArray3;
+																										 if (strArray2 == null
+																										  || strArray2.Length == 0)
+																										 {
+																											 strArray3 = new string[1]
+																														 {
+																															 "*"
+																														 };
+																										 }
+																										 else
+																										 {
+																											 strArray3 = strArray2;
+																										 }
 
-                                                                                                         filteringOptions.AllowedHosts = strArray3;
-                                                                                                     }));
-                                              services.AddSingleton((IOptionsChangeTokenSource<HostFilteringOptions>) new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));
+																										 filteringOptions.AllowedHosts = strArray3;
+																									 }));
+											  services.AddSingleton((IOptionsChangeTokenSource<HostFilteringOptions>) new ConfigurationChangeTokenSource<HostFilteringOptions>(hostingContext.Configuration));
 											  services.AddTransient<IStartupFilter, HostFilteringStartupFilter>();
 
-				                              services.AddLogging();
-				                              Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostingContext.Configuration)
-				                                                                    .CreateLogger();
+											  services.AddLogging();
+											  Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(hostingContext.Configuration)
+																					.CreateLogger();
 
-				                              services.AddOptions();
+											  services.AddOptions();
 
-				                              services.AddMemoryCache();
-				                              #if (!CacheExists)
-				                              services.AddDistributedMemoryCache();
-				                              #endif
+											  services.AddMemoryCache();
+											  #if (!CacheExists)
+											  services.AddDistributedMemoryCache();
+#endif
 
-				                              #if (CacheSqlServer)
-				                              services.AddDistributedSqlServerCache(options =>
-				                                                                    {
-					                                                                    options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
-					                                                                    options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
-					                                                                    options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
-				                                                                    });
-				                              #endif
-				                              #if (CacheRedis)
-				                              services.AddStackExchangeRedisCache(options =>
-				                                                                {
-					                                                                options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
-					                                                                options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
-					                                                                //x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
-				                                                                });
-				                              #endif
+											  try
+											  {
+//#if (CacheSqlServer)
+//												  services.AddDistributedSqlServerCache(options =>
+//																						{
+//																							options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
+//																							options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
+//																							options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
+//																						});
+//#endif
+//#if (CacheRedis)
+//												  services.AddStackExchangeRedisCache(options =>
+//																					{
+//																						options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+//																						options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
+//																						//x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
+//																					});
+//#endif
+											  }
+											  catch (Exception e)
+											  {
 
-				                              #if (EntityFramework)
-				                              const string databaseConnectionString = "DefaultConnection";
-				                              string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
-				                              string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
-				                                                                                     , DbContextFactory.MigrationAssemblyNameConfiguration)
-				                                                               .ToString();
-				                              services.AddDbContext<BurcinDbContext>(options => options.UseSqlServer(connectionString
-				                                                                                                   , sqlServerOptions =>
-				                                                                                                     {
-					                                                                                                     sqlServerOptions.MigrationsAssembly(assemblyName);
-					                                                                                                     sqlServerOptions.EnableRetryOnFailure(5
-					                                                                                                                                         , TimeSpan.FromSeconds(30)
-					                                                                                                                                         , null);
-				                                                                                                     }));
-				                              #endif
+											  }
 
-				                              #if (BackgroundService)
-				                              services.AddGracePeriodManagerService(hostingContext.Configuration);
-				                              #endif
 
-				                              services.AddHelper(hostingContext.Configuration);
-			                              })
+											  #if (EntityFramework)
+											  const string databaseConnectionString = "DefaultConnection";
+											  string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
+											  string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
+																									 , DbContextFactory.MigrationAssemblyNameConfiguration)
+																			   .ToString();
+											  services.AddDbContext<BurcinDatabaseDbContext>(options => options.UseSqlServer(connectionString
+																												   , sqlServerOptions =>
+																													 {
+																														 sqlServerOptions.MigrationsAssembly(assemblyName);
+																														 sqlServerOptions.EnableRetryOnFailure(5
+																																							 , TimeSpan.FromSeconds(30)
+																																							 , null);
+																													 }));
+											  #endif
+
+											  #if (BackgroundService)
+											  services.AddGracePeriodManagerService(hostingContext.Configuration);
+											  #endif
+
+											  services.AddHelper(hostingContext.Configuration);
+										  })
 					   .UseIIS()
-			           .UseIISIntegration()
-			           .UseDefaultServiceProvider((context, options) => options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
-			            //!++ Following line fixes System.InvalidOperationException: 'Cannot resolve 'Burcin.Domain.Helper' from root provider because it requires scoped service 'Microsoft.Extensions.Options.IOptionsSnapshot`1[Burcin.Domain.HelperSetting]'.' for Development environment
-			           .UseDefaultServiceProvider(options => options.ValidateScopes = false)
-			           .UseStartup<Startup>()
+					   .UseIISIntegration()
+					   .UseDefaultServiceProvider((context, options) => options.ValidateScopes = context.HostingEnvironment.IsDevelopment())
+						//!++ Following line fixes System.InvalidOperationException: 'Cannot resolve 'Burcin.Domain.Helper' from root provider because it requires scoped service 'Microsoft.Extensions.Options.IOptionsSnapshot`1[Burcin.Domain.HelperSetting]'.' for Development environment
+					   .UseDefaultServiceProvider(options => options.ValidateScopes = false)
+					   .UseStartup<Startup>()
 					   .CaptureStartupErrors(true)
-			           .UseSetting("detailedErrors"
-			                     , "true")
-			           .UseApplicationInsights()
-			           .UseShutdownTimeout(TimeSpan.FromSeconds(5));
+					   .UseSetting("detailedErrors"
+								 , "true")
+					   .UseApplicationInsights()
+					   .UseShutdownTimeout(TimeSpan.FromSeconds(5));
 			return hostBuilder.Build();
 		}
 	}

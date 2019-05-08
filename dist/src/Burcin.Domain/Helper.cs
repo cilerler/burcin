@@ -48,7 +48,7 @@ namespace Burcin.Domain
 #if (EntityFramework)
             var scopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
             using (var scope = scopeFactory.CreateScope())
-            using (var context = scope.ServiceProvider.GetRequiredService<Burcin.Data.BurcinDbContext>())
+            using (var context = scope.ServiceProvider.GetRequiredService<Burcin.Data.BurcinDatabaseDbContext>())
             {
                 try
                 {

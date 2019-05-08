@@ -7,11 +7,11 @@ using Burcin.Data;
 
 namespace Burcin.Api
 {
-	public class DbContextFactory : IDesignTimeDbContextFactory<BurcinDbContext>
+	public class DbContextFactory : IDesignTimeDbContextFactory<BurcinDatabaseDbContext>
 	{
 		public const string MigrationAssemblyNameConfiguration = "Migration:AssemblyName";
 
-		public BurcinDbContext CreateDbContext(string[] args)
+		public BurcinDatabaseDbContext CreateDbContext(string[] args)
 		{
 			const string databaseConnectionString = "MigrationConnection";
 			const string configurationFileName = "appsettings.json";
@@ -30,9 +30,9 @@ namespace Burcin.Api
             string connectionString = configuration.GetConnectionString(databaseConnectionString);
             string assemblyName = configuration.GetValue(typeof(string), MigrationAssemblyNameConfiguration).ToString();
 
-            var optionsBuilder = new DbContextOptionsBuilder<BurcinDbContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<BurcinDatabaseDbContext>();
             optionsBuilder.UseSqlServer(connectionString, sqlServerOptions => sqlServerOptions.MigrationsAssembly(assemblyName));
-            return new BurcinDbContext(optionsBuilder.Options);
+            return new BurcinDatabaseDbContext(optionsBuilder.Options);
 		}
 	}
 }

@@ -13,6 +13,12 @@
 	"sourceName": "Burcin",
 	"preferNameDirectory": true,
 	"guids": ["412f3e04-fa62-4566-8e71-3fe15dc33c1c"],
+	"PrimaryOutputs":
+	[
+		{
+			"path": "src/Burcin.Data/_BurcinDatabaseDbContext.cs"
+		}
+	],
 	"symbols": {
 		"Authors": {
 			"type": "parameter",
@@ -49,8 +55,9 @@
 		},
 		"DatabaseName": {
 			"type": "parameter",
-			"defaultValue": "burcindb",
-			"replaces": "(databaseName)"
+			"defaultValue": "WideWorldImporters",
+			"replaces": "BurcinDatabase",
+			"fileRename": "BurcinDatabase"
 		},
 		"EntityFramework": {
 			"type": "parameter",
