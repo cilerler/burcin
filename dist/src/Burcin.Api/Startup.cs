@@ -254,8 +254,7 @@ namespace Burcin.Api
 			app.UseHealthChecksUI(setup =>
 						{
 							setup.ApiPath = "/health/beatpulse-api";
-							//! do not make UIPath multilevel https://github.com/Xabaril/AspNetCore.Diagnostics.HealthChecks/issues/159
-							setup.UIPath = "/beatpulse-ui";
+							setup.UIPath = "/health/beatpulse-ui";
 							setup.WebhookPath = "/health/beatpulse-webhooks";
 						});
 			#endif
