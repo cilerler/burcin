@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
@@ -208,6 +210,33 @@ namespace Burcin.Api
 			   app.UseHsts();
 			   app.UseHttpsRedirection();
 			}
+
+			app.UseExceptionHandler(ex =>
+			{
+				ex.Run(async context =>
+				{
+					context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+					string result;
+					var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+					if (exceptionHandlerPathFeature == null)
+					{
+						result = string.Empty;
+						context.Response.ContentType = "text/plain";
+					}
+					else
+					{
+						if (env.IsDevelopment())
+						{
+							result = JsonConvert.SerializeObject(exceptionHandlerPathFeature);
+						} else
+						{
+							result = JsonConvert.SerializeObject(new { Error = new { Message = exceptionHandlerPathFeature.Error.Message }, Path = exceptionHandlerPathFeature.Path });
+						}
+						context.Response.ContentType = "application/json";
+					}
+					await context.Response.WriteAsync(result);
+				});
+			});
 
 			app.UseResponseCompression();
 			app.UseResponseCaching();
