@@ -6,7 +6,7 @@ branches:
   - master
 skip_tags: true
 skip_branch_with_pr: true
-image: Visual Studio 2017
+image: Visual Studio 2019
 configuration: Release
 shallow_clone: true
 environment:
@@ -32,7 +32,7 @@ deploy:
     branch: master
 - provider: NuGet
   api_key:
-    secure: TfBqdcEyTsHamc5WaaZcaHUSuh3sUZmJW2C57ypMaKwSDYWa0b4M2Ba+QTL+pt/1
+    secure: N5CugTZvJpt3kz6I7grx6yaBOj17WxSM5Jx6VtcYe3giunupExW+QoUXvpkwV3fQ
   skip_symbols: true
   artifact: /.*\.nupkg/
   on:
