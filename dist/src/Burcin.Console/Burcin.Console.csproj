@@ -6,9 +6,9 @@
 		<RuntimeIdentifier>win7-x64</RuntimeIdentifier>
 		<!--#endif-->
 		<LangVersion>latest</LangVersion>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<UserSecretsId>Burcin.Console</UserSecretsId>
 		<!--#if (DockerSupport)-->
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<!--#endif-->
 	</PropertyGroup>
@@ -43,6 +43,9 @@
 	<ItemGroup>
 		<!--#if (WindowsService)-->
 		<PackageReference Include="System.ServiceProcess.ServiceController" Version="4.5.0" />
+		<!--#endif-->
+		<!--#if (DockerSupport)-->
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.7.9" />
 		<!--#endif-->
 		<PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />

@@ -13,3 +13,5 @@ services:
     ports:
       - "80"
 #--endif
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro

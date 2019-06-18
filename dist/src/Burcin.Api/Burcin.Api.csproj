@@ -3,9 +3,9 @@
 		<TargetFramework>netcoreapp2.2</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<UserSecretsId>Burcin.Api</UserSecretsId>
 		<!--#if (DockerSupport)-->
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<!--#endif-->
 	</PropertyGroup>
@@ -44,6 +44,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.App" />
+		<!--#if (DockerSupport)-->
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.7.9" />
+		<!--#endif-->
 		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.6.1" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
