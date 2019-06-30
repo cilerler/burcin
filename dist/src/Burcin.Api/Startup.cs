@@ -113,7 +113,7 @@ namespace Burcin.Api
 													})
 					.AddDiskStorageHealthCheck(check =>
 											   {
-												   check.AddDrive("C:\\"
+												   check.AddDrive(DriveInfo.GetDrives().First().Name
 																, 1024);
 											   }
 											 , name: "Disk Storage"
