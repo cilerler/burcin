@@ -289,6 +289,7 @@ namespace Burcin.Api
 			#endif
 
 			app.UseStartTimeHeader();
+			app.UseApplicationInfoHeaders();
 			app.UseRequestResponseLogging(); //x app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
 			app.UseMvc(routes =>
