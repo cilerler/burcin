@@ -24,6 +24,12 @@ namespace Burcin.Data
 
         // protected override void OnModelCreating(ModelBuilder modelBuilder)
         // {
+        //     OnModelCreatingPostActions(modelBuilder);
         // }
+
+		private void OnModelCreatingPostActions(ModelBuilder modelBuilder)
+		{
+
+		}
     }
 }
