@@ -78,7 +78,7 @@
 	<ItemGroup>
 		<PackageReference Include="Ruya.Primitives" Version="1.0.487" />
 		<PackageReference Include="Ruya.AppDomain" Version="1.0.489" />
-		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.485" />
+		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.511" />
 		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.486" />
 	</ItemGroup>
 	<ItemGroup>
