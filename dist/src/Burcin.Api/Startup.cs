@@ -268,7 +268,7 @@ namespace Burcin.Api
 													, ResponseWriter = CustomWriteResponse.WriteResponse
 												});
 
-			app.UseHealthChecks("/health/beatpulse", new HealthCheckOptions
+			app.UseHealthChecks("/healthz", new HealthCheckOptions
 													{
 														Predicate = check => true
 														, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
@@ -282,9 +282,10 @@ namespace Burcin.Api
 
 			app.UseHealthChecksUI(setup =>
 						{
-							setup.ApiPath = "/health/beatpulse-api";
-							setup.UIPath = "/health/beatpulse-ui";
-							setup.WebhookPath = "/health/beatpulse-webhooks";
+							setup.ApiPath = "/health/beatpulse-api"; 			// "/healthchecks-ui";
+							setup.UIPath = "/health/beatpulse-ui"; 				// "/healthchecks-api";
+							setup.WebhookPath = "/health/beatpulse-webhooks";	// "/healthchecks-webhooks";
+							setup.AddCustomStylesheet("dotnet.css");
 						});
 			#endif
 
