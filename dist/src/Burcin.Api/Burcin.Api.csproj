@@ -68,7 +68,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="2.2.4" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kubernetes" Version="2.2.1" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="2.2.4" />
-		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Seq" Version="2.2.2" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Seq" Version="3.0.0" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Prometheus" Version="2.2.0" />
 	</ItemGroup>
 	<!--#endif-->
