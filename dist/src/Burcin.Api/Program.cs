@@ -278,8 +278,7 @@ namespace Burcin.Api
 					   .UseDefaultServiceProvider(options => options.ValidateScopes = false)
 					   .UseStartup<Startup>()
 					   .CaptureStartupErrors(true)
-					   .UseSetting("detailedErrors"
-								 , "true")
+					   .UseSetting("detailedErrors", "true")
 					   .UseApplicationInsights()
 					   .UseShutdownTimeout(TimeSpan.FromSeconds(5));
 			return hostBuilder.Build();

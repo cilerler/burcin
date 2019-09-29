@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.IO;
 using System.Net;
 using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
@@ -17,6 +19,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Ruya.Primitives;
+using Prometheus;
 #if (HealthChecks)
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -191,14 +194,25 @@ namespace Burcin.Api
 										{
 											"services"
 										})
-					.AddApplicationInsightsPublisher()
-					.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"]);
+					//.AddApplicationInsightsPublisher()
+					.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
+					//.AddPrometheusGatewayPublisher()
+					;
 			services.AddHealthChecksUI();
 			#endif
 		}
 
 		public static void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, Microsoft.AspNetCore.Hosting.IApplicationLifetime applicationLifetime)
 		{
+			var counter = Metrics.CreateCounter("PathCounter", "Counts requests to endpoints", new CounterConfiguration { LabelNames = new[] { "method", "endpoint" } });
+            app.Use((context, next) =>
+            {
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
+            });
+			app.UseMetricServer();
+			app.UseHttpMetrics();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -282,9 +296,9 @@ namespace Burcin.Api
 
 			app.UseHealthChecksUI(setup =>
 						{
-							setup.ApiPath = "/health/beatpulse-api"; 			// "/healthchecks-ui";
-							setup.UIPath = "/health/beatpulse-ui"; 				// "/healthchecks-api";
-							setup.WebhookPath = "/health/beatpulse-webhooks";	// "/healthchecks-webhooks";
+							setup.ApiPath = "/healthchecks-api";				// "/health/beatpulse-api";
+							setup.UIPath = "/healthchecks-ui";					// "/health/beatpulse-ui";
+							setup.WebhookPath = "/healthchecks-webhooks";		// "/health/beatpulse-webhooks";
 							setup.AddCustomStylesheet("dotnet.css");
 						});
 			#endif
