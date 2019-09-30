@@ -239,7 +239,7 @@ namespace Burcin.Console
 				                              string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
 				                                                                                        , DbContextFactory.MigrationAssemblyNameConfiguration)
 				                                                                  .ToString();
-				                              services.AddDbContext<BurcinDbContext>(options => options.UseSqlServer(connectionString
+				                              services.AddDbContext<BurcinDatabaseDbContext>(options => options.UseSqlServer(connectionString
 				                                                                                                   , sqlServerOptions =>
 				                                                                                                     {
 					                                                                                                     sqlServerOptions.MigrationsAssembly(assemblyName);
