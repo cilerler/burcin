@@ -98,7 +98,8 @@ jobs:
     #     path: .\artifacts\packages\*.nupkg
 
     - name: Nuget
-      run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json --no-symbols
+      run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json --no-symbols true
+      ## todo remove the `true` at the end upon https://github.com/NuGet/Home/issues/4864 close
       env:
         nugetApiKey: ${{secrets.NUGET_API_KEY}}
 
