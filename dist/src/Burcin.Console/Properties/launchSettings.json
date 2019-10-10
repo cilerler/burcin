@@ -1,11 +1,18 @@
 {
-  "profiles": {
-    "Burcin.Console": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ENVIRONMENT": "Development",
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    }
-  }
+	"profiles": {
+		"Burcin.Console": {
+			"commandName": "Project",
+			"environmentVariables": {
+				"ENVIRONMENT": "Development",
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"Docker": {
+				"commandName": "Docker",
+				"environmentVariables": {
+					"ENVIRONMENT": "Development",
+					"ASPNETCORE_ENVIRONMENT": "Development"
+				}
+			}
+		}
+	}
 }

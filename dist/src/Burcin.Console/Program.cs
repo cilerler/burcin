@@ -34,7 +34,9 @@ namespace Burcin.Console
 
 	public class Program
 	{
+#pragma warning disable IDE1006 // Naming Styles
 		public static async Task Main(string[] args)
+#pragma warning restore IDE1006 // Naming Styles
 		{
 			var unhandledExceptionHelper = new UnhandledExceptionHelper();
 			bool enableUnhandledExceptionHelper = !Debugger.IsAttached;
@@ -60,7 +62,7 @@ namespace Burcin.Console
 					return;
 				}
 
-				var argsRetrievedFromEnvironmentVariable = false;
+				bool argsRetrievedFromEnvironmentVariable = false;
 				if (!args.Any())
 				{
 					args = EnvironmentHelper.EnvironmentArgs;
@@ -68,20 +70,19 @@ namespace Burcin.Console
 				}
 
 				IHost host = BuildHost(args);
-				var logger = host.Services.GetService<ILogger<Program>>();
-				var hostingEnvironment = host.Services.GetService<IHostingEnvironment>();
+				ILogger<Program> logger = host.Services.GetService<ILogger<Program>>();
+				IHostEnvironment hostingEnvironment = host.Services.GetService<IHostEnvironment>();
 				EnvironmentHelper.EnvironmentName = hostingEnvironment.EnvironmentName;
 
 				AssemblyName assemblyName = Assembly.GetExecutingAssembly()
 				                                    .GetName();
-				Guid applicationGuid = Guid.NewGuid();
+				var applicationGuid = Guid.NewGuid();
 
 				using (logger.ProgramScope(assemblyName.Name
 				                         , assemblyName.Version.ToString()
 				                         , applicationGuid.ToString()))
 				{
-					logger.ProgramStarted(Process.GetCurrentProcess()
-					                             .Id
+					logger.ProgramStarted(Process.GetCurrentProcess().Id
 					                    , Thread.CurrentThread.ManagedThreadId);
 
 					logger.ProgramInitial(EnvironmentHelper.EnvironmentName
@@ -110,25 +111,37 @@ namespace Burcin.Console
 		private static void Initialize(IServiceProvider serviceProvider)
 		{
 			// Waiting for https://github.com/serilog/serilog-aspnetcore/issues/49
-			serviceProvider.GetRequiredService<IApplicationLifetime>()
+			serviceProvider.GetRequiredService<IHostApplicationLifetime>()
 			               .ApplicationStopped.Register(Log.CloseAndFlush);
 
+			ILogger<Program> logger = serviceProvider.GetService<ILogger<Program>>();
+			
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
 
 			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
-			var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
+			IMemoryCache memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 			memoryCache.Set(StartTimeHeader.InMemoryCacheKey
 			              , serverStartTime
 			              , memoryCacheEntryOptions);
 
 			byte[] value = Encoding.UTF8.GetBytes(serverStartTime.ToString("s"));
 			DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
-			var distributedCache = serviceProvider.GetService<IDistributedCache>();
-			distributedCache.Set(StartTimeHeader.DistributedCacheKey
-			                   , value
-			                   , cacheEntryOptions);
 
-			var helper = serviceProvider.GetService<Helper>();
+			try
+			{
+				IDistributedCache distributedCache = serviceProvider.GetRequiredService<IDistributedCache>();
+				distributedCache.Set(StartTimeHeader.DistributedCacheKey, value, cacheEntryOptions);
+			}
+			catch (Exception e) when (e.Source.Equals("StackExchange.Redis"))
+			{
+				logger.LogWarning(e, e.Message);
+			}
+			catch (Exception e)
+			{
+				logger.LogError(e, e.Message);
+			}
+
+			Helper helper = serviceProvider.GetService<Helper>();
 			helper.Echo("Hello World!");
 		}
 
@@ -170,7 +183,7 @@ namespace Burcin.Console
 					                                      throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
 				                                      }
 
-                                                      IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
+                                                      IHostEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
 				                                      appConfig.AddJsonFile(configurationFileName
 				                                                          , true
 				                                                          , true);
@@ -180,7 +193,7 @@ namespace Burcin.Console
 
 				                                      if (hostingEnvironment.IsDevelopment())
 				                                      {
-					                                      Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
+					                                      var assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
 					                                      if (assembly != null)
 					                                      {
 						                                      //x appConfig.AddUserSecrets<Startup>();
@@ -216,24 +229,29 @@ namespace Burcin.Console
 				                              services.AddDistributedMemoryCache();
 				                              #endif
 
-				                              #if (CacheSqlServer)
-				                              services.AddDistributedSqlServerCache(options =>
-				                                                                    {
-					                                                                    options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
-					                                                                    options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
-					                                                                    options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
-				                                                                    });
-				                              #endif
-				                              #if (CacheRedis)
-				                              services.AddStackExchangeRedisCache(options =>
-				                                                                  {
-					                                                                  options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
-					                                                                  options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
-					                                                                  //x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
-				                                                                  });
-				                              #endif
+#if (CacheSqlServer)
+											  services.AddDistributedSqlServerCache(options =>
+																						{
+																							options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
+																							options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
+																							options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
+																						});
+#endif
+#if (CacheRedis)
+											  services.AddStackExchangeRedisCache(options =>
+																					  {
+																						  options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+																						  options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
+																						  //x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
+																						  options.ConfigurationOptions =
+																							  new ConfigurationOptions
+																							  {
+																								  AbortOnConnectFail = true
+																							  };
+																					  });
+#endif
 
-				                              #if (EntityFramework)
+#if (EntityFramework)
 				                              const string databaseConnectionString = "DefaultConnection";
 				                              string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
 				                              string assemblyName = hostingContext.Configuration.GetValue(typeof(string)

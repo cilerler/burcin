@@ -6,8 +6,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Burcin.Api.Controllers
 {
-	[Route("api/[controller]")]
 	[ApiController]
+	[Route("api/[controller]")]
 	public class HealthCheckController : ControllerBase
 	{
 		private readonly HealthCheckService _healthCheck;

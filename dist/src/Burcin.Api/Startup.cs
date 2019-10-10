@@ -2,6 +2,8 @@
 using System.Linq;
 using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
 using Microsoft.AspNetCore.Builder;
@@ -10,7 +12,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using Polly.Retry;
 using Ruya.Primitives;
 using Prometheus;
 #if (HealthChecks)
@@ -44,12 +46,10 @@ namespace Burcin.Api
 			Configuration = configuration;
 		}
 
-
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddMvc()
-					.SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
-					.AddJsonOptions(options =>
+			services.AddControllers()
+					.AddNewtonsoftJson(options =>
 									{
 										options.SerializerSettings.Converters.Add(new StringEnumConverter());
 										options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
@@ -58,7 +58,7 @@ namespace Burcin.Api
 			services.AddResponseCaching();
 			services.AddResponseCompression();
 
-			#if (Swagger)
+#if (Swagger)
 			services.AddSwaggerGen(options =>
 								   {
 									   options.DescribeAllEnumsAsStrings();
@@ -66,17 +66,24 @@ namespace Burcin.Api
 									   options.IgnoreObsoleteProperties();
 									   options.SwaggerDoc("v1"
 														, new Info
-														  {
-															  Title = "Burcin API"
-															, Version = "1.0"
-															, Description = "Burcin API"
-															, TermsOfService = "Terms Of Service"
-														  });
+														{
+															Title = "Burcin API"
+															,
+															Version = "1.0"
+															,
+															Description = "Burcin API"
+															,
+															TermsOfService = "Terms Of Service"
+														});
+									   // Set the comments path for the Swagger JSON and UI.
+									   string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+									   string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+									   options.IncludeXmlComments(xmlPath);
 								   });
-			#endif
+#endif
 
-			#if (HealthChecks)
-			var retryPolicy = HttpPolicyExtensions
+#if (HealthChecks)
+			AsyncRetryPolicy<HttpResponseMessage> retryPolicy = HttpPolicyExtensions
 			   .HandleTransientHttpError()
 			   .Or<TimeoutRejectedException>()
 			   .RetryAsync(5);
@@ -202,28 +209,41 @@ namespace Burcin.Api
 			#endif
 		}
 
-		public static void Configure(IApplicationBuilder app, Microsoft.AspNetCore.Hosting.IHostingEnvironment env, Microsoft.AspNetCore.Hosting.IApplicationLifetime applicationLifetime)
+		public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
 		{
-			var counter = Metrics.CreateCounter("PathCounter", "Counts requests to endpoints", new CounterConfiguration { LabelNames = new[] { "method", "endpoint" } });
-            app.Use((context, next) =>
-            {
-                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
-                return next();
-            });
-			app.UseMetricServer();
-			app.UseHttpMetrics();
-
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				app.UseDatabaseErrorPage();
 			}
-			else
+
+			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+			app.UseHsts();
+			app.UseHttpsRedirection();
+			app.UseResponseCompression();
+			app.UseResponseCaching();
+			app.UseStaticFiles();
+			app.UseRouting();
+			app.UseCors();
+			app.UseAuthentication();
+			app.UseAuthorization();
+			app.UseStatusCodePages();
+
+			app.UseStartTimeHeader();
+			app.UseApplicationInfoHeaders();
+
+			Counter counter = Metrics.CreateCounter("PathCounter", "Counts requests to endpoints", new CounterConfiguration { LabelNames = new[] { "method", "endpoint" } });
+			app.Use((context, next) =>
 			{
-			   // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-			   app.UseHsts();
-			   app.UseHttpsRedirection();
-			}
+				counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+				return next();
+			});
+			app.UseMetricServer("/metrics");
+			app.UseHttpMetrics();
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+			app.Map("/liveness", lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
+#pragma warning restore CS1998
 
 			app.UseExceptionHandler(ex =>
 			{
@@ -231,7 +251,7 @@ namespace Burcin.Api
 				{
 					context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 					string result;
-					var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+					IExceptionHandlerPathFeature exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
 					if (exceptionHandlerPathFeature == null)
 					{
 						result = string.Empty;
@@ -239,92 +259,71 @@ namespace Burcin.Api
 					}
 					else
 					{
-						if (env.IsDevelopment())
-						{
-							result = JsonConvert.SerializeObject(exceptionHandlerPathFeature);
-						} else
-						{
-							result = JsonConvert.SerializeObject(new { Error = new { Message = exceptionHandlerPathFeature.Error.Message }, Path = exceptionHandlerPathFeature.Path });
-						}
+						result = env.IsDevelopment()
+							? JsonConvert.SerializeObject(exceptionHandlerPathFeature)
+							: JsonConvert.SerializeObject(new
+							{
+								Error = new { exceptionHandlerPathFeature.Error.Message },
+								exceptionHandlerPathFeature.Path
+							});
 						context.Response.ContentType = "application/json";
 					}
 					await context.Response.WriteAsync(result);
 				});
 			});
 
-			app.UseResponseCompression();
-			app.UseResponseCaching();
+#if (Swagger)
+			// todo research why this part throws an error on Core 3
+			//app.UseSwagger();
+			//app.UseSwaggerUI(c =>
+			//				 {
+			//					 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
+			//				 });
+#endif
 
-			#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-			app.Map("/liveness", lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
-			#pragma warning restore CS1998
-
-			#if (HealthChecks)
-			//x app.UseHealthChecks("/health", 911);
-			app.UseHealthChecks("/health", new HealthCheckOptions
-										   {
-											   Predicate = check => true,
-										   });
-
-			app.UseHealthChecks("/health/ready", new HealthCheckOptions
-												 {
-													 Predicate = check => check.Tags.Contains("ready"),
-												 });
-
-			app.UseHealthChecks("/health/live", new HealthCheckOptions
-												{
-													Predicate = check => false,
-												});
-
-			app.UseHealthChecks("/health/custom", new HealthCheckOptions
-												{
-													Predicate = _ => true
-													, ResponseWriter = CustomWriteResponse.WriteResponse
-												});
-
-			app.UseHealthChecks("/healthz", new HealthCheckOptions
-													{
-														Predicate = check => true
-														, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-														, ResultStatusCodes =
-															{
-																[HealthStatus.Healthy] = StatusCodes.Status200OK,
-																[HealthStatus.Degraded] = StatusCodes.Status200OK,
-																[HealthStatus.Unhealthy] = StatusCodes.Status200OK
-															}
-													});
-
-			app.UseHealthChecksUI(setup =>
-						{
-							setup.ApiPath = "/healthchecks-api";				// "/health/beatpulse-api";
-							setup.UIPath = "/healthchecks-ui";					// "/health/beatpulse-ui";
-							setup.WebhookPath = "/healthchecks-webhooks";		// "/health/beatpulse-webhooks";
-							setup.AddCustomStylesheet("dotnet.css");
-						});
-			#endif
-
-			app.UseStartTimeHeader();
-			app.UseApplicationInfoHeaders();
-			app.UseRequestResponseLogging(); //x app.UseMiddleware<RequestResponseLoggingMiddleware>();
-
-			app.UseMvc(routes =>
+			app.UseEndpoints(endpoints =>
 			{
-				routes.MapRoute(name: "default", template: "{controller}/{action}/{id?}");
+#if (HealthChecks)
+				endpoints.MapHealthChecks("/health", new HealthCheckOptions {Predicate = check => true,});
+
+				endpoints.MapHealthChecks("/health/ready",
+					new HealthCheckOptions {Predicate = check => check.Tags.Contains("ready"),});
+
+				endpoints.MapHealthChecks("/health/live", new HealthCheckOptions {Predicate = check => false,});
+
+				endpoints.MapHealthChecks("/health/custom",
+					new HealthCheckOptions {Predicate = _ => true, ResponseWriter = CustomWriteResponse.WriteResponse});
+
+				endpoints.MapHealthChecks("/healthz",
+					new HealthCheckOptions
+					{
+						Predicate = check => true,
+						ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+						ResultStatusCodes =
+						{
+							[HealthStatus.Healthy] = StatusCodes.Status200OK,
+							[HealthStatus.Degraded] = StatusCodes.Status200OK,
+							[HealthStatus.Unhealthy] = StatusCodes.Status200OK
+						}
+					});
+
+				endpoints.MapHealthChecksUI(setup =>
+				{
+					setup.ApiPath = "/healthchecks-api"; // "/health/beatpulse-api";
+					setup.UIPath = "/healthchecks-ui"; // "/health/beatpulse-ui";
+					setup.WebhookPath = "/healthchecks-webhooks"; // "/health/beatpulse-webhooks";
+					setup.AddCustomStylesheet("dotnet.css");
+				});
+#endif
+
+				endpoints.MapControllers();
+				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			#if (Swagger)
-			app.UseSwagger();
-			app.UseSwaggerUI(c =>
-							 {
-								 c.SwaggerEndpoint("/swagger/v1/swagger.json"
-												, "Burcin");
-							 });
-			#endif
-
 			app.UseWelcomePage();
-			app.UseStatusCodePages();
 
-			var serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
+			// will never hit here if UseWelcomePage is not commented
+			IServerAddressesFeature serverAddressesFeature = app.ServerFeatures.Get<IServerAddressesFeature>();
 			app.Run(async context =>
 					{
 						context.Response.ContentType = "text/html";
@@ -333,12 +332,10 @@ namespace Burcin.Api
 						{
 							await context.Response.WriteAsync("Using IIS as reverse proxy.");
 						}
-
 						if (serverAddressesFeature != null)
 						{
-							await context.Response.WriteAsync($"<p>Listening on the following addresses: {string.Join(", " , serverAddressesFeature.Addresses)}<p>");
+							await context.Response.WriteAsync($"<p>Listening on the following addresses: {string.Join(", ", serverAddressesFeature.Addresses)}<p>");
 						}
-
 						await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}</p>");
 					});
 		}

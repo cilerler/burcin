@@ -53,7 +53,7 @@ jobs:
         echo ::set-env name=buildNumber::%buildNumber%
 
     - name: Pack
-      run: nuget pack %nuspecFile% -NonInteractive -OutputDirectory .\artifacts\NuGetPackages -Verbosity Detailed -version %buildNumber%
+      run: nuget pack %nuspecFile% -NonInteractive -OutputDirectory .\artifacts\packages -Verbosity Detailed -version %buildNumber%
     #   run: dotnet pack -p:NuspecFile=<path to nuspec file> -p:NuspecProperties=<> -p:NuspecBasePath=<Base path>
     # # waiting for https://github.com/NuGet/Home/issues/4254
 
@@ -75,7 +75,7 @@ jobs:
     #     gzip: folders
     #     allow_override: true
     #     prerelease: false
-    #     files: ./artifacts/NuGetPackages/*.nupkg
+    #     files: ./artifacts/packages/*.nupkg
     ## waiting for https://github.com/meeDamian/github-release/issues/9
 
     # - name: GitHub Packages Source
@@ -85,14 +85,21 @@ jobs:
     #   env:
     #     nugetApiKey: ${{secrets.GITHUB_TOKEN}}
     # - name: GitHub Packages
-    #   run: nuget push .\artifacts\NuGetPackages\*.nupkg -Source "GitHub"
+    #   run: nuget push .\artifacts\packages\*.nupkg -Source "GitHub"
     # ---
-    #   run: dotnet nuget push .\artifacts\NuGetPackages\*.nupkg -k %nugetApiKey% -s https://nuget.pkg.github.com/cilerler/index.json
+    #   run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://nuget.pkg.github.com/cilerler/index.json
     #   env:
     #     nugetApiKey: ${{secrets.GITHUB_TOKEN}}
     ## waiting for https://github.com/NuGet/Home/issues/8580
 
+    - uses: actions/upload-artifact@master
+      with:
+        name: Artifacts
+        path: .\artifacts\packages\*.nupkg
+
     - name: Nuget
-      run: dotnet nuget push .\artifacts\NuGetPackages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json
+      run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json --no-symbols
       env:
         nugetApiKey: ${{secrets.NUGET_API_KEY}}
+
+# https://github.community/t5/GitHub-Actions/Triggering-a-new-workflow-from-another-workflow/m-p/34055#M1768

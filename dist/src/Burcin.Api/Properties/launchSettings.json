@@ -1,27 +1,27 @@
 {
-	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"iisSettings": {
 		"windowsAuthentication": false,
 		"anonymousAuthentication": true,
 		"iisExpress": {
-			"applicationUrl": "http://localhost:47920/",
-			"sslPort": 0
+			"applicationUrl": "http://localhost:44301/",
+			"sslPort": 44302
 		}
 	},
+	"$schema": "http://json.schemastore.org/launchsettings.json",
 	"profiles": {
 		"IIS Express": {
 			"commandName": "IISExpress",
 			"launchBrowser": true,
 			//#if (HealthChecks)
-			"launchUrl": "health/beatpulse-ui",
+			"launchUrl": "healthchecks-ui",
 			//#else
 			"launchUrl": "api/values",
 			//#endif
+			"use64Bit": true,
+			"ancmHostingModel": "InProcess",
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development"
-			},
-			"use64Bit": true,
-			"ancmHostingModel": "InProcess"
+			}
 		},
 		"Burcin.Api": {
 			"commandName": "Project",
@@ -31,10 +31,14 @@
 			//#else
 			"launchUrl": "api/values",
 			//#endif
+			"applicationUrl": "https://localhost:44304/;http://localhost:44303/",
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development"
-			},
-			"applicationUrl": "https://localhost:47923/;http://localhost:47922/"
+			}
+		},
+		"Azure Dev Spaces": {
+			"commandName": "AzureDevSpaces",
+			"launchBrowser": true
 		}
 		//#if (DockerSupport)
 		,
@@ -42,9 +46,14 @@
 			"commandName": "Docker",
 			"launchBrowser": true,
 			"launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/values",
-			"environmentVariables": {},
-			"httpPort": 47921
-		  }
+			"httpPort": 10000,
+			"useSSL": true,
+			"sslPort": 44305,
+			"environmentVariables": {
+				"ASPNETCORE_URLS": "https://+:443;http://+:80",
+				"ASPNETCORE_HTTPS_PORT": "44305"
+			}
+		}
 		//#endif
 	}
 }

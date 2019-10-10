@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Burcin.Api.Middlewares
 {
@@ -13,13 +14,15 @@ namespace Burcin.Api.Middlewares
         public const string DistributedCacheKey = "lastServerStartTime";
 
         private readonly RequestDelegate _next;
+        private readonly ILogger _logger;
         private readonly IMemoryCache _memoryCache;
         private readonly IDistributedCache _distributedCache;
 
-        public StartTimeHeader(RequestDelegate next, IMemoryCache memoryCache, IDistributedCache distributedCache)
+        public StartTimeHeader(RequestDelegate next, ILogger<StartTimeHeader> logger, IMemoryCache memoryCache, IDistributedCache distributedCache)
         {
             _next = next;
-            _memoryCache = memoryCache;
+			_logger = logger;
+			_memoryCache = memoryCache;
             _distributedCache = distributedCache;
         }
 
@@ -35,7 +38,15 @@ namespace Burcin.Api.Middlewares
             #endregion
 
             #region distributed
-            var distributedStartTime = await _distributedCache.GetAsync(DistributedCacheKey);
+			byte[] distributedStartTime = null;
+			try
+			{
+				distributedStartTime = await _distributedCache.GetAsync(DistributedCacheKey);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, e.Message);
+			}
             string distributedStartTimeOutput = distributedStartTime == null
 	                                                ? notFound
 	                                                : Encoding.UTF8.GetString(distributedStartTime);
