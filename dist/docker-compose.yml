@@ -3,14 +3,14 @@ version: '3.4'
 services:
 #--if (ConsoleApplicationExists)
   burcin.console:
-    image: ${DOCKER_REGISTRY}burcinconsole
+    image: ${DOCKER_REGISTRY-}burcinconsole
     build:
       context: .
       dockerfile: src/Burcin.Console/Dockerfile
 #--endif
 #--if (WebApiApplicationExists)
   burcin.api:
-    image: ${DOCKER_REGISTRY}burcinapi
+    image: ${DOCKER_REGISTRY-}burcinapi
     build:
       context: .
       dockerfile: src/Burcin.Api/Dockerfile

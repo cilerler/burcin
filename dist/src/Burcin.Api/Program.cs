@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
 using Burcin.Domain;
 using Microsoft.AspNetCore.Builder;
@@ -13,14 +14,16 @@ using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Hosting;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
 using Serilog;
+using StackExchange.Redis;
 #if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
 using Burcin.Data;
@@ -30,12 +33,11 @@ namespace Burcin.Api
 {
 	public sealed class Program
 	{
-		private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(15);
-		internal static readonly TimeSpan DefaultCacheDuration = TimeSpan.FromSeconds(5);
-
-		public static void Main(string[] args)
+#pragma warning disable IDE1006 // Naming Styles
+		public static async Task Main(string[] args)
+#pragma warning restore IDE1006 // Naming Styles
 		{
-			var argsRetrievedFromEnvironmentVariable = false;
+			bool argsRetrievedFromEnvironmentVariable = false;
 			if (!args.Any())
 			{
 				args = EnvironmentHelper.EnvironmentArgs;
@@ -43,20 +45,19 @@ namespace Burcin.Api
 			}
 
 			IWebHost host = BuildHost(args);
-			var logger = host.Services.GetService<ILogger<Program>>();
-			var hostingEnvironment = host.Services.GetService<IHostingEnvironment>();
+			ILogger<Program> logger = host.Services.GetService<ILogger<Program>>();
+			IWebHostEnvironment hostingEnvironment = host.Services.GetService<IWebHostEnvironment>();
 			EnvironmentHelper.EnvironmentName = hostingEnvironment.EnvironmentName;
 
 			AssemblyName assemblyName = Assembly.GetExecutingAssembly()
 												.GetName();
-			Guid applicationGuid = Guid.NewGuid();
+			var applicationGuid = Guid.NewGuid();
 
 			using (logger.ProgramScope(assemblyName.Name
 									 , assemblyName.Version.ToString()
 									 , applicationGuid.ToString()))
 			{
-				logger.ProgramStarted(Process.GetCurrentProcess()
-											 .Id
+				logger.ProgramStarted(Process.GetCurrentProcess().Id
 									, Thread.CurrentThread.ManagedThreadId);
 
 				logger.ProgramInitial(EnvironmentHelper.EnvironmentName
@@ -68,7 +69,7 @@ namespace Burcin.Api
 
 				Initialize(host.Services);
 
-				host.Run();
+				await host.RunAsync();
 
 				logger.ProgramStopping(Process.GetCurrentProcess()
 											  .Id
@@ -79,25 +80,37 @@ namespace Burcin.Api
 		private static void Initialize(IServiceProvider serviceProvider)
 		{
 			// Waiting for https://github.com/serilog/serilog-aspnetcore/issues/49
-			serviceProvider.GetRequiredService<IApplicationLifetime>()
+			serviceProvider.GetRequiredService<IHostApplicationLifetime>()
 						   .ApplicationStopped.Register(Log.CloseAndFlush);
 
+			ILogger<Program> logger = serviceProvider.GetService<ILogger<Program>>();
+			
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
 
 			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
-			var memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
+			IMemoryCache memoryCache = serviceProvider.GetRequiredService<IMemoryCache>();
 			memoryCache.Set(StartTimeHeader.InMemoryCacheKey
 						  , serverStartTime
 						  , memoryCacheEntryOptions);
 
 			byte[] value = Encoding.UTF8.GetBytes(serverStartTime.ToString("s"));
 			DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(30));
-			var distributedCache = serviceProvider.GetService<IDistributedCache>();
-			distributedCache.Set(StartTimeHeader.DistributedCacheKey
-							   , value
-							   , cacheEntryOptions);
 
-			var helper = serviceProvider.GetService<Helper>();
+			try
+			{
+				IDistributedCache distributedCache = serviceProvider.GetRequiredService<IDistributedCache>();
+				distributedCache.Set(StartTimeHeader.DistributedCacheKey, value, cacheEntryOptions);
+			}
+			catch (Exception e) when (e.Source.Equals("StackExchange.Redis"))
+			{
+				logger.LogWarning(e, e.Message);
+			}
+			catch (Exception e)
+			{
+				logger.LogError(e, e.Message);
+			}
+
+			Helper helper = serviceProvider.GetService<Helper>();
 			helper.Echo("Hello World!");
 		}
 
@@ -133,7 +146,7 @@ namespace Burcin.Api
 														  throw new ArgumentException($"Configuration file does not exist!  Current Directory {Directory.GetCurrentDirectory()}");
 													  }
 
-													  IHostingEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
+													  IWebHostEnvironment hostingEnvironment = hostingContext.HostingEnvironment;
 													  appConfig.AddJsonFile(configurationFileName
 																		  , true
 																		  , true);
@@ -143,7 +156,7 @@ namespace Burcin.Api
 
 													  if (hostingEnvironment.IsDevelopment())
 													  {
-														  Assembly assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
+					                                      var assembly = Assembly.Load(new AssemblyName(hostingEnvironment.ApplicationName));
 														  if (assembly != null)
 														  {
 															  //x appConfig.AddUserSecrets<Startup>();
@@ -153,11 +166,10 @@ namespace Burcin.Api
 													  }
 
 													  appConfig.AddEnvironmentVariables(prefix: "ASPNETCORE_");
-													  if (args == null)
-													  {
-														  return;
-													  }
-													  appConfig.AddCommandLine(args);
+				                                      if (args != null)
+				                                      {
+					                                      appConfig.AddCommandLine(args);
+				                                      }
 												  })
 					   .ConfigureLogging((hostingContext, loggingBuilder) =>
 										 {
@@ -224,32 +236,29 @@ namespace Burcin.Api
 											  services.AddDistributedMemoryCache();
 #endif
 
-											  try
-											  {
-//#if (CacheSqlServer)
-//												  services.AddDistributedSqlServerCache(options =>
-//																						{
-//																							options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
-//																							options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
-//																							options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
-//																						});
-//#endif
-//#if (CacheRedis)
-//												  services.AddStackExchangeRedisCache(options =>
-//																					{
-//																						options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
-//																						options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
-//																						//x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
-//																					});
-//#endif
-											  }
-											  catch (Exception e)
-											  {
+#if (CacheSqlServer)
+											  services.AddDistributedSqlServerCache(options =>
+																						{
+																							options.ConnectionString = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
+																							options.SchemaName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
+																							options.TableName = hostingContext.Configuration.GetValue<string>("Cache:SqlServer:TableName");
+																						});
+#endif
+#if (CacheRedis)
+											  services.AddStackExchangeRedisCache(options =>
+																					  {
+																						  options.Configuration = hostingContext.Configuration.GetConnectionString(hostingContext.Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+																						  options.InstanceName = hostingContext.Configuration.GetValue<string>("Cache:Redis:InstanceName");
+																						  //x hostingContext.Configuration.GetSection("Cache:Redis").Bind(options);
+																						  options.ConfigurationOptions =
+																							  new ConfigurationOptions
+																							  {
+																								  AbortOnConnectFail = true
+																							  };
+																					  });
+#endif
 
-											  }
-
-
-											  #if (EntityFramework)
+#if (EntityFramework)
 											  const string databaseConnectionString = "DefaultConnection";
 											  string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
 											  string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
@@ -279,7 +288,6 @@ namespace Burcin.Api
 					   .UseStartup<Startup>()
 					   .CaptureStartupErrors(true)
 					   .UseSetting("detailedErrors", "true")
-					   .UseApplicationInsights()
 					   .UseShutdownTimeout(TimeSpan.FromSeconds(5));
 			return hostBuilder.Build();
 		}

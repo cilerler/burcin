@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
-		<TargetFramework>netcoreapp2.2</TargetFramework>
+		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<!--#if (WindowsService)-->
-		<RuntimeIdentifier>win7-x64</RuntimeIdentifier>
+		<RuntimeIdentifiers>win10-x64</RuntimeIdentifiers>
 		<!--#endif-->
 		<LangVersion>latest</LangVersion>
 		<UserSecretsId>Burcin.Console</UserSecretsId>
 		<!--#if (DockerSupport)-->
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerfileContext>..\..</DockerfileContext>
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<!--#endif-->
 	</PropertyGroup>
@@ -48,24 +49,24 @@
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.9.5" />
 		<!--#endif-->
 		<PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="2.2.4" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.2.0" />
-		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="2.2.0" Condition="'$(CacheSqlServer)' == 'true'" />
-    	<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="2.2.5" Condition="'$(CacheRedis)' == 'true'" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="3.0.0" Condition="'$(CacheSqlServer)' == 'true'" />
+    	<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.0.0" Condition="'$(CacheRedis)' == 'true'" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Serilog.Extensions.Logging" Version="2.0.2" />
+		<PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
 		<PackageReference Include="Serilog.Settings.Configuration" Version="3.1.0" />
 		<PackageReference Include="Serilog.Enrichers.Context" Version="4.2.0" />
 		<PackageReference Include="Serilog.Enrichers.Environment" Version="2.1.3" />
@@ -76,10 +77,10 @@
 		<PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Ruya.Primitives" Version="1.0.504" />
-		<PackageReference Include="Ruya.AppDomain" Version="1.0.510" />
-		<PackageReference Include="Ruya.Extensions.Logging" Version="1.0.511" />
-		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.0.512" />
+		<PackageReference Include="Ruya.Primitives" Version="[1.1.132,)" />
+		<PackageReference Include="Ruya.AppDomain" Version="[1.1.132,)" />
+		<PackageReference Include="Ruya.Extensions.Logging" Version="[1.1.132,)" />
+		<PackageReference Include="Ruya.Helpers.Primitives" Version="[1.1.132,)" />
 	</ItemGroup>
 	<ItemGroup>
 <!--#if (BackgroundService)-->
