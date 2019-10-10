@@ -49,7 +49,7 @@ jobs:
       run: |
         echo ::set-env name=RELEASE_TAG::$buildNumber
         echo ::set-env name=RELEASE_NAME::$GITHUB_WORKFLOW
-        echo ::set-env name=RELEASE_FILES::artifacts-${GITHUB_WORKFLOW}-${buildNumber}:./artifacts/staging ./artifacts/packages/*.nupkg
+        echo ::set-env name=RELEASE_FILES::artifacts-${GITHUB_WORKFLOW}-${buildNumber}:./artifacts/staging
         # echo ::set-env name=RELEASE_FILES::artifacts-${GITHUB_WORKFLOW}-${buildNumber}:./artifacts/staging ./artifacts/packages/*.nupkg
     - name: GitHub Release
       uses: meeDamian/github-release@v1.0.1
@@ -58,8 +58,10 @@ jobs:
         gzip: folders
         allow_override: true
         prerelease: true
+    # # remove the `true` at the end upon https://github.com/NuGet/Home/issues/4864 close
     # - name: Nuget
-    #   run: dotnet nuget push ./artifacts/packages/*.nupkg -k ${nugetApiKey} -s https://api.nuget.org/v3/index.json
+    #   run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json --no-symbols true
+    ## todo remove the `true` at the end upon https://github.com/NuGet/Home/issues/4864 close
     #   env:
     #     nugetApiKey: ${{secrets.NUGET_API_KEY}}
 
