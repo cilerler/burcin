@@ -1,11 +1,11 @@
-name: Burcin.Console
+name: Burcin.Api
 
 on:
   push:
     branches:
     - master
     paths:
-    - '.github/workflows/Burcin.Console.yml'
+    - '.github/workflows/Burcin.Api.yml'
     - 'src/Burcin.*/**'
 
 jobs:
@@ -17,8 +17,8 @@ jobs:
     env:
       buildConfiguration: 'Release'
       buildNumber: '0.0.0'
-      projectFile: './src/Burcin.Console/Burcin.Console.csproj'
-      projectTestFile: './test/Burcin.Console.Tests/Burcin.Console.Tests.csproj'
+      projectFile: './src/Burcin.Api/Burcin.Api.csproj'
+      projectTestFile: './test/Burcin.Api.Tests/Burcin.Api.Tests.csproj'
 
     steps:
     - uses: actions/checkout@v1
@@ -50,6 +50,7 @@ jobs:
         echo ::set-env name=RELEASE_TAG::$buildNumber
         echo ::set-env name=RELEASE_NAME::$GITHUB_WORKFLOW
         echo ::set-env name=RELEASE_FILES::artifacts-${GITHUB_WORKFLOW}-${buildNumber}:./artifacts/staging ./artifacts/packages/*.nupkg
+        # echo ::set-env name=RELEASE_FILES::artifacts-${GITHUB_WORKFLOW}-${buildNumber}:./artifacts/staging ./artifacts/packages/*.nupkg
     - name: GitHub Release
       uses: meeDamian/github-release@v1.0.1
       with:
