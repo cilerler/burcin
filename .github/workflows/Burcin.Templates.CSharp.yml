@@ -92,10 +92,10 @@ jobs:
     #     nugetApiKey: ${{secrets.GITHUB_TOKEN}}
     ## waiting for https://github.com/NuGet/Home/issues/8580
 
-    - uses: actions/upload-artifact@master
-      with:
-        name: Artifacts
-        path: .\artifacts\packages\*.nupkg
+    # - uses: actions/upload-artifact@master
+    #   with:
+    #     name: Artifacts
+    #     path: .\artifacts\packages\*.nupkg
 
     - name: Nuget
       run: dotnet nuget push .\artifacts\packages\*.nupkg -k %nugetApiKey% -s https://api.nuget.org/v3/index.json --no-symbols
