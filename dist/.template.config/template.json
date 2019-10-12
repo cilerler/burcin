@@ -184,14 +184,14 @@
 					"condition": "(!WebApiApplicationExists)",
 					"exclude": [
 						"src/Burcin.Api/**/*",
-						".github/workflows/Burcin.Api.yaml"
+						".github/workflows/Burcin.Api.yml"
 					]
 				},
 				{
 					"condition": "(!ConsoleApplicationExists)",
 					"exclude": [
 						"src/Burcin.Console/**/*",
-						".github/workflows/Burcin.Console.yaml"
+						".github/workflows/Burcin.Console.yml"
 					]
 				},
 				{
