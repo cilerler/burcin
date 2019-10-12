@@ -52,8 +52,8 @@ namespace Burcin.Domain.Tests
 		[Priority(1)]
 		[TestCategory("Intermediate")]
 		[DataTestMethod]
-		[DataRow("ruya", 28)]
-		[DataRow("cengiz", 8)]
+		[DataRow("test1", 44)]
+		[DataRow("test2", 55)]
 		public void EchoTest(string name, int number)
 		{
 		    _logger.LogInformation($"Testing {nameof(EchoTest)}");
