@@ -115,7 +115,7 @@ namespace Burcin.Console
 			               .ApplicationStopped.Register(Log.CloseAndFlush);
 
 			ILogger<Program> logger = serviceProvider.GetService<ILogger<Program>>();
-			
+
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
 
 			MemoryCacheEntryOptions memoryCacheEntryOptions = new MemoryCacheEntryOptions().SetPriority(CacheItemPriority.NeverRemove);
@@ -252,7 +252,7 @@ namespace Burcin.Console
 #endif
 
 #if (EntityFramework)
-				                              const string databaseConnectionString = "DefaultConnection";
+				                              const string databaseConnectionString = "MsSqlConnection";
 				                              string connectionString = hostingContext.Configuration.GetConnectionString(databaseConnectionString);
 				                              string assemblyName = hostingContext.Configuration.GetValue(typeof(string)
 				                                                                                        , DbContextFactory.MigrationAssemblyNameConfiguration)
