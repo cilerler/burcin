@@ -160,8 +160,8 @@ namespace Burcin.Api
 									   })
 
 				#if (EntityFramework)
-					 // TODO: Make the `DefaultConnection` string constant. It exists in Program.cs too.
-					 .AddSqlServer(connectionString: Configuration["ConnectionStrings:DefaultConnection"]
+					 // TODO: Make the `MsSqlConnection` string constant. It exists in Program.cs too.
+					 .AddSqlServer(connectionString: Configuration["ConnectionStrings:MsSqlConnection"]
 					 			, name: "Microsoft SQL"
 								, failureStatus: HealthStatus.Unhealthy
 					 			, tags: new[]
