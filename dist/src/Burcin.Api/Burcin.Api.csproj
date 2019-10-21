@@ -102,7 +102,7 @@
 		<!--#if (Swagger)-->
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="4.0.1" Condition="'$(Swagger)' == 'true'" />
 		<!--#endif-->
-		<PackageReference Include="prometheus-net.AspNetCore" Version="3.2.1" />
+		<PackageReference Include="prometheus-net.AspNetCore" Version="3.3.0" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
