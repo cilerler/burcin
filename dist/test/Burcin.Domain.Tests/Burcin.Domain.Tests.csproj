@@ -36,7 +36,7 @@
 	<PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-	<PackageReference Include="Moq" Version="4.13.0" />
+	<PackageReference Include="Moq" Version="4.13.1" />
   </ItemGroup>
 
   <ItemGroup>
