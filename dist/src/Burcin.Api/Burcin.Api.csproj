@@ -65,7 +65,7 @@
 	</ItemGroup>
 	<!--#if (HealthChecks)-->
 	<ItemGroup>
-		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.UI" Version="3.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="3.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.0.0" />
