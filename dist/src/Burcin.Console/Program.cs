@@ -18,7 +18,7 @@ using Ruya.AppDomain;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
 using Burcin.Domain;
-using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 #if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
 using Burcin.Data;
