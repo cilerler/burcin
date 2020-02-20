@@ -1,7 +1,7 @@
 <Project>
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.1" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.2" PrivateAssets="All" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.1" />
         <!-- <PackageReference nclude="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.6" /> -->
