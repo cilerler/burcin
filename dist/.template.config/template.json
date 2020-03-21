@@ -109,10 +109,19 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
-		"PrivateNugetSource": {
+		"NugetSourceGitHub": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false"
+		},
+		"NugetSourceAzureDevOps": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"NugetSourceExists": {
+			"type": "computed",
+			"value": "(NugetSourceGitHub == \"true\" || NugetSourceAzureDevOps == \"true\")"
 		},
 		"Cache": {
 			"type": "parameter",
