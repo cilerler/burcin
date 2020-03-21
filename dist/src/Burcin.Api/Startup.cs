@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Polly.Retry;
@@ -65,15 +66,13 @@ namespace Burcin.Api
 									   options.IgnoreObsoleteActions();
 									   options.IgnoreObsoleteProperties();
 									   options.SwaggerDoc("v1"
-														, new Info
+														, new OpenApiInfo
 														{
 															Title = "Burcin API"
 															,
 															Version = "1.0"
 															,
 															Description = "Burcin API"
-															,
-															TermsOfService = "Terms Of Service"
 														});
 									   // Set the comments path for the Swagger JSON and UI.
 									   string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
