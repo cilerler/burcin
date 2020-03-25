@@ -53,7 +53,7 @@ jobs:
           nuget-version: 'latest'
 
       - name: Pack
-        run: nuget pack %nuspecFile% -NonInteractive -OutputDirectory .\artifacts\packages -Verbosity Detailed -version %buildNumber%
+        run: nuget pack $nuspecFile -NonInteractive -OutputDirectory .\artifacts\packages -Verbosity Detailed -version $buildNumber
     #   run: dotnet pack -p:NuspecFile=<path to nuspec file> -p:NuspecProperties=<> -p:NuspecBasePath=<Base path>
     # # waiting for https://github.com/NuGet/Home/issues/4254
 
