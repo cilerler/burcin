@@ -7,7 +7,7 @@ on:
   # - 'releases/**'
   # - '!releases/**-alpha'
     paths:
-    - '.github/workflowsbuild_on_push.yml'
+    - '.github/workflows/build_on_push.yml'
     - 'dist/**'
     # - '!test/**'
     # - '!docs/**'
