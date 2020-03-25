@@ -1,21 +1,14 @@
 version: '3.4'
 
 services:
-#--if (ConsoleApplicationExists)
-  burcin.console:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-#--endif
-#--if (WebApiApplicationExists)
   burcin.api:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:443;http://+:80
-      - ASPNETCORE_HTTPS_PORT=44346
+      - DOTNET_ENVIRONMENT=Development
+      - DOTNET_URLS=https://+:443;http://+:80
+      - DOTNET_HTTPS_PORT=44346
     ports:
       - "10001:80"
       - "47921:443"
-#--endif
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

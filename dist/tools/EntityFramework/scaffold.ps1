@@ -1,10 +1,4 @@
-#--if (WebApiApplicationExists)
 Set-Location ".\src\Burcin.Api";
-#--endif
-
-#--if (ConsoleApplicationExists)
-Set-Location ".\src\Burcin.Console";
-#--endif
 
 dotnet ef dbcontext scaffold "data source=localhost;initial catalog=BurcinDatabase;Trusted_Connection=True;MultipleActiveResultSets=True;App=Burcin" Microsoft.EntityFrameworkCore.SqlServer -f -d -o "..\Burcin.Models\BurcinDatabase" -c "BurcinDatabaseDbContext" --schema MySchema -t MySchema.MyTable1 -t MySchema.MyTable2;
 

@@ -3,7 +3,7 @@ dotnet build /p:BuildNumber=$buildNumber -c Release;
 dotnet pack /p:BuildNumber=$buildNumber -c Release -o "..\nupkgs" --no-build --include-symbols;
 
 #--if (WindowsService)
-dotnet publish /p:BuildNumber=$buildNumber -c Release --runtime win7-x64;
+dotnet publish /p:BuildNumber=$buildNumber -c Release --runtime win10-x64;
 #--else
 dotnet publish /p:BuildNumber=$buildNumber -c Release;
 #--endif

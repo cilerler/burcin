@@ -352,11 +352,17 @@ $RECYCLE.BIN/
 # Kubernetes
 .kube
 
+# DocFx
+_site
+
 # =========================
 # Ignores
 # =========================
-.ignore
-.ignore/
+*.ignore
+*.ignore/
+
+# HealthCheckDb
+healthchecksdb
 
 # Test folder for Burcin
 Bedia/
