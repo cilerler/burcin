@@ -96,7 +96,7 @@ jobs:
           asset_content_type: application/zip
 
       - name: Push to GitHub Packages
-        run: nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
+        run: nuget push ./artifacts/packages/*.nupkg --source "github" --api-key ${GITHUB_TOKEN}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Push to Nuget
