@@ -6,7 +6,7 @@
  
 [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg?logo=nuget)](https://www.nuget.org/packages/Burcin.Templates.CSharp)
 ![](https://img.shields.io/nuget/dt/Burcin.Templates.CSharp.svg?logo=nuget&color=yellow)
-![](https://github.com/cilerler/burcin/workflows/Burcin.Templates.CSharp/badge.svg)
+![](https://github.com/cilerler/burcin/workflows/build_on_push/badge.svg)
 
 
 The template will change all `Burcin` words under the `dist` folder to the folder name.
