@@ -26,6 +26,7 @@ jobs:
       #buildConfiguration: 'Release'
       buildNumber: '1.2'
       nuspecFile: './burcin.nuspec'
+      assetPrefix: 'Burcin.Templates.CSharp'
 
     steps:
       - name: Extract branch name
@@ -77,7 +78,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{env.buildNumber}}
-          release_name: ${{github.workflow}}.${{env.buildNumber}}
+          release_name: ${{env.buildNumber}}
           draft: false
           prerelease: true
           body: |
@@ -90,8 +91,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifacts/packages/${{github.workflow}}.${{env.buildNumber}}.nupkg
-          asset_name: ${{github.workflow}}.${{env.buildNumber}}.nupkg
+          asset_path: ./artifacts/packages/${{env.assetPrefix}}.${{env.buildNumber}}.nupkg
+          asset_name: ${{env.assetPrefix}}.${{env.buildNumber}}.nupkg
           asset_content_type: application/zip
 
       - name: Push to GitHub Packages
