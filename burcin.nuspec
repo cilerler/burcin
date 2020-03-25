@@ -9,8 +9,9 @@
     <authors>Cengiz Ilerler</authors>
 	<projectUrl>https://github.com/cilerler/burcin</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
+	<repositoryUrl>https://github.com/cilerler/burcin.git</repositoryUrl>
+	<repository type="git" url="https://github.com/cilerler/burcin.git" />
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-	<repository type="git" url="https://github.com/cilerler/burcin.git" branch="master"/>
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>
