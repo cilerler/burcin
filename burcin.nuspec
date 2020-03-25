@@ -10,6 +10,7 @@
 	<projectUrl>https://github.com/cilerler/burcin</projectUrl>
     <licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
+	<repository type="git" url="https://github.com/cilerler/burcin" />
     <packageTypes>
       <packageType name="Template" />
     </packageTypes>
