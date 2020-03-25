@@ -18,7 +18,7 @@ The template will change all `Burcin` words under the `dist` folder to the folde
 dotnet new --install "Burcin.Templates.CSharp"
 
 # retrieves a specific version
-dotnet new --install "Burcin.Templates.CSharp::1.0.442"
+dotnet new --install "Burcin.Templates.CSharp::1.2.18"
 ```
 
 ## Uninstall
