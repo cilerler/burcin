@@ -56,7 +56,7 @@ jobs:
       - name: Pack
         run: nuget pack $nuspecFile -NonInteractive -OutputDirectory ./artifacts/packages -Verbosity Detailed -version $buildNumber
     #   run: dotnet pack -p:NuspecFile=<path to nuspec file> -p:NuspecProperties=<> -p:NuspecBasePath=<Base path>
-    # # waiting for https://github.com/NuGet/Home/issues/4254 -
+    # # waiting for https://github.com/NuGet/Home/issues/4254
 
       - name: Publish artifacts (packages)
         uses: actions/upload-artifact@master
@@ -95,10 +95,10 @@ jobs:
           asset_name: ${{env.assetPrefix}}.${{env.buildNumber}}.nupkg
           asset_content_type: application/zip
 
-      - name: Push to GitHub Packages
-        run: dotnet nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Push to GitHub Packages
+      #   run: dotnet nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Push to Nuget
         run: dotnet nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "nuget" --api-key ${NUGET_API_KEY}
         env:
