@@ -4,11 +4,9 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>412f3e04-fa62-4566-8e71-3fe15dc33c1c</ProjectGuid>
-	<!--#if (WebApiApplicationExists) -->
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/api/values</DockerServiceUrl>
     <DockerServiceName>burcin.api</DockerServiceName>
-	<!--#endif-->
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

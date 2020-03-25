@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
+using Burcin.Data;
+using Burcin.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -13,6 +15,7 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -23,6 +26,7 @@ using Newtonsoft.Json.Converters;
 using Polly.Retry;
 using Ruya.Primitives;
 using Prometheus;
+using StackExchange.Redis;
 #if (HealthChecks)
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -55,6 +59,59 @@ namespace Burcin.Api
 										options.SerializerSettings.Converters.Add(new StringEnumConverter());
 										options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
 									});
+
+
+
+			services.AddOptions();
+			services.AddMemoryCache();
+#if (!CacheExists)
+			services.AddDistributedMemoryCache();
+#endif
+
+#if (CacheSqlServer)
+			services.AddDistributedSqlServerCache(options =>
+			{
+				options.ConnectionString = Configuration.GetConnectionString(Configuration.GetValue<string>("Cache:SqlServer:ConnectionStringKey"));
+				options.SchemaName = Configuration.GetValue<string>("Cache:SqlServer:SchemaName");
+				options.TableName = Configuration.GetValue<string>("Cache:SqlServer:TableName");
+			});
+#endif
+#if (CacheRedis)
+			services.AddStackExchangeRedisCache(options =>
+			{
+				options.Configuration = Configuration.GetConnectionString(Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
+				options.InstanceName = Configuration.GetValue<string>("Cache:Redis:InstanceName");
+				//x Configuration.GetSection("Cache:Redis").Bind(options);
+				options.ConfigurationOptions =
+					new ConfigurationOptions
+					{
+						AbortOnConnectFail = true
+					};
+			});
+#endif
+
+#if (EntityFramework)
+			const string databaseConnectionString = "MsSqlConnection";
+			string connectionString = Configuration.GetConnectionString(databaseConnectionString);
+			string assemblyName = Configuration.GetValue(typeof(string)
+																   , DbContextFactory.MigrationAssemblyNameConfiguration)
+											 .ToString();
+			services.AddDbContext<BurcinDatabaseDbContext>(options => options.UseSqlServer(connectionString
+																				 , sqlServerOptions =>
+																				 {
+																					 sqlServerOptions.MigrationsAssembly(assemblyName);
+																					 sqlServerOptions.EnableRetryOnFailure(5
+																																						   , TimeSpan.FromSeconds(30)
+																																						   , null);
+																				 }));
+#endif
+
+#if (BackgroundService)
+			services.AddGracePeriodManagerService(Configuration);
+#endif
+
+			services.AddHelper(Configuration);
+
 			services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, DomainMatcherPolicy.DomainMatcherPolicy>());
 			services.AddResponseCaching();
 			services.AddResponseCompression();
@@ -205,7 +262,8 @@ namespace Burcin.Api
 					//.AddPrometheusGatewayPublisher()
 					;
 			services.AddHealthChecksUI();
-			#endif
+			//services.AddRazorPages();
+		#endif
 		}
 
 		public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
@@ -215,9 +273,11 @@ namespace Burcin.Api
 				app.UseDeveloperExceptionPage();
 				app.UseDatabaseErrorPage();
 			}
-
-			// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-			app.UseHsts();
+			else
+			{
+				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+				app.UseHsts();
+			}
 			app.UseHttpsRedirection();
 			app.UseResponseCompression();
 			app.UseResponseCaching();
@@ -315,6 +375,7 @@ namespace Burcin.Api
 				});
 #endif
 
+				//x endpoints.MapRazorPages();
 				endpoints.MapControllers();
 				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 			});
@@ -327,7 +388,7 @@ namespace Burcin.Api
 					{
 						context.Response.ContentType = "text/html";
 						await context.Response.WriteAsync("<p>Hosted by Kestrel<p>");
-						if (Environment.GetEnvironmentVariable("ASPNETCORE_PORT") != null)
+						if (Environment.GetEnvironmentVariable("DOTNET_PORT") != null)
 						{
 							await context.Response.WriteAsync("Using IIS as reverse proxy.");
 						}

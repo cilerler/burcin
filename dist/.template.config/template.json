@@ -199,8 +199,7 @@
 				{
 					"condition": "(!ConsoleApplicationExists)",
 					"exclude": [
-						"src/Burcin.Console/**/*",
-						".github/workflows/Burcin.Console.yml"
+						"src/Burcin.Api/hostsettings.json"
 					]
 				},
 				{
@@ -208,8 +207,6 @@
 					"exclude": [
 						"tools/EntityFramework/**/*",
 						"src/Burcin.Api/DbContextFactory.cs",
-						"src/Burcin.Console/DbContextFactory.cs",
-						"src/Burcin.Console/EntityFramework.targets",
 						"src/Burcin.Domain/EntityFramework.targets",
 						"src/Burcin.Api/EntityFramework.targets",
 						"src/Burcin.Models/**/*",
@@ -232,21 +229,18 @@
 						"docker-compose.yml",
 						"docker-compose.override.yml",
 						".dockerignore",
-						"src/Burcin.Api/Dockerfile",
-						"src/Burcin.Console/Dockerfile"
+						"src/Burcin.Api/Dockerfile"
 					]
 				},
 				{
 					"condition": "(!BackgroundService)",
 					"exclude": [
-						"src/Burcin.Api/Services/**/*",
-						"src/Burcin.Console/Services/**/*"
+						"src/Burcin.Api/Services/**/*"
 					]
 				},
 				{
 					"condition": "(!WindowsService)",
 					"exclude": [
-						"src/Burcin.Console/ServiceBaseLifetime.cs",
 						"tools/windows-service.ps1"
 					]
 				},

@@ -1,12 +1,6 @@
 dotnet new sln;
 
-#--if (WebApiApplicationExists)
 dotnet sln Burcin.sln add src/Burcin.Api/Burcin.Api.csproj;
-#--endif
-
-#--if (ConsoleApplicationExists)
-dotnet sln Burcin.sln add src/Burcin.Console/Burcin.Console.csproj;
-#--endif
 
 #--if (EntityFramework)
 dotnet sln Burcin.sln add src/Burcin.Models/Burcin.Models.csproj;
