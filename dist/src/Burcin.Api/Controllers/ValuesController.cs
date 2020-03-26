@@ -6,7 +6,7 @@ using DomainMatcherPolicy;
 namespace Burcin.Api.Controllers
 {
 	[ApiController]
-    [Route("api/v1/[controller]")]
+    [Route("api/[controller]")]
     public class ValuesController : ControllerBase
     {
         private IServiceProvider _serviceProvider;

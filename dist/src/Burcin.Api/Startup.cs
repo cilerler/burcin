@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.IO;
 using System.Net;
@@ -8,6 +10,10 @@ using System.Threading.Tasks;
 using Burcin.Api.Middlewares;
 using Burcin.Data;
 using Burcin.Domain;
+using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +26,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OData.Edm;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -60,7 +68,7 @@ namespace Burcin.Api
 										options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
 									});
 
-
+			services.AddOData();
 
 			services.AddOptions();
 			services.AddMemoryCache();
@@ -119,7 +127,6 @@ namespace Burcin.Api
 #if (Swagger)
 			services.AddSwaggerGen(options =>
 								   {
-									   options.DescribeAllEnumsAsStrings();
 									   options.IgnoreObsoleteActions();
 									   options.IgnoreObsoleteProperties();
 									   options.SwaggerDoc("v1"
@@ -136,6 +143,8 @@ namespace Burcin.Api
 									   string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 									   options.IncludeXmlComments(xmlPath);
 								   });
+			// Workaround: https://github.com/OData/WebApi/issues/1177
+			SetOutputFormatters(services);
 #endif
 
 #if (HealthChecks)
@@ -258,15 +267,14 @@ namespace Burcin.Api
 											"services"
 										})
 					//.AddApplicationInsightsPublisher()
-					.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
 					//.AddPrometheusGatewayPublisher()
+					//.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
 					;
 			services.AddHealthChecksUI();
-			//services.AddRazorPages();
 		#endif
 		}
 
-		public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
+		public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHostApplicationLifetime applicationLifetime)
 		{
 			if (env.IsDevelopment())
 			{
@@ -332,12 +340,11 @@ namespace Burcin.Api
 			});
 
 #if (Swagger)
-			// todo research why this part throws an error on Core 3
-			//app.UseSwagger();
-			//app.UseSwaggerUI(c =>
-			//				 {
-			//					 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
-			//				 });
+			app.UseSwagger();
+			app.UseSwaggerUI(c =>
+							 {
+								 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Burcin");
+							 });
 #endif
 
 			app.UseEndpoints(endpoints =>
@@ -375,9 +382,19 @@ namespace Burcin.Api
 				});
 #endif
 
-				//x endpoints.MapRazorPages();
 				endpoints.MapControllers();
-				endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+				endpoints.SetDefaultQuerySettings(new Microsoft.AspNet.OData.Query.DefaultQuerySettings
+				{
+					EnableSelect = true,
+					EnableExpand = true,
+					EnableFilter = true,
+					EnableOrderBy = true,
+					EnableCount = true,
+					EnableSkipToken = true,
+					MaxTop = 100
+				});
+				endpoints.MapODataRoute("odata", "odata", ODataEdmModelHelper.GetEdmModel());
+				endpoints.MapDefaultControllerRoute();
 			});
 
 			app.UseWelcomePage();
@@ -399,5 +416,22 @@ namespace Burcin.Api
 						await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}</p>");
 					});
 		}
+		
+#if (Swagger)
+		private void SetOutputFormatters(IServiceCollection services)
+		{
+			services.AddMvcCore(options =>
+			{
+				foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+				{
+					outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+				}
+				foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+				{
+					inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/odata"));
+				}
+			});
+		}
+#endif
 	}
 }
