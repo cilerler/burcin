@@ -155,9 +155,6 @@ namespace Burcin.Api
             Host.CreateDefaultBuilder(args)
                 .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
                         .ReadFrom.Configuration(hostingContext.Configuration)
-                        .Enrich.FromLogContext()
-                        .Enrich.WithProcessId()
-                        .Enrich.WithThreadId()
                         .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
                             .WithDefaultDestructurers()
                             .WithDestructurers(new IExceptionDestructurer[]
@@ -165,16 +162,18 @@ namespace Burcin.Api
                                 new SqlExceptionDestructurer(),
                                 new DbUpdateExceptionDestructurer()
                             }))
-
-                    //.WriteTo.Debug()
-                    //.WriteTo.Console(
-                    //    outputTemplate:
-                    //    "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
-                    //.WriteTo.Console(new RenderedCompactJsonFormatter())
-                    //.WriteTo.File(new RenderedCompactJsonFormatter(), "/logs/log.ndjson")
-                    //.WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341")
-                    //.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-                )
+				//.Enrich.FromLogContext()
+				//.Enrich.WithProcessId()
+				//.Enrich.WithThreadId()
+				//.WriteTo.Debug()
+				//.WriteTo.Console(
+				//    outputTemplate:
+				//    "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}")
+				//.WriteTo.Console(new RenderedCompactJsonFormatter())
+				//.WriteTo.File(new RenderedCompactJsonFormatter(), "/logs/log.ndjson")
+				//.WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341")
+				//.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+				)
 #if (WebApiApplication)
 				 .ConfigureWebHostDefaults(webBuilder =>
 				 {
