@@ -39,7 +39,7 @@ services:
   rabbitmq:
     container_name: rabbitmq
     hostname: rabbit-1
-    image: rabbitmq:3.8.2-management-alpine
+    image: rabbitmq:3.8.3-management-alpine
     command: bash -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
     ports:
       - "5672:5672"
@@ -53,7 +53,7 @@ services:
     networks:
       - burcinnet
   redis:
-    image: redis:5.0.3-alpine
+    image: redis:5.0.8-alpine
     ports:
       - "6379:6379"
     volumes:
@@ -71,7 +71,7 @@ services:
     networks:
       - burcinnet
   grafana:
-    image: grafana/grafana:6.2.5
+    image: grafana/grafana:6.7.1
     environment:
       - GF_INSTALL_PLUGINS=raintank-worldping-app,grafana-azure-data-explorer-datasource
     ports:
@@ -81,31 +81,31 @@ services:
     networks:
       - burcinnet
   prometheus-server:
-    image: prom/prometheus:v2.11.1
+    image: prom/prometheus:v2.17.0
     ports:
       - "9090:9090"
     networks:
       - burcinnet
   prometheus-pushgateway:
-    image: prom/pushgateway:v0.8.0
+    image: prom/pushgateway:v1.2.0
     ports:
       - "9091:9091"
     networks:
       - burcinnet
   prometheus-alertmanager:
-    image: prom/alertmanager:v0.18.0
+    image: prom/alertmanager:v0.20.0
     ports:
       - "9093:9093"
     networks:
       - burcinnet
   prometheus-node-exporter:
-    image: prom/node-exporter:v0.18.0
+    image: prom/node-exporter:v1.0.0-rc.0
     ports:
       - "9100:9100"
     networks:
       - burcinnet
   mongo:
-    image: mongo:4.1.7
+    image: mongo:4.2.5
     ports:
       - "27017:27017"
     networks:
@@ -119,7 +119,7 @@ services:
     networks:
       - burcinnet
   postgresql:
-    image: postgres:11.1-alpine
+    image: postgres:12.2-alpine
     ports:
       - "5432:5432"
     volumes:
