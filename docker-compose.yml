@@ -50,6 +50,7 @@ services:
       - RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
       - RABBITMQ_DEFAULT_USER=test
       - RABBITMQ_DEFAULT_PASS=test
+      # rabbitmqctl add_user test test && rabbitmqctl set_user_tags test administrator && rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
     networks:
       - burcinnet
   redis:
@@ -104,42 +105,42 @@ services:
       - "9100:9100"
     networks:
       - burcinnet
-  mongo:
-    image: mongo:4.2.5
-    ports:
-      - "27017:27017"
-    networks:
-      - burcinnet
-  mongo-express:
-    image: mongo-express:latest
-    ports:
-      - "8081:8081"
-    links:
-      - mongo
-    networks:
-      - burcinnet
-  postgresql:
-    image: postgres:12.2-alpine
-    ports:
-      - "5432:5432"
-    volumes:
-      - /c/.ignore/volumes/postgresql:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Pass@word
-    networks:
-      - burcinnet
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    ports:
-      - "5050:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.local
-      - PGADMIN_DEFAULT_PASSWORD=Pass@word
-    links:
-      - postgresql
-    networks:
-      - burcinnet
+  # mongo:
+  #   image: mongo:4.2.5
+  #   ports:
+  #     - "27017:27017"
+  #   networks:
+  #     - burcinnet
+  # mongo-express:
+  #   image: mongo-express:latest
+  #   ports:
+  #     - "8081:8081"
+  #   links:
+  #     - mongo
+  #   networks:
+  #     - burcinnet
+  # postgresql:
+  #   image: postgres:12.2-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   # volumes:
+  #   #   - /c/.ignore/volumes/postgresql:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_USER=admin
+  #     - POSTGRES_PASSWORD=Pass@word
+  #   networks:
+  #     - burcinnet
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   ports:
+  #     - "5050:80"
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.local
+  #     - PGADMIN_DEFAULT_PASSWORD=Pass@word
+  #   links:
+  #     - postgresql
+  #   networks:
+  #     - burcinnet
 
 networks:
   burcinnet:
