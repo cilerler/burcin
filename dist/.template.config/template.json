@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json.schemastore.org/template",
 	"author": "Cengiz Ilerler",
-	"classifications": ["Web", "Console"],
+	"classifications": ["Web", "Blazor"],
 	"identity": "Burcin.BoilerPlate.CSharp",
 	"name": "Burcin BoilerPlate",
 	"shortName": "burcin",
