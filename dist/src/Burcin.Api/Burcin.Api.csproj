@@ -87,7 +87,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="3.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Kubernetes" Version="3.0.0" />
-		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="3.0.3" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="3.0.4" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Seq" Version="3.0.0" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Prometheus" Version="3.0.0" />
 	</ItemGroup>
