@@ -82,7 +82,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.System" Version="3.0.3" />
 		<PackageReference Include="AspNetCore.HealthChecks.Network" Version="3.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.Uris" Version="3.0.0" />
-		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="3.0.0" />
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="3.0.1" />
 		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" Version="3.0.5" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" Version="3.0.0" />
 		<PackageReference Include="AspNetCore.HealthChecks.Elasticsearch" Version="3.0.1" />
