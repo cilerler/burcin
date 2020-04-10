@@ -89,7 +89,7 @@
 		<PackageReference Include="AspNetCore.HealthChecks.Kubernetes" Version="3.0.0" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.ApplicationInsights" Version="3.0.3" />
 		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Seq" Version="3.0.0" />
-		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Prometheus" Version="3.0.0" />
+		<PackageReference Include="AspNetcore.HealthChecks.Publisher.Prometheus" Version="3.1.0" />
 	</ItemGroup>
 	<!--#endif-->
 	<ItemGroup>
