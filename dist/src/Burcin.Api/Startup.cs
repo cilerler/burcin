@@ -235,7 +235,7 @@ namespace Burcin.Api
 					 					})
 				#endif
 				#if (CacheSqlServer)
-					.AddSqlServer(connectionString: Configuration["ConnectionStrings:SqlServerCacheConnection"]
+					.AddSqlServer(connectionString: Configuration["ConnectionStrings:MsSqlCacheConnection"]
 								, name: "Microsoft SQL (Cache)"
 								, failureStatus: HealthStatus.Degraded
 								, tags: new[]
@@ -416,7 +416,7 @@ namespace Burcin.Api
 						await context.Response.WriteAsync($"<p>Request URL: {context.Request.GetDisplayUrl()}</p>");
 					});
 		}
-		
+
 #if (Swagger)
 		private void SetOutputFormatters(IServiceCollection services)
 		{
