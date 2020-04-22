@@ -34,7 +34,9 @@ using Newtonsoft.Json.Converters;
 using Polly.Retry;
 using Ruya.Primitives;
 using Prometheus;
+#if (CacheRedis)
 using StackExchange.Redis;
+#endif
 #if (HealthChecks)
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
