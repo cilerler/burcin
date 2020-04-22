@@ -79,7 +79,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: v${{env.buildNumber}}
-          release_name: ${{github.workflow}}.${{env.buildNumber}}
+          release_name: ${{env.buildNumber}}
           draft: false
           prerelease: true
           body: |
