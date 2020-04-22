@@ -29,7 +29,9 @@ using Serilog.Exceptions.Core;
 using Serilog.Exceptions.Destructurers;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Exceptions.SqlServer.Destructurers;
+#if (CacheRedis)
 using StackExchange.Redis;
+#endif
 #if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
 using Burcin.Data;
