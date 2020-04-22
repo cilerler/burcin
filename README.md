@@ -17,8 +17,23 @@ The template will change all `Burcin` words under the `dist` folder to the folde
 # retrieves latest
 dotnet new --install "Burcin.Templates.CSharp"
 
-# retrieves a specific version
-dotnet new --install "Burcin.Templates.CSharp::1.2.21"
+# retrieves a specific version with source definition
+dotnet new --install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.nuget.org/v3/index.json
+```
+
+## Update
+
+> [!WARNING]
+> It looks like `--update-*` commands are not working (4/22/2020)
+
+```powershell
+# checks if tere is an update
+dotnet new "Burcin.Templates.CSharp" --update-check
+```
+
+```powershell
+# applies if tere is an update
+dotnet new "Burcin.Templates.CSharp" --update-apply
 ```
 
 ## Uninstall
