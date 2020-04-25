@@ -32,6 +32,8 @@ services:
       - MSSQL_PID=Developer
       - SSIS_PID=Developer
       - SA_PASSWORD=Pass@word
+      - MSSQL_AGENT_ENABLED=true
+      - MSSQL_ENABLE_HADR=0
     volumes:
       - /c/.ignore/volumes/mssql:/var/opt/mssql
     networks:
