@@ -32,7 +32,6 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Polly.Retry;
-using Ruya.Primitives;
 using Prometheus;
 #if (CacheRedis)
 using StackExchange.Redis;
@@ -181,7 +180,7 @@ namespace Burcin.Api
 										 {
 											 "self"
 										 })
-					.AddWorkingSetHealthCheck((long)Constants.GigaByte * 1
+					.AddWorkingSetHealthCheck((long)Ruya.Primitives.Constants.GigaByte * 1
 											, name: "Memory (WorkingSet)"
 											, failureStatus: HealthStatus.Degraded
 											, tags: new[]
