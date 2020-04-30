@@ -13,6 +13,9 @@
 		<DockerfileContext>..\..</DockerfileContext>
 		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
 		<!--#endif-->
+		<!--#if (Swagger)-->
+		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(MSBuildThisFileName).xml</DocumentationFile>
+		<!--#endif-->
 	</PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
