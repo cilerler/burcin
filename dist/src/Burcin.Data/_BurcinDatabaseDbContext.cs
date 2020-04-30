@@ -34,8 +34,7 @@ namespace Burcin.Data
         //     OnModelCreatingPostActions(modelBuilder);
         // }
 
-        //! add `partial` to the line below upon using scaffold
-        void OnModelCreatingPostActions(ModelBuilder modelBuilder)
+        partial void OnModelCreatingPostActions(ModelBuilder modelBuilder)
         {
             modelBuilder.ShadowProperties();
             SetGlobalQueryFilters(modelBuilder);
