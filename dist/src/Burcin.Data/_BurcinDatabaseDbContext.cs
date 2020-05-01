@@ -15,10 +15,10 @@ namespace Burcin.Data
         // {
         // }
 
-        //! Burcin.Api.DbContextFactory depands on this constructor, comment it upon using scaffold
-        public BurcinDatabaseDbContext(DbContextOptions<BurcinDatabaseDbContext> options) : base(options)
-        {
-        }
+        //! Burcin.Api.DbContextFactory depands on this constructor, comment out it upon using scaffold or migration
+        // public BurcinDatabaseDbContext(DbContextOptions<BurcinDatabaseDbContext> options) : base(options)
+        // {
+        // }
 
         //// public virtual DbSet<T> T { get; set; }
 
