@@ -125,6 +125,11 @@ namespace Burcin.Api
 			services.AddResponseCaching();
 			services.AddResponseCompression();
 
+#if (BlazorApplication)
+			services.AddRazorPages();
+			services.AddServerSideBlazor();
+#endif
+
 #if (Swagger)
 			services.AddSwaggerGen(options =>
 								   {
@@ -157,73 +162,73 @@ namespace Burcin.Api
 
 			services.AddSingleton<CustomHealthCheck>();
 			services.AddHealthChecks()
-					.AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
-											   , failureStatus: HealthStatus.Degraded
-											   , tags: new[]
-													   {
-														   "ready"
-													   })
-					.AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
-													   , failureStatus: null
-													   , tags: new[]
-															   {
-																   "ready"
-															   })
-					.AddAsyncCheck(name: "long_running"
-								 , check: async cancellationToken =>
-										  {
-											  await Task.Delay(TimeSpan.FromSeconds(5)
-															 , cancellationToken);
-											  return HealthCheckResult.Healthy("OK");
-										  }
-								 , tags: new[]
-										 {
-											 "self"
-										 })
-					.AddWorkingSetHealthCheck((long)Ruya.Primitives.Constants.GigaByte * 1
-											, name: "Memory (WorkingSet)"
-											, failureStatus: HealthStatus.Degraded
-											, tags: new[]
-													{
-														"self"
-													})
-					.AddDiskStorageHealthCheck(check =>
-											   {
-												   check.AddDrive(DriveInfo.GetDrives().First().Name
-																, 1024);
-											   }
-											 , name: "Disk Storage"
-											 , failureStatus: HealthStatus.Degraded
-											 , tags: new[]
-													 {
-														 "self"
-													 })
-					.AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
-											, name: "DNS"
-											, failureStatus: HealthStatus.Degraded
-											, tags: new[]
-													{
-														"self"
-													})
-					.AddPingHealthCheck(setup => setup.AddHost("burcin.local"
-															 , (int)TimeSpan.FromSeconds(3)
-																			.TotalMilliseconds)
-									  , name: "Ping"
-									  , failureStatus: HealthStatus.Degraded
-									  , tags: new[]
-											  {
-												  "3rdParty"
-											  })
-					.AddUrlGroup(new[]
-								 {
-									 new Uri("https://burcin.local")
-								 }
-							   , name: "Remote Urls"
-							   , failureStatus: HealthStatus.Degraded
-							   , tags: new[]
-									   {
-										   "3rdParty"
-									   })
+					// .AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
+					// 						   , failureStatus: HealthStatus.Degraded
+					// 						   , tags: new[]
+					// 								   {
+					// 									   "ready"
+					// 								   })
+					// .AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
+					// 								   , failureStatus: null
+					// 								   , tags: new[]
+					// 										   {
+					// 											   "ready"
+					// 										   })
+					// .AddAsyncCheck(name: "long_running"
+					// 			 , check: async cancellationToken =>
+					// 					  {
+					// 						  await Task.Delay(TimeSpan.FromSeconds(5)
+					// 										 , cancellationToken);
+					// 						  return HealthCheckResult.Healthy("OK");
+					// 					  }
+					// 			 , tags: new[]
+					// 					 {
+					// 						 "self"
+					// 					 })
+					// .AddWorkingSetHealthCheck((long)Ruya.Primitives.Constants.GigaByte * 1
+					// 						, name: "Memory (WorkingSet)"
+					// 						, failureStatus: HealthStatus.Degraded
+					// 						, tags: new[]
+					// 								{
+					// 									"self"
+					// 								})
+					// .AddDiskStorageHealthCheck(check =>
+					// 						   {
+					// 							   check.AddDrive(DriveInfo.GetDrives().First().Name
+					// 											, 1024);
+					// 						   }
+					// 						 , name: "Disk Storage"
+					// 						 , failureStatus: HealthStatus.Degraded
+					// 						 , tags: new[]
+					// 								 {
+					// 									 "self"
+					// 								 })
+					// .AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
+					// 						, name: "DNS"
+					// 						, failureStatus: HealthStatus.Degraded
+					// 						, tags: new[]
+					// 								{
+					// 									"self"
+					// 								})
+					// .AddPingHealthCheck(setup => setup.AddHost("burcin.local"
+					// 										 , (int)TimeSpan.FromSeconds(3)
+					// 														.TotalMilliseconds)
+					// 				  , name: "Ping"
+					// 				  , failureStatus: HealthStatus.Degraded
+					// 				  , tags: new[]
+					// 						  {
+					// 							  "3rdParty"
+					// 						  })
+					// .AddUrlGroup(new[]
+					// 			 {
+					// 				 new Uri("https://burcin.local")
+					// 			 }
+					// 		   , name: "Remote Urls"
+					// 		   , failureStatus: HealthStatus.Degraded
+					// 		   , tags: new[]
+					// 				   {
+					// 					   "3rdParty"
+					// 				   })
 
 				#if (EntityFramework)
 					 // TODO: Make the `MsSqlConnection` string constant. It exists in Program.cs too.
@@ -253,20 +258,20 @@ namespace Burcin.Api
 										"services"
 									})
 				#endif
-					.AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
-							   , name: "RabbitMq"
-							   , failureStatus: HealthStatus.Unhealthy
-							   , tags: new[]
-										{
-											"services"
-										})
-					.AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
-								, name: "ElasticSearch"
-								, failureStatus: HealthStatus.Unhealthy
-								, tags: new[]
-										{
-											"services"
-										})
+					// .AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
+					// 		   , name: "RabbitMq"
+					// 		   , failureStatus: HealthStatus.Unhealthy
+					// 		   , tags: new[]
+					// 					{
+					// 						"services"
+					// 					})
+					// .AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
+					// 			, name: "ElasticSearch"
+					// 			, failureStatus: HealthStatus.Unhealthy
+					// 			, tags: new[]
+					// 					{
+					// 						"services"
+					// 					})
 					//.AddApplicationInsightsPublisher()
 					//.AddPrometheusGatewayPublisher()
 					//.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
@@ -396,6 +401,10 @@ namespace Burcin.Api
 				});
 				endpoints.MapODataRoute("odata", "odata", ODataEdmModelHelper.GetEdmModel());
 				endpoints.MapDefaultControllerRoute();
+#if (BlazorApplication)
+				endpoints.MapBlazorHub();
+				endpoints.MapFallbackToPage("/_Host");
+#endif
 			});
 
 			app.UseWelcomePage();
