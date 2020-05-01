@@ -14,7 +14,6 @@ using Microsoft.AspNetCore.HostFiltering;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -30,6 +29,7 @@ using Serilog.Exceptions.Destructurers;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Exceptions.SqlServer.Destructurers;
 #if (CacheRedis)
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using StackExchange.Redis;
 #endif
 #if (EntityFramework)
