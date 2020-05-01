@@ -36,13 +36,15 @@
       },
       "applicationUrl": "https://localhost:44304/;http://localhost:44303/"
     },
+    //#if (ConsoleApplications)
     "ConsoleApp": {
       "commandName": "Project",
       "commandLineArgs": "--console",
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "Development"
       }
-    },
+	},
+    //#endif
     "Azure Dev Spaces": {
       "commandName": "AzureDevSpaces",
       "launchBrowser": true
