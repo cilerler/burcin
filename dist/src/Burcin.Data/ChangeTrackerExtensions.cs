@@ -29,7 +29,7 @@ namespace Burcin.Data
                if (entry.Entity is ISoftDelete && entry.State == EntityState.Deleted)
                {
                    entry.State = EntityState.Modified;
-                   entry.Property(Constants.SoftDelete).CurrentValue = false;
+                   entry.Property(Constants.SoftDelete).CurrentValue = true;
                }
            }
        }

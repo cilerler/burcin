@@ -1,4 +1,4 @@
-namespace Burcin.Data
+namespace Burcin.Models
 {
     public class Constants
     {
@@ -7,6 +7,6 @@ namespace Burcin.Data
        public const string SoftDelete = "SoftDelete";
        public const string RowGuid = "RowGuid";
        public const string UpdateVersion = "UpdateVersion";
-
+       public const string DefaultSchema = "dbo";
     }
 }

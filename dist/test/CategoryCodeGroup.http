@@ -1,0 +1,59 @@
+@host = localhost:44302
+@baseUrl = https://{{host}}/odata
+@entitySet = CategoryCodeGroup
+@finalUrl = {{baseUrl}}/{{entitySet}}
+
+### @name GetMetadata
+GET {{baseUrl}}/$metadata HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name CreateRecord
+POST {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"CategoryCodeId": 1,
+	"CategoryGroupId": 1
+}
+
+### @name ReadAllRecords
+GET {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name ReadRecordById
+GET {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+# ====================================================================== Can not update SoftDelete record after the value set to `true`
+
+### @name UpdateRecord
+PATCH {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"CategoryCodeId": 4
+}
+
+### @name FullyUpdateRecord					// should throw an error (expected)
+PUT {{finalUrl}}(2) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Id": 2,
+	"CategoryCodeId": 4,
+	"CategoryGroupId": 2
+}
+
+### @name DeleteRecord
+DELETE {{finalUrl}}(3) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
