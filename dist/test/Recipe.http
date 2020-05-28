@@ -1,0 +1,61 @@
+@host = localhost:44302
+@baseUrl = https://{{host}}/odata
+@entitySet = Recipe
+@finalUrl = {{baseUrl}}/{{entitySet}}
+
+### @name GetMetadata
+GET {{baseUrl}}/$metadata HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name CreateRecord
+POST {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"ChefId": 2,
+	"Name": "Sourdough Starter",
+	"Url": "https://www.kingarthurflour.com/recipes/sourdough-starter-recipe"
+}
+
+### @name ReadAllRecords
+GET {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name ReadRecordById
+GET {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+# ====================================================================== Can not update SoftDelete record after the value set to `true`
+
+### @name UpdateRecord
+PATCH {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Url": "https://www.youtube.com/watch?v=wvbxPWDE9vg"
+}
+
+### @name FullyUpdateRecord
+PUT {{finalUrl}}(2) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Id": 2,
+	"ChefId": 2,
+	"Name": "How to feed a sourdough starter",
+	"Url": "https://www.youtube.com/watch?v=wvbxPWDE9vg"
+}
+
+### @name DeleteRecord
+DELETE {{finalUrl}}(3) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache

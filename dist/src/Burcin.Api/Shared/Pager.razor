@@ -1,0 +1,68 @@
+﻿@if (RecordCount > 0)
+{
+    <nav class="navbar navbar-expand justify-content-center" aria-label="Page navigation example">
+        <span class="navbar-text">
+            <strong>Items</strong> @FirstRowOnPage.ToString("n0") to @LastRowOnPage.ToString("n0") of @RecordCount.ToString("n0") | <strong>Page</strong> @CurrentPage.ToString("n0") of @PageCount.ToString("n0")
+        </span>
+
+        <ul class="navbar-nav">
+            <li class="nav-item px-5">
+                Records per page
+                <select class="form-control d-inline w-auto" @onchange="@DoStuff">
+                    @for (byte counter = 5; counter < 101; counter += 5)
+                    {
+                        if (counter == PageSize)
+                        {
+                            <option value="@counter" selected="selected">@counter</option>
+
+                        }
+                        else
+                        {
+                            <option value="@counter">@counter</option>
+                        }
+                    }
+                </select>
+            </li>
+            <li class="nav-item px-5">
+
+                <ul class="pagination" style="margin: 0px !important; vertical-align: middle;">
+                    <li class="page-item">
+                        <span class="page-link @(StartPage==1?"disabled":string.Empty)" aria-label="Previous" @onclick=@(() => PagerButtonClicked(1))>
+                            <span aria-hidden="true">&laquo;</span>
+                            <span class="sr-only">Back</span>
+                        </span>
+                    </li>
+                    <li class="page-item">
+                        <span class="page-link @(StartPage==1?"disabled":string.Empty)" aria-label="Previous" @onclick=@(() => PagerButtonClicked(PreviousPage))>
+                            <span aria-hidden="true">&lt;</span>
+                            <span class="sr-only">Previous</span>
+                        </span>
+                    </li>
+
+                    @for (int i = StartPage; i <= FinishPage; i++)
+                    {
+                        var currentPage = i;
+                        <li class="page-item @(currentPage==@CurrentPage?"active":string.Empty)">
+                            <span class="page-link" @onclick=@(() => PagerButtonClicked(currentPage))>
+                                @currentPage
+                            </span>
+                        </li>
+                    }
+
+                    <li class="page-item">
+                        <span class="page-link @(FinishPage==PageCount?"disabled":string.Empty)" aria-label="Next" @onclick=@(() => PagerButtonClicked(NextPage))>
+                            <span aria-hidden="true">&gt;</span>
+                            <span class="sr-only">Next</span>
+                        </span>
+                    </li>
+                    <li class="page-item @(FinishPage==PageCount?"disabled":string.Empty)">
+                            <span class="page-link" aria-label="Forward" @onclick=@(() => PagerButtonClicked(PageCount))>
+                            <span aria-hidden="true">&raquo;</span>
+                            <span class="sr-only">Next</span>
+                        </span>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+}

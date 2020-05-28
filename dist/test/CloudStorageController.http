@@ -1,0 +1,15 @@
+@host = localhost:44302
+@baseUrl = https://{{host}}/api
+@controller = CloudStorage
+@finalUrl = {{baseUrl}}/{{controller}}
+
+### @name GetFileMetadata
+GET {{finalUrl}}/GetFileMetadata?bucketName=myBucket&fileName=myFile.txt HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetFileMetadataNotFound
+GET {{finalUrl}}/GetFileMetadata?bucketName=myBucket&fileName=ignoreMe.txt HTTP/1.1
+Host: {{host}}
+Content-Type: application/json
+Cache-Control: no-cache

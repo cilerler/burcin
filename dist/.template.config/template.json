@@ -43,12 +43,17 @@
 			"valueSource": "RepositoryUrl",
 			"valueTransform": "xmlEncode"
 		},
+		"ConsoleApplication": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"WebApiApplication": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
-		"ConsoleApplication": {
+		"BlazorApplication": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false"
@@ -162,7 +167,7 @@
 		},
 		"WebApiApplicationExists": {
 			"type": "computed",
-			"value": "(WebApiApplication == \"true\" || HealthChecks == \"true\" || Swagger == \"true\")"
+			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" ||HealthChecks == \"true\" || Swagger == \"true\")"
 		},
 		"SkipRestore": {
 			"type": "parameter",
@@ -190,6 +195,12 @@
 		{
 			"modifiers": [
 				{
+					"condition": "(!ConsoleApplicationExists)",
+					"exclude": [
+						"src/Burcin.Api/hostsettings.json"
+					]
+				},
+				{
 					"condition": "(!WebApiApplicationExists)",
 					"exclude": [
 						"src/Burcin.Api/**/*",
@@ -197,9 +208,15 @@
 					]
 				},
 				{
-					"condition": "(!ConsoleApplicationExists)",
+					"condition": "(!BlazorApplication)",
 					"exclude": [
-						"src/Burcin.Api/hostsettings.json"
+						"src/Burcin.Api/wwwroot/**/*",
+						"src/Burcin.Api/Shared/**/*",
+						"src/Burcin.Api/Pages/**/*",
+						"src/Burcin.Api/Data/**/*",
+						"src/Burcin.Api/Common/**/*",
+						"src/Burcin.Api/_Imports.razor",
+						"src/Burcin.Api/App.razor"
 					]
 				},
 				{

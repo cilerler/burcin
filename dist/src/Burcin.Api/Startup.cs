@@ -33,6 +33,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Polly.Retry;
 using Prometheus;
+using Ruya;
 #if (CacheRedis)
 using StackExchange.Redis;
 #endif
@@ -44,6 +45,7 @@ using Polly.Extensions.Http;
 using Polly.Timeout;
 using HealthChecks.UI.Client;
 using Burcin.Api.HealthChecks;
+using Burcin.Api.Data;
 #endif
 #if (Swagger)
 using Swashbuckle.AspNetCore.Swagger;
@@ -62,6 +64,8 @@ namespace Burcin.Api
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
 			services.AddControllers()
 					.AddNewtonsoftJson(options =>
 									{
@@ -73,6 +77,7 @@ namespace Burcin.Api
 
 			services.AddOptions();
 			services.AddMemoryCache();
+
 #if (!CacheExists)
 			services.AddDistributedMemoryCache();
 #endif
@@ -125,11 +130,6 @@ namespace Burcin.Api
 			services.AddResponseCaching();
 			services.AddResponseCompression();
 
-#if (BlazorApplication)
-			services.AddRazorPages();
-			services.AddServerSideBlazor();
-#endif
-
 #if (Swagger)
 			services.AddSwaggerGen(options =>
 								   {
@@ -153,82 +153,93 @@ namespace Burcin.Api
 			SetOutputFormatters(services);
 #endif
 
-#if (HealthChecks)
-			AsyncRetryPolicy<HttpResponseMessage> retryPolicy = HttpPolicyExtensions
-			   .HandleTransientHttpError()
-			   .Or<TimeoutRejectedException>()
-			   .RetryAsync(5);
-			services.AddHttpClient("Remote Services").AddPolicyHandler(retryPolicy);
+#if (BlazorApplication)
+			services.AddRazorPages();
+			services.AddServerSideBlazor();
 
+			services.AddGoogleStorageService(Configuration);
+			services.AddScoped<ChefService>();
+			services.AddSingleton<WeatherForecastService>();
+#endif
+
+#if (BlazorApplication || HealthChecks)
+			AsyncRetryPolicy<HttpResponseMessage> retryPolicy = HttpPolicyExtensions
+				.HandleTransientHttpError()
+				.Or<TimeoutRejectedException>()
+				.RetryAsync(5);
+			services.AddHttpClient("Remote Services").AddPolicyHandler(retryPolicy);
+#endif
+
+#if (HealthChecks)
 			services.AddSingleton<CustomHealthCheck>();
 			services.AddHealthChecks()
-					// .AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
-					// 						   , failureStatus: HealthStatus.Degraded
-					// 						   , tags: new[]
-					// 								   {
-					// 									   "ready"
-					// 								   })
-					// .AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
-					// 								   , failureStatus: null
-					// 								   , tags: new[]
-					// 										   {
-					// 											   "ready"
-					// 										   })
-					// .AddAsyncCheck(name: "long_running"
-					// 			 , check: async cancellationToken =>
-					// 					  {
-					// 						  await Task.Delay(TimeSpan.FromSeconds(5)
-					// 										 , cancellationToken);
-					// 						  return HealthCheckResult.Healthy("OK");
-					// 					  }
-					// 			 , tags: new[]
-					// 					 {
-					// 						 "self"
-					// 					 })
-					// .AddWorkingSetHealthCheck((long)Ruya.Primitives.Constants.GigaByte * 1
-					// 						, name: "Memory (WorkingSet)"
-					// 						, failureStatus: HealthStatus.Degraded
-					// 						, tags: new[]
-					// 								{
-					// 									"self"
-					// 								})
-					// .AddDiskStorageHealthCheck(check =>
-					// 						   {
-					// 							   check.AddDrive(DriveInfo.GetDrives().First().Name
-					// 											, 1024);
-					// 						   }
-					// 						 , name: "Disk Storage"
-					// 						 , failureStatus: HealthStatus.Degraded
-					// 						 , tags: new[]
-					// 								 {
-					// 									 "self"
-					// 								 })
-					// .AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
-					// 						, name: "DNS"
-					// 						, failureStatus: HealthStatus.Degraded
-					// 						, tags: new[]
-					// 								{
-					// 									"self"
-					// 								})
-					// .AddPingHealthCheck(setup => setup.AddHost("burcin.local"
-					// 										 , (int)TimeSpan.FromSeconds(3)
-					// 														.TotalMilliseconds)
-					// 				  , name: "Ping"
-					// 				  , failureStatus: HealthStatus.Degraded
-					// 				  , tags: new[]
-					// 						  {
-					// 							  "3rdParty"
-					// 						  })
-					// .AddUrlGroup(new[]
-					// 			 {
-					// 				 new Uri("https://burcin.local")
-					// 			 }
-					// 		   , name: "Remote Urls"
-					// 		   , failureStatus: HealthStatus.Degraded
-					// 		   , tags: new[]
-					// 				   {
-					// 					   "3rdParty"
-					// 				   })
+					.AddCheck<CustomHealthCheck>(CustomHealthCheck.HealthCheckName
+											   , failureStatus: HealthStatus.Degraded
+											   , tags: new[]
+													   {
+														   "ready"
+													   })
+					.AddCheck<SlowDependencyHealthCheck>(SlowDependencyHealthCheck.HealthCheckName
+													   , failureStatus: null
+													   , tags: new[]
+															   {
+																   "ready"
+															   })
+					.AddAsyncCheck(name: "long_running"
+								 , check: async cancellationToken =>
+										  {
+											  await Task.Delay(TimeSpan.FromSeconds(5)
+															 , cancellationToken);
+											  return HealthCheckResult.Healthy("OK");
+										  }
+								 , tags: new[]
+										 {
+											 "self"
+										 })
+					.AddWorkingSetHealthCheck((long)Ruya.Primitives.Constants.GigaByte * 1
+											, name: "Memory (WorkingSet)"
+											, failureStatus: HealthStatus.Degraded
+											, tags: new[]
+													{
+														"self"
+													})
+					.AddDiskStorageHealthCheck(check =>
+											   {
+												   check.AddDrive(DriveInfo.GetDrives().First().Name
+																, 1024);
+											   }
+											 , name: "Disk Storage"
+											 , failureStatus: HealthStatus.Degraded
+											 , tags: new[]
+													 {
+														 "self"
+													 })
+					.AddDnsResolveHealthCheck(setup => setup.ResolveHost("burcin.local")
+											, name: "DNS"
+											, failureStatus: HealthStatus.Degraded
+											, tags: new[]
+													{
+														"self"
+													})
+					.AddPingHealthCheck(setup => setup.AddHost("burcin.local"
+															 , (int)TimeSpan.FromSeconds(3)
+																			.TotalMilliseconds)
+									  , name: "Ping"
+									  , failureStatus: HealthStatus.Degraded
+									  , tags: new[]
+											  {
+												  "3rdParty"
+											  })
+					.AddUrlGroup(new[]
+								 {
+									 new Uri("https://burcin.local")
+								 }
+							   , name: "Remote Urls"
+							   , failureStatus: HealthStatus.Degraded
+							   , tags: new[]
+									   {
+										   "3rdParty"
+									   })
 
 				#if (EntityFramework)
 					 // TODO: Make the `MsSqlConnection` string constant. It exists in Program.cs too.
@@ -258,20 +269,20 @@ namespace Burcin.Api
 										"services"
 									})
 				#endif
-					// .AddRabbitMQ(rabbitMQConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
-					// 		   , name: "RabbitMq"
-					// 		   , failureStatus: HealthStatus.Unhealthy
-					// 		   , tags: new[]
-					// 					{
-					// 						"services"
-					// 					})
-					// .AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
-					// 			, name: "ElasticSearch"
-					// 			, failureStatus: HealthStatus.Unhealthy
-					// 			, tags: new[]
-					// 					{
-					// 						"services"
-					// 					})
+					.AddRabbitMQ(rabbitConnectionString: Configuration["ConnectionStrings:RabbitMqConnection"]
+							   , name: "RabbitMq"
+							   , failureStatus: HealthStatus.Unhealthy
+							   , tags: new[]
+										{
+											"services"
+										})
+					.AddElasticsearch(elasticsearchUri: Configuration["ConnectionStrings:ElasticSearchConnection"]
+								, name: "ElasticSearch"
+								, failureStatus: HealthStatus.Unhealthy
+								, tags: new[]
+										{
+											"services"
+										})
 					//.AddApplicationInsightsPublisher()
 					//.AddPrometheusGatewayPublisher()
 					//.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
@@ -289,6 +300,36 @@ namespace Burcin.Api
 			}
 			else
 			{
+#if (BlazorApplication)
+				app.UseExceptionHandler("/Error");
+#else
+				app.UseExceptionHandler(ex =>
+				{
+					ex.Run(async context =>
+					{
+						context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+						string result;
+						IExceptionHandlerPathFeature exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+						if (exceptionHandlerPathFeature == null)
+						{
+							result = string.Empty;
+							context.Response.ContentType = "text/plain";
+						}
+						else
+						{
+							result = env.IsDevelopment()
+								? JsonConvert.SerializeObject(exceptionHandlerPathFeature)
+								: JsonConvert.SerializeObject(new
+								{
+									Error = new { exceptionHandlerPathFeature.Error.Message },
+									exceptionHandlerPathFeature.Path
+								});
+							context.Response.ContentType = "application/json";
+						}
+						await context.Response.WriteAsync(result);
+					});
+				});
+#endif
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}
@@ -296,6 +337,7 @@ namespace Burcin.Api
 			app.UseResponseCompression();
 			app.UseResponseCaching();
 			app.UseStaticFiles();
+            //app.UseSerilogRequestLogging();
 			app.UseRouting();
 			app.UseCors();
 			app.UseAuthentication();
@@ -317,33 +359,6 @@ namespace Burcin.Api
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 			app.Map("/liveness", lapp => lapp.Run(async ctx => ctx.Response.StatusCode = 200));
 #pragma warning restore CS1998
-
-			app.UseExceptionHandler(ex =>
-			{
-				ex.Run(async context =>
-				{
-					context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-					string result;
-					IExceptionHandlerPathFeature exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-					if (exceptionHandlerPathFeature == null)
-					{
-						result = string.Empty;
-						context.Response.ContentType = "text/plain";
-					}
-					else
-					{
-						result = env.IsDevelopment()
-							? JsonConvert.SerializeObject(exceptionHandlerPathFeature)
-							: JsonConvert.SerializeObject(new
-							{
-								Error = new { exceptionHandlerPathFeature.Error.Message },
-								exceptionHandlerPathFeature.Path
-							});
-						context.Response.ContentType = "application/json";
-					}
-					await context.Response.WriteAsync(result);
-				});
-			});
 
 #if (Swagger)
 			app.UseSwagger();
@@ -399,7 +414,8 @@ namespace Burcin.Api
 					EnableSkipToken = true,
 					MaxTop = 100
 				});
-				endpoints.MapODataRoute("odata", "odata", ODataEdmModelHelper.GetEdmModel());
+				endpoints.Select().Expand().Filter().OrderBy().Count().SkipToken().MaxTop(100);
+				endpoints.MapODataRoute("odata", "odata", ODataEdmModelBuilder.GetEdmModel());
 				endpoints.MapDefaultControllerRoute();
 #if (BlazorApplication)
 				endpoints.MapBlazorHub();

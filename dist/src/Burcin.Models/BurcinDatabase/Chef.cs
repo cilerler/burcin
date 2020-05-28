@@ -1,14 +1,19 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Burcin.Models.BurcinDatabase
 {
-    [Table("MyModel1", Schema = "dbo")]
-    public partial class MyModel1
+    [Table(nameof(Chef))]
+    public partial class Chef
     {
-        [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+	    public Chef()
+	    {
+		    Recipes = new HashSet<Recipe>();
+	    }
+
+	    [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }
 
         [ConcurrencyCheck]
@@ -35,10 +40,13 @@ namespace Burcin.Models.BurcinDatabase
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public bool SoftDelete { get; set; }
 
-        [ForeignKey(nameof(ModelType))]
-        [InverseProperty(nameof(MyModel3.MyModel))]
-        public virtual MyModel3 ModelTypeNavigation { get; set; }
+        [Required, StringLength(50), MaxLength(50)]
+		public string Name { get; set; }
 
-		public ICollection<MyModel1MyModel2> MyModel1MyModel2s { get; set; }
-    }
+		[Column("Youtube")]
+		public string Url { get; set; }
+
+		[InverseProperty(nameof(Recipe.Chef))]
+        public virtual ICollection<Recipe> Recipes { get; set; }
+	}
 }

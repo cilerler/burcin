@@ -1,0 +1,80 @@
+@page "/chefs"
+
+@if (Chefs == null)
+{
+    <div class="text-center">
+        <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container-fluid">
+        <h3>
+            Records
+            <small class="text-muted">(SQL Server)</small>
+        </h3>
+        <TableTemplate Items="Items">
+            <TableHeader>
+                <th>Icons</th>
+	            <th>ID</th>
+	            <th>SoftDelete</th>
+                <th>ModifiedAt</th>
+                <th>Name</th>
+                <th>Url</th>
+            </TableHeader>
+			<RowTemplate Context="context">
+				<td>
+					<button type="button" class="btn btn-info btn-sm" data-toggle="modal" data-target="#Modal" @onclick="@(() => ShowDetails(context))">
+						<i class="oi oi-info"></i>
+					</button>
+				</td>
+				<td class="text-right">@context.Id</td>
+				<td class="text-center">
+					<span class="oi @(context.SoftDelete ? "oi-check" : "oi-x")" aria-hidden="true"></span>
+				</td>
+				<td>@context.ModifiedAt.ToString("s")</td>
+				<td>@context.Name</td>
+				<td>
+					<a href="javascript: void(0);" @onclick="@(()=> GetCloudFileServiceAsync(context.Url))"
+					   data-toggle="tooltip" data-placement="top" title="@context.Url">@GetTruncatedName(context.Url)</a>
+				</td>
+			</RowTemplate>
+            <TableCaption>
+                <Pager PageChanged=@PagerPageChanged PageSizeChanged=@PagerPageSizeChanged RecordCount=@Chefs.RecordCount RowCount=@Chefs.Value.Count PageSize=@Chefs.PageSize CurrentPage=@Chefs.CurrentPage />
+            </TableCaption>
+        </TableTemplate>
+
+
+        @if (ShowModal)
+        {
+            <div class="modal d-block" id="Modal" tabindex="-1" role="dialog" aria-labelledby="ModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ModalLabel">@ModalTitle</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="@CloseModal">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <h5>@Payload.First().Key</h5>
+                            <p>
+                                @Payload.First().Value
+                            </p>
+                            <hr />
+                            <h5>@Payload.Last().Key</h5>
+                            <p>
+                                @Payload.Last().Value
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @onclick="@CloseModal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,138 @@
+@host = localhost:44302
+@baseUrl = https://{{host}}/odata
+@entitySet = Chef
+@finalUrl = {{baseUrl}}/{{entitySet}}
+
+### @name GetMetadata
+GET {{baseUrl}}/$metadata HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name CreateRecord
+POST {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Name": "Cengiz Ilerler",
+	"Url": "https://cengiz.dev/"
+}
+
+### @name ReadAllRecords
+GET {{finalUrl}} HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name ReadRecordById
+GET {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+# ====================================================================== Can not update SoftDelete record after the value set to `true`
+
+### @name UpdateRecord
+PATCH {{finalUrl}}(1) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Url": "https://ilerler.info/"
+}
+
+### @name FullyUpdateRecord
+PUT {{finalUrl}}(2) HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"Id": 2,
+	"Name": "King Arthur Flour",
+	"Url": "https://www.youtube.com/user/KingArthurFlour/",
+}
+
+### @name DeleteRecord
+DELETE {{finalUrl}}(3) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+# ===== ALTERNATIVE READS
+
+### @name GetTotalRecordCount				// not working
+GET {{finalUrl}}?$count=true&$top=0 HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetFirstRecord
+GET {{finalUrl}}?$top=1 HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetSecondRecord
+GET {{finalUrl}}?$skip=1&$top=1 HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetLastThreeRecordIdsWithAuditDates
+GET {{finalUrl}}?$count=true&$top=3&$orderby=Id desc&$select=Id,CreatedAt,ModifiedAt HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetFirstActiveRecord
+# GET {{finalUrl}}?$top=1&$filter=SoftDelete eq false HTTP/1.1
+# GET {{finalUrl}}?$top=1&$filter=SoftDelete ne true HTTP/1.1
+GET {{finalUrl}}?$top=1&$filter=not (SoftDelete eq true) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name FilterWithAnd
+GET {{finalUrl}}?$count=true&$filter=Name eq 'Cengiz Ilerler' and Url eq 'https://cengiz.dev' HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name FilterWithOr
+GET {{finalUrl}}?$count=true&$filter=Url eq 'https://ilerler.info/' or Url eq 'https://cengiz.dev' HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name FilterWithIn
+GET {{finalUrl}}?$count=true&$filter=Url in ('https://ilerler.info/','https://cengiz.dev') HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name FilterWithContains
+GET {{finalUrl}}?$top=1&$filter=Name eq 'Cengiz Ilerler' and contains(Url,'http') HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetAggregatedDistinctCountOfField		// not working
+GET {{finalUrl}}?$apply=aggregate(Name with countdistinct as total) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetGroupedCountOfField			// not working
+GET {{finalUrl}}?$apply=groupby((Name), aggregate($count as total)) HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetCardinalityOfUrl					// not working
+GET {{finalUrl}}?$top=2&$filter=total gt 100&$apply=filter(Name eq 'Cengiz Ilerler')/groupby((Url), aggregate(Id with countdistinct as total))&$orderby=total desc HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetRecordWithRelatedTables
+GET {{finalUrl}}?$filter=Id eq 2&$expand=Recipes HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetSpecificRecordWithRelatedTables
+GET {{finalUrl}}(2)?$expand=Recipes HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+### @name GetRecordWithMultiLevelRelatedTables		// not working
+GET {{finalUrl}}?$filter=Id eq 1&$expand=Recipes($select=Id,CategoryCode;$expand=CategoryCode($select=Name))&$orderby=Id&$select=Id,Name,Url HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
