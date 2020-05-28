@@ -15,7 +15,7 @@ namespace Burcin.Models.BurcinDatabase
 
 		#endregion
 
-		#region IEquatable<MyModel1> Members
+		#region IEquatable<Chef> Members
 
 		public bool Equals(Chef other)
 		{

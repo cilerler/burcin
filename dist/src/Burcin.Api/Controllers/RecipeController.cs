@@ -17,7 +17,7 @@ namespace Burcin.Api.Controllers
     /// <summary>
     /// Represents a RESTful service.
     /// </summary>
-    //[ControllerName(MyModel1ControllerModelConfiguration.ControllerName)]
+    //[ControllerName(ChefControllerModelConfiguration.ControllerName)]
     [ODataRoutePrefix(nameof(Recipe))]
     public class RecipeController : ODataController
     {
@@ -86,7 +86,7 @@ namespace Burcin.Api.Controllers
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[ProducesResponseType(typeof(ODataValue<IEnumerable<MyModel1>>), StatusCodes.Status200OK)]
+        //[ProducesResponseType(typeof(ODataValue<IEnumerable<Chef>>), StatusCodes.Status200OK)]
         public IActionResult Get(ODataQueryOptions<Recipe> options)
         {
             var validationSettings = new ODataValidationSettings()
@@ -256,7 +256,7 @@ namespace Burcin.Api.Controllers
 
             if (suspendOnly)
             {
-                // MyModel1 does not have a disable property.
+                // Chef does not have a disable property.
             } else {
                 _logger.LogDebug("Deleting {id}", record.Id);
                 _dbContext.Recipes.Remove(record);
