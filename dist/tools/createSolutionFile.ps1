@@ -1,6 +1,6 @@
 dotnet new sln;
 
-dotnet sln Burcin.sln add src/Burcin.Api/Burcin.Api.csproj;
+dotnet sln Burcin.sln add src/Burcin.Host/Burcin.Host.csproj;
 
 #--if (EntityFramework)
 dotnet sln Burcin.sln add src/Burcin.Models/Burcin.Models.csproj;

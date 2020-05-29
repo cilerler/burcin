@@ -15,7 +15,7 @@ namespace Burcin.Data
         // {
         // }
 
-        ////! Burcin.Api.DbContextFactory depands on this constructor, comment out it upon using scaffold or migration
+        ////! Burcin.Host.DbContextFactory depands on this constructor, comment out it upon using scaffold or migration
         // public BurcinDatabaseDbContext(DbContextOptions<BurcinDatabaseDbContext> options) : base(options)
         // {
         // }

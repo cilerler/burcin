@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  burcin.api:
+  burcin.host:
     image: ${DOCKER_REGISTRY-}burcinapi
     build:
       context: .
-      dockerfile: src/Burcin.Api/Dockerfile
+      dockerfile: src/Burcin.Host/Dockerfile

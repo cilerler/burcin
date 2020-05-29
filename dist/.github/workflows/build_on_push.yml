@@ -17,8 +17,8 @@ jobs:
     env:
       buildConfiguration: 'Release'
       buildNumber: '1.0'
-      projectFile: './src/Burcin.Api/Burcin.Api.csproj'
-      projectTestFile: './test/Burcin.Api.Tests/Burcin.Api.Tests.csproj'
+      projectFile: './src/Burcin.Host/Burcin.Host.csproj'
+      projectTestFile: './test/Burcin.Host.Tests/Burcin.Host.Tests.csproj'
 
     steps:
       - name: Extract branch name

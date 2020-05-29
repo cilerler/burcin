@@ -1,10 +1,10 @@
-Set-Location ".\src\Burcin.Api";
+Set-Location ".\src\Burcin.Host";
 
 dotnet ef dbcontext scaffold "data source=localhost;initial catalog=BurcinDatabase;Trusted_Connection=True;MultipleActiveResultSets=True;App=Burcin" Microsoft.EntityFrameworkCore.SqlServer -f -d -o "..\Burcin.Models\BurcinDatabase" -c "BurcinDatabaseDbContext" --schema MySchema -t MySchema.MyTable1 -t MySchema.MyTable2;
 
 Set-Location "..\Burcin.Models\BurcinDatabase";
-# 1. Rename all `namespace Burcin.Api` to `namespace Burcin.Models.BurcinDatabase` in directory `..\Burcin.Models\BurcinDatabase`
-Get-ChildItem "." -Recurse | ForEach-Object { (Get-Content $_ | ForEach-Object  { $_ -replace "namespace Burcin.Api", "namespace Burcin.Models.BurcinDatabase" }) | Set-Content $_ };
+# 1. Rename all `namespace Burcin.Host` to `namespace Burcin.Models.BurcinDatabase` in directory `..\Burcin.Models\BurcinDatabase`
+Get-ChildItem "." -Recurse | ForEach-Object { (Get-Content $_ | ForEach-Object  { $_ -replace "namespace Burcin.Host", "namespace Burcin.Models.BurcinDatabase" }) | Set-Content $_ };
 # 2. locate `BurcinDatabaseDbContext.cs` file in directory `..\Burcin.Models\BurcinDatabase`
 #   a. add `using Burcin.Models.BurcinDatabase;` to the top
 #   b. rename `namespace Burcin.Models.BurcinDatabase` to `namespace Burcin.Data`
