@@ -49,7 +49,6 @@ Content-Type: application/json; charset=utf-8
 Cache-Control: no-cache
 
 {
-	"Id": 2,
 	"RecipeId": 2,
 	"Rate": 4,
 	"Notes": "Whether it conjures up a crusty, flavorful loaf of bread or a bubbling crock of flour/water starter, sourdough is a treasured part of many bakers' kitchens."
