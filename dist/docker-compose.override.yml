@@ -1,7 +1,7 @@
 version: '3.4'
 
 services:
-  burcin.api:
+  burcin.host:
     environment:
       - DOTNET_ENVIRONMENT=Development
       - DOTNET_URLS=https://+:443;http://+:80

@@ -197,35 +197,35 @@
 				{
 					"condition": "(!ConsoleApplicationExists)",
 					"exclude": [
-						"src/Burcin.Api/hostsettings.json"
+						"src/Burcin.Host/hostsettings.json"
 					]
 				},
 				{
 					"condition": "(!WebApiApplicationExists)",
 					"exclude": [
-						"src/Burcin.Api/**/*",
-						".github/workflows/Burcin.Api.yml"
+						"src/Burcin.Host/**/*",
+						".github/workflows/Burcin.Host.yml"
 					]
 				},
 				{
 					"condition": "(!BlazorApplication)",
 					"exclude": [
-						"src/Burcin.Api/wwwroot/**/*",
-						"src/Burcin.Api/Shared/**/*",
-						"src/Burcin.Api/Pages/**/*",
-						"src/Burcin.Api/Data/**/*",
-						"src/Burcin.Api/Common/**/*",
-						"src/Burcin.Api/_Imports.razor",
-						"src/Burcin.Api/App.razor"
+						"src/Burcin.Host/wwwroot/**/*",
+						"src/Burcin.Host/Shared/**/*",
+						"src/Burcin.Host/Pages/**/*",
+						"src/Burcin.Host/Data/**/*",
+						"src/Burcin.Host/Common/**/*",
+						"src/Burcin.Host/_Imports.razor",
+						"src/Burcin.Host/App.razor"
 					]
 				},
 				{
 					"condition": "(!EntityFramework)",
 					"exclude": [
 						"tools/EntityFramework/**/*",
-						"src/Burcin.Api/DbContextFactory.cs",
+						"src/Burcin.Host/DbContextFactory.cs",
 						"src/Burcin.Domain/EntityFramework.targets",
-						"src/Burcin.Api/EntityFramework.targets",
+						"src/Burcin.Host/EntityFramework.targets",
 						"src/Burcin.Models/**/*",
 						"src/Burcin.Data/**/*",
 						"src/Burcin.Migrations/**/*"
@@ -246,13 +246,13 @@
 						"docker-compose.yml",
 						"docker-compose.override.yml",
 						".dockerignore",
-						"src/Burcin.Api/Dockerfile"
+						"src/Burcin.Host/Dockerfile"
 					]
 				},
 				{
 					"condition": "(!BackgroundService)",
 					"exclude": [
-						"src/Burcin.Api/Services/**/*"
+						"src/Burcin.Host/Services/**/*"
 					]
 				},
 				{
@@ -264,8 +264,8 @@
 				{
 					"condition": "(!HealthChecks)",
 					"exclude": [
-						"src/Burcin.Api/Controllers/HealthCheckController.cs",
-						"src/Burcin.Api/HealthChecks/**/*"
+						"src/Burcin.Host/Controllers/HealthCheckController.cs",
+						"src/Burcin.Host/HealthChecks/**/*"
 					]
 				},
 				{

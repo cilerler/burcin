@@ -10,9 +10,9 @@
 			"request": "launch",
 			"preLaunchTask": "build-api",
 			// If you have changed target frameworks, make sure to update the program path.
-			"program": "${workspaceFolder}/src/Burcin.Api/bin/Debug/netcoreapp3.1/Burcin.Api.dll",
+			"program": "${workspaceFolder}/src/Burcin.Host/bin/Debug/netcoreapp3.1/Burcin.Host.dll",
 			"args": [],
-			"cwd": "${workspaceFolder}/src/Burcin.Api",
+			"cwd": "${workspaceFolder}/src/Burcin.Host",
 			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
 			"console": "internalConsole",
 			"stopAtEntry": false,

@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Domain", "dist\src\B
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "dist\docker-compose.dcproj", "{412F3E04-FA62-4566-8E71-3FE15DC33C1C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Api", "dist\src\Burcin.Api\Burcin.Api.csproj", "{3C9C3289-F29D-4019-AA60-39AC4CE6942B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Burcin.Host", "dist\src\Burcin.Host\Burcin.Host.csproj", "{3C9C3289-F29D-4019-AA60-39AC4CE6942B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

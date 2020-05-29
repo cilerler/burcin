@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/Burcin.Api/Burcin.Api.csproj"
+                "${workspaceFolder}/src/Burcin.Host/Burcin.Host.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
