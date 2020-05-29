@@ -1,10 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Burcin.Models.BurcinDatabase
 {
 	[Table(nameof(RecipeExpansion), Schema = Constants.DefaultSchema)]
-	public partial class RecipeExpansion : BaseModel
+	public partial class RecipeExpansion : BaseModelWithoutKey
 	{
+		[Key]
 		public long RecipeId { get; set; }
 		[ForeignKey(nameof(RecipeId))]
 		[InverseProperty(nameof(Burcin.Recipe.Expansion))]
