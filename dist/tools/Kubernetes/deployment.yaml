@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: $(APPLICATION_NAME)
+  namespace: $(NAMESPACE)
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $(APPLICATION_NAME)
+  template:
+    metadata:
+      labels:
+        app: $(APPLICATION_NAME)
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: default
+      containers:
+      - env:
+        - name: DOTNET_ENVIRONMENT
+          value: Production
+        image: IMAGE:latest
+        imagePullPolicy: Always
+        name: $(APPLICATION_NAME)

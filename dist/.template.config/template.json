@@ -203,8 +203,8 @@
 				{
 					"condition": "(!WebApiApplicationExists)",
 					"exclude": [
-						"src/Burcin.Host/**/*",
-						".github/workflows/Burcin.Host.yml"
+						"src/Burcin.Host/Controllers/**/*",
+						"src/Burcin.Host/Middlewares/**/*"
 					]
 				},
 				{
@@ -246,7 +246,9 @@
 						"docker-compose.yml",
 						"docker-compose.override.yml",
 						".dockerignore",
-						"src/Burcin.Host/Dockerfile"
+						"src/Burcin.Host/Dockerfile",
+						".github/workflows/build_on_push_gke.yml",
+						"tools/Kubernetes/**/*"
 					]
 				},
 				{

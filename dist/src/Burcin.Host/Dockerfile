@@ -13,7 +13,9 @@ WORKDIR "/src/src/Burcin.Host"
 RUN dotnet build "Burcin.Host.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Burcin.Host.csproj" -c Release -o /app/publish /p:BuildNumber=$(date "+%y.%m%d.%H%M")
+ARG BUILDNUMBER
+ENV BuildNumber=${BUILDNUMBER}
+RUN dotnet publish "Burcin.Host.csproj" -c Release -o /app/publish /p:BuildNumber=/p:BuildNumber=${BuildNumber:-$(date "+%y.%m%d.%H%M")}
 
 FROM base AS final
 WORKDIR /app
