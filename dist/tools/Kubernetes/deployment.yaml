@@ -19,6 +19,16 @@ spec:
       - env:
         - name: DOTNET_ENVIRONMENT
           value: Production
+        name: $(APPLICATION_NAME)
         image: IMAGE:latest
         imagePullPolicy: Always
-        name: $(APPLICATION_NAME)
+        resources:
+          requests:
+            memory: 128Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+            cpu: 200m
+        ports:
+        - containerPort: 80
+          protocol: TCP
