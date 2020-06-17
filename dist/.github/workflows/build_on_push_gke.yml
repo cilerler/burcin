@@ -36,15 +36,16 @@ jobs:
           echo "##[set-output name=repository;]$(echo ${GITHUB_REPOSITORY#*/})"
       id: extract_metadata
 
-    - name: Set Environment Variables
+    - name: Initial modifications
       run: |
+          echo "1. Update NuGet credentials"
+          sed -i "s/GITHUB_USERNAME/${{github.actor}}/g;s/GITHUB_TOKEN/${{secrets.GITHUB_TOKEN}}/g;s/AZURE_USERNAME/${{github.actor}}/g;s/AZURE_ARTIFACTS_KEY/${{secrets.AZURE_ARTIFACTS_KEY}}/g;" nuget.config
+          echo "2. Set Environment Variables"
           echo ::set-env name=BUILDNUMBER::$BUILDNUMBER.${GITHUB_RUN_NUMBER}
           echo ::set-env name=IMAGE::$GCP_REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE/$GITHUB_REPOSITORY
           echo ::set-env name=METADATA_NAME::${{ steps.extract_metadata.outputs.repository }}-${{ steps.extract_metadata.outputs.branch }}
           echo ::set-env name=DEPLOYMENT_NAME::${{ steps.extract_metadata.outputs.repository }}-${{ steps.extract_metadata.outputs.branch }}-${APPLICATION_NAME}
-
-    - name: Generate BuildInfo file
-      run: |
+          echo "3. Generate BuildInfo file"
           echo "${GITHUB_REPOSITORY}_${{ steps.extract_metadata.outputs.branch }}:${GITHUB_SHA}"$'\n'"v${BUILDNUMBER}" | tee ${PROJECTPATH}/Resources/BuildInfo.txt
 
     - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
@@ -95,6 +96,7 @@ jobs:
     - name: Debug Artifacts
       if: failure()
       run: |
+        cat nuget.config
         cd ./tools/Kubernetes
         cat kustomization.yaml
         ./kustomize build .
