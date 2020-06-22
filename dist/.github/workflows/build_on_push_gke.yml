@@ -32,6 +32,7 @@ jobs:
 
     - name: Extract metadata
       run: |
+          echo ::set-env name=BUILDNUMBER::$BUILDNUMBER.${GITHUB_RUN_NUMBER}
           echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
           echo "##[set-output name=repository;]$(echo ${GITHUB_REPOSITORY#*/})"
       id: extract_metadata
@@ -39,9 +40,8 @@ jobs:
     - name: Initial modifications
       run: |
           echo "1. Update NuGet credentials"
-          sed -i "s/GITHUB_USERNAME/${{github.actor}}/g;s/GITHUB_TOKEN/${{secrets.GITHUB_TOKEN}}/g;s/AZURE_USERNAME/${{github.actor}}/g;s/AZURE_ARTIFACTS_KEY/${{secrets.AZURE_ARTIFACTS_KEY}}/g;" nuget.config
+          sed -i "s/GITHUB_USERNAME/${{github.actor}}/g;s/GITHUB_TOKEN/${{secrets.GITHUB_TOKEN}}/g;s/AZURE_USERNAME/${{github.actor}}/g;s/AZURE_DEVOPS_PAT/${{secrets.AZURE_DEVOPS_PAT}}/g;" nuget.config
           echo "2. Set Environment Variables"
-          echo ::set-env name=BUILDNUMBER::$BUILDNUMBER.${GITHUB_RUN_NUMBER}
           echo ::set-env name=IMAGE::$GCP_REGISTRY_HOSTNAME/$GKE_PROJECT/$IMAGE/$GITHUB_REPOSITORY
           echo ::set-env name=METADATA_NAME::${{ steps.extract_metadata.outputs.repository }}-${{ steps.extract_metadata.outputs.branch }}
           echo ::set-env name=DEPLOYMENT_NAME::${{ steps.extract_metadata.outputs.repository }}-${{ steps.extract_metadata.outputs.branch }}-${APPLICATION_NAME}
@@ -70,6 +70,19 @@ jobs:
       run: |
         docker push $IMAGE:$GITHUB_SHA
         docker push $IMAGE:latest
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{env.BUILDNUMBER}}
+        release_name: ${{env.BUILDNUMBER}}
+        draft: false
+        prerelease: false
+        body: |
+          [Changelog](https://github.com/${{github.repository}}/blob/${{ steps.extract_metadata.outputs.branch }}/CHANGELOG.md)
 
     - name: Set up Kustomize
       run: |

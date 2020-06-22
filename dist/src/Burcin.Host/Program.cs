@@ -46,6 +46,8 @@ namespace Burcin.Host
 #pragma warning restore IDE1006 // Naming Styles
 		{
 
+			Console.WriteLine($"BUILD-TIME\n{new string('=', 20)}\n{await File.ReadAllTextAsync(@"Resources/BuildInfo.txt")}\nRUN-TIME\n{new string('=',20)}\n{Assembly.GetExecutingAssembly().GetName().Version}\n{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}");
+
 #if (ConsoleApplication)
 			bool isConsole = args.Contains("--console");
 			if (isConsole)
@@ -55,9 +57,7 @@ namespace Burcin.Host
 				//x unhandledExceptionHelper.SetLogger(Startup.Instance.ServiceProvider.GetService<ILoggerFactory>());
 				//x unhandledExceptionHelper.LogExistingCrashes(true);
 
-				Console.WriteLine("Hello World!");
-
-				await Host.CreateDefaultBuilder(args)
+				await Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
 					.ConfigureServices((hostContext, services) =>
 					{
 						services.AddGracePeriodManagerService(hostContext.Configuration);
@@ -154,7 +154,7 @@ namespace Burcin.Host
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
                 .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
                         .ReadFrom.Configuration(hostingContext.Configuration)
                         .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()

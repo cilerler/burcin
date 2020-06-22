@@ -5,10 +5,10 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": ".NET Core Launch (api)",
+			"name": ".NET Core Launch",
 			"type": "coreclr",
 			"request": "launch",
-			"preLaunchTask": "build-api",
+			"preLaunchTask": "build",
 			// If you have changed target frameworks, make sure to update the program path.
 			"program": "${workspaceFolder}/src/Burcin.Host/bin/Debug/netcoreapp3.1/Burcin.Host.dll",
 			"args": [],
