@@ -44,6 +44,10 @@ indent_size = 4
 indent_size = 2
 trim_trailing_whitespace = false
 
+# Yml files
+[*.{yml,yaml}]
+indent_size = 2
+
 # Bash Files
 [*.sh]
 indent_size = 4

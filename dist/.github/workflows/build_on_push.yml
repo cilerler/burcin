@@ -21,25 +21,26 @@ jobs:
       projectTestFile: './test/Burcin.Host.Tests/Burcin.Host.Tests.csproj'
 
     steps:
-      - name: Extract branch name
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-
-      - name: Set the build number
-        run: echo ::set-env name=buildNumber::$buildNumber.${GITHUB_RUN_NUMBER}
-
       - uses: actions/checkout@v2
         with:
           ref: master
+
+      - name: Extract metadata
+        run: |
+            echo ::set-env name=buildNumber::$buildNumber.${GITHUB_RUN_NUMBER}
+            echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+            echo "##[set-output name=repository;]$(echo ${GITHUB_REPOSITORY#*/})"
+        id: extract_metadata
 
       - name: Set NuGet credentials
         shell: pwsh
         run: |
           ./tools/Set-NuGetCredentials.ps1 -ConfigFile ./nuget.config -Source github -Username ${{github.actor}} -Password ${{ secrets.GITHUB_TOKEN }}
+          ./tools/Set-NuGetCredentials.ps1 -ConfigFile ./nuget.config -Source azure -Username ${{github.actor}} -Password ${{ secrets.AZURE_DEVOPS_PAT }}
 
       - uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 3.1.200
+          dotnet-version: 3.1.x
 
       - name: Restore
         run: dotnet restore $projectFile
@@ -83,7 +84,7 @@ jobs:
           draft: false
           prerelease: true
           body: |
-            [Changelog](https://github.com/${{github.repository}}/blob/${{ steps.extract_branch.outputs.branch }}/CHANGELOG.md)
+            [Changelog](https://github.com/${{github.repository}}/blob/${{ steps.extract_metadata.outputs.branch }}/CHANGELOG.md)
 
       - name: Upload Release Asset
         id: upload-release-asset
@@ -97,11 +98,26 @@ jobs:
           asset_content_type: application/zip
 
       - name: Push to GitHub Packages
-        run: dotnet nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
+        run: dotnet nuget push './artifacts/packages/*.nupkg' --skip-duplicate --source "github" --api-key ${GITHUB_TOKEN}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Push to Nuget
-        run: dotnet nuget push ./artifacts/packages/*.nupkg --skip-duplicate --source "nuget" --api-key ${NUGET_API_KEY}
+        run: dotnet nuget push './artifacts/packages/*.nupkg' --skip-duplicate --source "nuget" --api-key ${NUGET_API_KEY}
         env:
           NUGET_API_KEY: ${{secrets.NUGET_API_KEY}}
 
+      # - uses: actions/delete-package-versions@v1
+      #   with:
+      #     package-name: 'Burcin.Domain'
+      #     num-old-versions-to-delete: 3
+
+      # - name: Tag commit
+      #   uses: tvdias/github-tagger@v0.0.1
+      #   with:
+      #     repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      #     tag: v${{env.buildNumber}}
+
+      # - name: Delete latest release
+      #   uses: ame-yu/action-delete-latest-release@v2
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
