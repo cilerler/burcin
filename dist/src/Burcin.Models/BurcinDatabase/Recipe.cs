@@ -9,7 +9,7 @@ namespace Burcin.Models.BurcinDatabase
     {
 	    public long ChefId { get; set; }
 	    [ForeignKey(nameof(ChefId))]
-	    [InverseProperty(nameof(Burcin.Chef.Recipes))]
+	    [InverseProperty(nameof(BurcinDatabase.Chef.Recipes))]
 	    public virtual Chef Chef { get; set; }
 
 	    [StringLength(200)]
@@ -23,7 +23,7 @@ namespace Burcin.Models.BurcinDatabase
 
 		public short? CategoryCode { get; set; }
 		[ForeignKey(nameof(CategoryCode))]
-	    [InverseProperty(nameof(Burcin.CategoryCode.Recipes))]
+	    [InverseProperty(nameof(BurcinDatabase.CategoryCode.Recipes))]
 	    public virtual CategoryCode CategoryNavigation { get; set; }
 
 	}
