@@ -96,11 +96,8 @@ namespace Burcin.Host
 				options.Configuration = Configuration.GetConnectionString(Configuration.GetValue<string>("Cache:Redis:ConnectionStringKey"));
 				options.InstanceName = Configuration.GetValue<string>("Cache:Redis:InstanceName");
 				//x Configuration.GetSection("Cache:Redis").Bind(options);
-				options.ConfigurationOptions =
-					new ConfigurationOptions
-					{
-						AbortOnConnectFail = true
-					};
+				options.ConfigurationOptions = ConfigurationOptions.Parse(options.Configuration);
+				options.ConfigurationOptions.AbortOnConnectFail = true;
 			});
 #endif
 
