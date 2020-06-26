@@ -57,16 +57,16 @@ namespace Burcin.Host.Controllers
                 return BadRequest(ModelState);
             }
 
-            _logger.LogDebug("Inserting {id}", record.Id);
+            _logger.LogDebug("Inserting {id}", record.RecipeId);
             _dbContext.RecipeExpansions.Add(record);
             SaveChanges();
-            _logger.LogDebug("Inserted {id}", record.Id);
+            _logger.LogDebug("Inserted {id}", record.RecipeId);
 
    //         if (record.RecipeExpansions != null)
    //         {
-	  //          _logger.LogDebug("Inserting RecipeExpansions", record.Id);
+	  //          _logger.LogDebug("Inserting RecipeExpansions", record.RecipeId);
 	  //          _dbContext.RecipeExpansions.AddRange(record.RecipeExpansions);
-	  //          _logger.LogDebug("Inserted RecipeExpansions", record.Id);
+	  //          _logger.LogDebug("Inserted RecipeExpansions", record.RecipeId);
 			//	SaveChanges();
 			//}
 
@@ -115,7 +115,7 @@ namespace Burcin.Host.Controllers
 
             var query = _dbContext.RecipeExpansions.AsQueryable();
             var records = options.ApplyTo(query);
-            if (records == null || !records.Any())
+            if (records == null)
             {
                 return NotFound();
             }
@@ -151,7 +151,7 @@ namespace Burcin.Host.Controllers
         )]
         public IActionResult Get([FromODataUri] long key)
         {
-            var record = _dbContext.RecipeExpansions.Where(r => r.Id == key).AsQueryable();
+            var record = _dbContext.RecipeExpansions.Where(r => r.RecipeId == key).AsQueryable();
             if (record == null || !record.Any())
             {
                 return NotFound();
@@ -183,16 +183,16 @@ namespace Burcin.Host.Controllers
                 return BadRequest(ModelState);
             }
 
-            RecipeExpansion record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.Id == key);
+            RecipeExpansion record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.RecipeId == key);
             if (record == null)
             {
                 return NotFound();
             }
 
-            _logger.LogDebug("Updating {id}", record.Id);
+            _logger.LogDebug("Updating {id}", record.RecipeId);
             delta.Put(record);
             SaveChanges();
-            _logger.LogDebug("Updated {id}", record.Id);
+            _logger.LogDebug("Updated {id}", record.RecipeId);
 
             return Updated(record);
         }
@@ -220,7 +220,7 @@ namespace Burcin.Host.Controllers
                 return BadRequest(ModelState);
             }
 
-            var record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.Id == key);
+            var record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.RecipeId == key);
             if (record == null)
             {
                 return NotFound();
@@ -248,7 +248,7 @@ namespace Burcin.Host.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         public IActionResult Delete([FromODataUri] long key, bool suspendOnly)
         {
-            var record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.Id == key);
+            var record = _dbContext.RecipeExpansions.SingleOrDefault(r => r.RecipeId == key);
             if (record == null)
             {
                 return NotFound();
