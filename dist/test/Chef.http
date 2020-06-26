@@ -60,7 +60,7 @@ Cache-Control: no-cache
 
 # ===== ALTERNATIVE READS
 
-### @name GetTotalRecordCount				// not working
+### @name GetTotalRecordCount
 GET {{finalUrl}}?$count=true&$top=0 HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
