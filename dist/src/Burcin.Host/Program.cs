@@ -60,7 +60,9 @@ namespace Burcin.Host
 				await Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
 					.ConfigureServices((hostContext, services) =>
 					{
+#if (BackgroundService)
 						services.AddGracePeriodManagerService(hostContext.Configuration);
+#endif
 						services.AddHelper(hostContext.Configuration);
 					})
 					.RunConsoleAsync();
