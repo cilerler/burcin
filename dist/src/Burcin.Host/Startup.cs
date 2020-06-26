@@ -153,11 +153,11 @@ namespace Burcin.Host
 #if (BlazorApplication)
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
-
-			services.AddGoogleStorageService(Configuration);
 			services.AddScoped<ChefService>();
 			services.AddSingleton<WeatherForecastService>();
 #endif
+
+			services.AddGoogleStorageService(Configuration);
 
 #if (BlazorApplication || HealthChecks)
 			AsyncRetryPolicy<HttpResponseMessage> retryPolicy = HttpPolicyExtensions
@@ -293,7 +293,9 @@ namespace Burcin.Host
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
+#if (EntityFramework)
 				app.UseDatabaseErrorPage();
+#endif
 			}
 			else
 			{
@@ -327,8 +329,10 @@ namespace Burcin.Host
 					});
 				});
 #endif
+#if (WebApiApplicationExists)
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
+#endif
 			}
 			app.UseHttpsRedirection();
 			app.UseResponseCompression();
