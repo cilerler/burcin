@@ -115,7 +115,7 @@ namespace Burcin.Host.Controllers
 
             var query = _dbContext.Recipes.AsQueryable();
             var records = options.ApplyTo(query);
-            if (records == null || !records.Any())
+            if (records == null)
             {
                 return NotFound();
             }
