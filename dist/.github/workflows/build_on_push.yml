@@ -22,14 +22,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-        with:
-          ref: master
 
       - name: Extract metadata
         run: |
-            echo ::set-env name=buildNumber::$buildNumber.${GITHUB_RUN_NUMBER}
-            echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-            echo "##[set-output name=repository;]$(echo ${GITHUB_REPOSITORY#*/})"
+          echo ::set-env name=buildNumber::$buildNumber.${GITHUB_RUN_NUMBER}
+          echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          echo "##[set-output name=branchsafe;]$(echo ${GITHUB_REF#refs/heads/} | sed -r 's/[/]+/-/g')"
+          echo "##[set-output name=repository;]$(echo ${GITHUB_REPOSITORY#*/})"
         id: extract_metadata
 
       - name: Set NuGet credentials
@@ -121,3 +120,25 @@ jobs:
       #   uses: ame-yu/action-delete-latest-release@v2
       #   with:
       #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: FTP-Deploy-Action
+      #   uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      #   with:
+      #     ftp-server: ftps://server:port/
+      #     ftp-username: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     ftp-password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     git-ftp-args: --insecure # if your certificate is setup correctly this can be removed
+      #     local-dir: artifact/packages
+      #     remote-root: /publish/github-actions
+      #.git-ftp-include
+      #.git-ftp-ignore
+
+      # - name: Upload FTP
+      #   uses: sebastianpopp/ftp-action@releases/v2
+      #   with:
+      #     host: server:port
+      #     user: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     localDir: artifact/packages
+      #     remoteDir: /publish/github-actions
+
