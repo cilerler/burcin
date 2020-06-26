@@ -9,7 +9,7 @@ namespace Burcin.Models.BurcinDatabase
 		[Key]
 		public long RecipeId { get; set; }
 		[ForeignKey(nameof(RecipeId))]
-		[InverseProperty(nameof(Burcin.Recipe.Expansion))]
+		[InverseProperty(nameof(BurcinDatabase.Recipe.Expansion))]
 		public virtual Recipe Recipe { get; set; }
 
 		public ushort Rate { get; set; }
