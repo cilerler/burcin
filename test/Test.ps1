@@ -1,4 +1,4 @@
-$repository = "issue_cilerler-bedia-1";
+$repository = "issue.cilerler_bedia_1";
 $database = "WideWorldImporters";
 $datetime = $(get-date -Format "yyyyMMdd");
 $folderPath = "$env:userprofile\Source\local\$datetime\$repository";
