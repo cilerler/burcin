@@ -204,7 +204,9 @@
 					"condition": "(!WebApiApplicationExists)",
 					"exclude": [
 						"src/Burcin.Host/Controllers/**/*",
-						"src/Burcin.Host/Middlewares/**/*"
+						"src/Burcin.Host/Middlewares/**/*",
+						"src/Burcin.Host/DomainAttribute.cs",
+						"src/Burcin.Host/DomainMatcherPolicy.cs"
 					]
 				},
 				{
