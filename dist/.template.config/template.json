@@ -267,7 +267,8 @@
 					"condition": "(!HealthChecks)",
 					"exclude": [
 						"src/Burcin.Host/Controllers/HealthCheckController.cs",
-						"src/Burcin.Host/HealthChecks/**/*"
+						"src/Burcin.Host/HealthChecks/**/*",
+						"src/Burcin.Host/dotnet.css"
 					]
 				},
 				{
