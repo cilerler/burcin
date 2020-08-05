@@ -45,7 +45,7 @@ namespace Burcin.Host.Services.GracePeriodManagerService
                 _logger.LogDebug("Service is calling task");
                 DoWork(cancellationToken);
                 TimeSpan delay = _options.NextOccurence - DateTime.Now;
-                _logger.LogTrace("Delay before call {DelayTime}", delay);
+                _logger.LogTrace("Delay before call {TimeToRun}", delay);
                 await Task.Delay(delay
                                , cancellationToken);
             }

@@ -11,9 +11,9 @@ namespace Burcin.Host.Services.GracePeriodManagerService
 
 	    [Crontab(ErrorMessage = "Crontab argument is not valid.")]
 		[Required]
-	    public string DelayTime { get; set; }
+	    public string TimeToRun { get; set; }
 
-	    public bool IsEnabled => !string.IsNullOrWhiteSpace(DelayTime);
+	    public bool IsEnabled => !string.IsNullOrWhiteSpace(TimeToRun);
 
 		public DateTime NextOccurence
 		{
@@ -23,7 +23,7 @@ namespace Burcin.Host.Services.GracePeriodManagerService
 				{
 					return DateTime.MinValue;
 				}
-				CrontabSchedule crontab = new CrontabAttribute().GetCrontab(DelayTime);
+				CrontabSchedule crontab = new CrontabAttribute().GetCrontab(TimeToRun);
 				return crontab?.GetNextOccurrence(DateTime.Now) ?? DateTime.MinValue;
 			}
 		}
