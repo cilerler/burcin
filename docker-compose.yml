@@ -1,14 +1,26 @@
 version: '3.4'
 services:
-  healthchecksui:
+  beatpulse:
     image: xabarilcoding/healthchecksui:latest
     ports:
       - "5000:80"
     environment:
-      - HealthChecks-UI:EvaluationTimeInSeconds=10
-      - HealthChecks-UI:MinimumSecondsBetweenFailureNotifications=60
-      - HealthChecks-UI:HealthChecks:0:Name=httpBasic
-      - HealthChecks-UI:HealthChecks:0:Uri=http://localhost:47920/health
+      - HealthChecksUI:EvaluationTimeInSeconds=60
+      - HealthChecksUI:MinimumSecondsBetweenFailureNotifications=300
+      - HealthChecksUI:HealthChecks:0:Name=httpBasic
+      - HealthChecksUI:HealthChecks:0:Uri=http://localhost:47920/health
+      - HealthChecksUI:Webhooks:0:Name=Slack
+      - HealthChecksUI:Webhooks:0:Uri=https://hooks.slack.com/services/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
+      - HealthChecksUI:Webhooks:0:Payload='{"text":"[[LIVENESS]] is failing with the error message: [[FAILURE]]            [[DESCRIPTIONS]]","channel":"#devops-alerts","link_names": 1,"username":"DevOps-health-service-bot","icon_emoji":":fire:"}'
+      - HealthChecksUI:Webhooks:0:RestoredPayload='{"text":"[[LIVENESS]] is recovered. All is up and running","channel":"#devops-alerts","link_names":1,"username":"DevOps-health-service-bot","icon_emoji":":fire_engine:"}'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.125'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     networks:
       - burcinnet
   seq:

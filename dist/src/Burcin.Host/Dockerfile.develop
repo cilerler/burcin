@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1.200
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1.302
 ARG BUILD_CONFIGURATION=Debug
 ENV DOTNET_ENVIRONMENT=Development
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
