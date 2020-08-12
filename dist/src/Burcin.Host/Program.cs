@@ -45,8 +45,7 @@ namespace Burcin.Host
 		public static async Task Main(string[] args)
 #pragma warning restore IDE1006 // Naming Styles
 		{
-
-			Console.WriteLine($"BUILD-TIME\n{new string('=', 20)}\n{await File.ReadAllTextAsync(@"Resources/BuildInfo.txt")}\nRUN-TIME\n{new string('=',20)}\n{Assembly.GetExecutingAssembly().GetName().Version}\n{Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}");
+			Console.WriteLine($"BUILD-TIME\n{new string('=', 20)}\n{await File.ReadAllTextAsync(@"Resources/BuildInfo.txt")}\nRUN-TIME\n{new string('=', 20)}\n{Assembly.GetExecutingAssembly().GetName().Version}\nDOTNET_ENVIRONMENT: {Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")}\nDOTNET_RUNNING_IN_CONTAINER: {Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")}\nMACHINENAME: {Environment.MachineName}");
 
 #if (ConsoleApplication)
 			bool isConsole = args.Contains("--console");

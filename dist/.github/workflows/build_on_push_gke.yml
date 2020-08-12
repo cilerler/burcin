@@ -61,8 +61,9 @@ jobs:
 
     - name: Build
       run: |
-        docker build -t $IMAGE:latest \
-          -t $IMAGE:$GITHUB_SHA \
+        docker build -t $IMAGE:$GITHUB_SHA \
+          -t $IMAGE:$BUILDNUMBER \
+          -t $IMAGE:latest \
           -f $PROJECTPATH/Dockerfile \
           --build-arg BUILDNUMBER="$BUILDNUMBER" \
           --build-arg GITHUB_SHA="$GITHUB_SHA" \
@@ -71,6 +72,7 @@ jobs:
     - name: Publish
       run: |
         docker push $IMAGE:$GITHUB_SHA
+        docker push $IMAGE:$BUILDNUMBER
         docker push $IMAGE:latest
 
     - name: Create Release
