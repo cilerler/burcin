@@ -53,10 +53,11 @@
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "default"
+      "default",
+	  "DocFx.Plugins.PlantUml/template"
     ],
     "postProcessors": [],
-    "markdownEngineName": "markdig",
+    "markdownEngineName": "dfm-latest",
     "noLangKeyword": false,
     "keepFileLink": false,
     "cleanupCacheHistory": false,
