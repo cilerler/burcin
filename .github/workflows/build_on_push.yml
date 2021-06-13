@@ -63,6 +63,7 @@ jobs:
         with:
           name: packages
           path: ./artifacts/packages
+          retention-days: 1
 
       - name: Publish artifacts (output)
         uses: actions/upload-artifact@master
@@ -70,6 +71,7 @@ jobs:
         with:
           name: output
           path: ./
+          retention-days: 30
 
       - name: Create Release
         id: create_release
