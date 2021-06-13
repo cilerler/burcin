@@ -1,0 +1,221 @@
+version: '3.7'
+
+services:
+  plantuml:
+    container_name: plantuml
+    image: plantuml/plantuml-server:tomcat
+    ports:
+      - "8080:8080"
+
+  beatpulse:
+    container_name: "beatpulse"
+    image: xabarilcoding/healthchecksui:latest
+    ports:
+      - "5000:80"
+    environment:
+      - HealthChecksUI:EvaluationTimeInSeconds=60
+      - HealthChecksUI:MinimumSecondsBetweenFailureNotifications=300
+      - HealthChecksUI:HealthChecks:0:Name=httpBasic
+      - HealthChecksUI:HealthChecks:0:Uri=http://localhost:47920/health
+      - HealthChecksUI:Webhooks:0:Name=Slack
+      - HealthChecksUI:Webhooks:0:Uri=https://hooks.slack.com/services/{ID}
+      - HealthChecksUI:Webhooks:0:Payload='{"text":"[[LIVENESS]] is failing with the error message [[FAILURE]]            [[DESCRIPTIONS]]","channel":"#devops-alerts","link_names":1,"username":"DevOps-health-service-bot","icon_emoji":":fire:"}'
+      - HealthChecksUI:Webhooks:0:RestoredPayload='{"text":"[[LIVENESS]] is recovered. All is up and running","channel":"#devops-alerts","link_names":1,"username":"DevOps-health-service-bot","icon_emoji":":fire_engine:"}'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.125'
+          memory: 128M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+  seq:
+    container_name: seq
+    image: datalust/seq:latest
+    ports:
+      - "5341:5341"
+      - "15341:80"
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - /c/.ignore/volumes/seq/data:/data
+
+  # seq:
+  #   container_name: "seq_service"
+  #   image: datalust/seq:2020.2
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #   volumes:
+  #     - /c/.ignore/volumes/seq/data:/data
+  #   ports:
+  #     - "5341:80"
+
+  # seq-input-gelf:
+  #   image: datalust/seq-input-gelf:latest
+  #   depends_on:
+  #     - seq
+  #   ports:
+  #     - "12201:12201/udp"
+  #   environment:
+  #     SEQ_ADDRESS: "http://seq:5341"
+  #   restart: unless-stopped
+
+  mssql:
+    container_name: mssql
+    image: cilerler/mssql-server-linux:2017
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+      - SSIS_PID=Developer
+      - SA_PASSWORD=Pass@word
+      - MSSQL_AGENT_ENABLED=true
+      - MSSQL_ENABLE_HADR=0
+    volumes:
+      - /c/.ignore/volumes/mssql:/var/opt/mssql
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbit-1
+    image: rabbitmq:3.8.3-management-alpine
+    command: bash -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - /c/.ignore/volumes/rabbitmq:/var/lib/rabbitmq/mnesia
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
+      - RABBITMQ_DEFAULT_USER=test
+      - RABBITMQ_DEFAULT_PASS=test
+      # rabbitmqctl add_user test test && rabbitmqctl set_user_tags test administrator && rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+
+  redis:
+    container_name: "redis"
+    image: "redis:6.0.7-alpine"
+    ports:
+      - "6379:6379"
+    volumes:
+      - /c/.ignore/volumes/redis/data:/data
+      - ./tools/docker-config/redis.conf:/usr/local/etc/redis/redis.conf
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  # redis-commander:
+  #   image: rediscommander/redis-commander:latest
+  #   environment:
+  #     - REDIS_HOSTS=local:redis:6379
+  #     - REDIS_PASSWORD="S0m3P@$$w0rd"
+  #   ports:
+  #     - "16379:8081"
+  #   depends_on:
+  #     - redis
+
+  grafana:
+    image: grafana/grafana:6.7.1
+    environment:
+      - GF_INSTALL_PLUGINS=raintank-worldping-app,grafana-azure-data-explorer-datasource
+    ports:
+      - "3000:3000"
+    volumes:
+      - /c/.ignore/volumes/grafana:/var/lib/grafana
+
+  prometheus-server:
+    image: prom/prometheus:v2.17.0
+    ports:
+      - "9090:9090"
+
+  prometheus-pushgateway:
+    image: prom/pushgateway:v1.2.0
+    ports:
+      - "9091:9091"
+
+  prometheus-alertmanager:
+    image: prom/alertmanager:v0.20.0
+    ports:
+      - "9093:9093"
+
+  prometheus-node-exporter:
+    image: prom/node-exporter:v1.0.0-rc.0
+    ports:
+      - "9100:9100"
+
+  zipkin:
+    container_name: "zipkin"
+    image: "openzipkin/zipkin:2.21.7"
+    ports:
+      - 9411:9411
+
+  fluent-bit:
+    image: fluent/fluent-bit:1.5.5
+    container_name: "fluentbit"
+    hostname: "fluentbit"
+    ports:
+      - "24224:24224"
+    volumes:
+      - "./tools/docker-config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
+
+  vault:
+    image: vault:1.4.3
+    container_name: vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_API_ADDR=http://vault:8200
+    volumes:
+      - ./tools/docker-config/vault.hcl:/etc/vault/config.hcl
+      - /c/.ignore/volumes/vault/file:/vault/file
+      - /c/.ignore/volumes/vault/logs:/vault/logs
+    command: server -config=/etc/vault/config.hcl
+    ports:
+      - "8200:8200"
+
+  # mongodb:
+  #   container_name: mongodb
+  #   image: mongo:4.4.0
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=admin
+  #     - MONGO_INITDB_ROOT_PASSWORD=admin
+  #     - MONGO_INITDB_DATABASE=burcin
+  #   volumes:
+  #     - /c/.ignore/volumes/mongo/data/db:/data/db
+  #   ports:
+  #     - "27017:27017"
+
+  # mongo-express:
+  #   image: mongo-express:latest
+  #   environment:
+  #     - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+  #     - ME_CONFIG_MONGODB_ADMINPASSWORD=admin
+  #     - ME_CONFIG_MONGODB_SERVER=mongodb
+  #   ports:
+  #     - "8081:8081"
+  #   links:
+  #     - mongodb
+
+  # postgresql:
+  #   container_name: postgres
+  #   image: postgres:12.2-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   # volumes:
+  #   #   - /c/.ignore/volumes/postgresql/data:/var/lib/postgresql/data
+  #   environment:
+  #     - POSTGRES_USER=admin
+  #     - POSTGRES_PASSWORD=Pass@word
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:latest
+  #   ports:
+  #     - "5050:80"
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@pgadmin.local
+  #     - PGADMIN_DEFAULT_PASSWORD=Pass@word
+  #   links:
+  #     - postgresql
+
+networks:
+  default:
+    name: burcin_network
+    driver: bridge
