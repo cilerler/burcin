@@ -1,0 +1,9 @@
+unreleased=false
+exclude-labels=duplicate,question,invalid,wontfix,Duplicate,Question,Invalid,Wontfix,Meta: Exclude From Changelog,Changelog: Exclude
+summary-labels=Release summary,release-summary,Summary,summary,Changelog: Summary
+breaking-labels=backwards-incompatible,Backwards incompatible,breaking,Changelog: Breaking
+deprecated-labels=deprecated,Deprecated,Type Deprecated,Changelog: Deprecated
+removed-labels=removed,Removed,Type Removed,Changelog: Removed
+security-labels=security,Security,Type Security,Changelog: Security
+enhancement-labels=enhancement,Enhancement,Type Enhancement,Changelog: Changed
+bug-labels=bug,Bug,Type Bug,Changelog: Fixed
