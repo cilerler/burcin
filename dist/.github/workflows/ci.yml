@@ -1,0 +1,942 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ] #[ develop, 'feature/*', 'release/*' ]
+  #   branches: [ main, dev, 'feature/*', 'rel/*' ]
+  #   paths-ignore:
+  #     - license
+  #     - readme.md
+  #     - changelog.md
+  #     - code-of-conduct.md
+  #     - security.md
+  #     - support.md
+    paths:
+    - '.github/workflows/ci.yml'
+    - 'src/Burcin.*/**'
+  #     - 'releases/**'
+  #     - '!releases/**-alpha'
+  #     - '.github/workflows/Primitives.yml'
+  #     - 'src/Primitives/**'
+  #     - '!.github/**'
+  #     - '!.vscode/**'
+  #     - '!docs/**'
+  #     - '!test/**'
+  #     - '!tools/**'
+  #     - '!**/*.md'
+  #     - '!**/*.editorconfig'
+  #     - '!**/*.gitattributes'
+  #     - '!**/*.gitignore'
+  #   tags:
+  #     - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  #   branches-ignore:
+  #   paths-ignore:
+  #   tags-ignore:
+  #    - v1.*
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  # release:
+  #   types: [published, released]
+  # schedule:
+  #   - cron: "0 0 * * *"
+  # workflow_run:
+  #   workflows: [build]
+  #   branches: [master]
+  #   types: [completed]
+
+
+env:
+  DOTNET_NOLOGO: true
+  # Stop wasting time caching packages
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Disable sending usage data to Microsoft
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+  #BUILD_PLATFORM: 'Any CPU'
+  BUILD_CONFIGURATION: 'Release'
+  BUILD_NUMBER: '1.0'
+  OUTPUT_PATH_PACKAGE: './artifacts/packages'
+  OUTPUT_PATH_PUBLISH: './artifacts/staging'
+  OUTPUT_PATH_DOCKER: './artifacts/docker'
+  #SOLUTION: '**/*.sln'
+  K8S_NAMESPACE: default
+  APPLICATION_NAME: burcin
+  PROJECT_PATH: './src/Burcin.Host'
+  PROJECT_FILE: './src/Burcin.Host/Burcin.Host.csproj'
+  PROJECT_TEST_FILE: './test/Burcin.Host.Tests/Burcin.Host.Tests.csproj'
+  BUILD_INFO_FILE: 'BuildInfo.txt'
+  CHANGELOG_FILE: "CHANGELOG.md"
+  RELEASENOTES_FILE: 'RELEASENOTES.md'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+
+  base:
+    runs-on: ubuntu-latest
+    outputs:
+      actor: ${{github.actor}}
+      owner: ${{github.repository_owner}}
+      repository: ${{steps.extract_metadata.outputs.repository}}
+      branch: ${{steps.extract_metadata.outputs.branch}}
+      branchsafe: ${{steps.extract_metadata.outputs.branchsafe}}
+      workflow: ${{github.workflow}}
+      build_number: ${{env.BUILD_NUMBER}}
+      metadata_name: ${{steps.extract_metadata.outputs.repository}}-${{steps.extract_metadata.outputs.branchsafe}} #REPOSITORY-BRANCH
+      deployment_name: ${{steps.extract_metadata.outputs.repository}}-${{steps.extract_metadata.outputs.branchsafe}}-${{env.APPLICATION_NAME}} #REPOSITORY-BRANCH-APPLICATION_NAME
+      co_authored_by: ${{steps.extract_metadata.outputs.coauthoredby}}
+      build_info_path: ${{steps.extract_metadata.outputs.buildinfopath}}
+      build_info_file: ${{env.BUILD_INFO_FILE}}
+      project_path: ${{env.PROJECT_PATH}}
+      project_name: ${{steps.extract_metadata.outputs.projectname}}
+
+    steps:
+      - name: Extract metadata
+        run: |
+          echo "BUILD_NUMBER=$BUILD_NUMBER.${GITHUB_RUN_NUMBER}" >> $GITHUB_ENV
+          echo ::set-output name=repository::${{github.event.repository.name}}
+          echo "##[set-output name=branch;]$(echo $(if [ ${GITHUB_EVENT_NAME} == 'pull_request' ]; then echo ${GITHUB_HEAD_REF}; else echo ${GITHUB_REF#refs/heads/}; fi))"
+          echo "##[set-output name=branchsafe;]$(echo $(if [ ${{github.event_name}} == 'pull_request' ]; then echo ${GITHUB_HEAD_REF}; else echo ${GITHUB_REF#refs/heads/}; fi | sed -r 's/[/]+/-/g'))"
+          echo "##[set-output name=coauthoredby;]$(echo $(if [ ${GITHUB_EVENT_NAME} == 'pull_request' ]; then echo '${{github.event.pull_request.user.login}} <${{github.event.pull_request.user.id}}+${{github.event.pull_request.user.login}}@users.noreply.github.com>'; else echo '${{github.event.sender.login}} <${{github.event.sender.id}}+${{github.event.sender.login}}@users.noreply.github.com>'; fi))"
+          echo "##[set-output name=buildinfopath;]$(echo ${{env.PROJECT_PATH}}/Resources)"
+          echo "##[set-output name=projectname;]$(echo $(basename ${{env.PROJECT_PATH}}))"
+        id: extract_metadata
+
+      - name: Generate BuildInfo file
+        env:
+          OWNER: ${{github.repository_owner}}
+          REPOSITORY: ${{steps.extract_metadata.outputs.repository}}
+          BRANCH: ${{steps.extract_metadata.outputs.branch}}
+          BUILD_NUMBER: ${{env.BUILD_NUMBER}}
+          PROJECT_PATH: ${{env.PROJECT_PATH}}
+          BUILD_INFO_FILE: ${{env.BUILD_INFO_FILE}}
+        run: |
+          echo "${{env.OWNER}}/${{env.REPOSITORY}}_${BRANCH}:${GITHUB_SHA}"$'\n'"v${BUILD_NUMBER}" | tee ${{env.BUILD_INFO_FILE}}
+
+      - name: Publish artifacts (BuildInfo.txt)
+        env:
+          BUILD_INFO_FILE: ${{env.BUILD_INFO_FILE}}
+        uses: actions/upload-artifact@v2
+        with:
+          name: buildinfotxt
+          path: ${{env.BUILD_INFO_FILE}}
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Debug details as BASH
+        if: failure()
+        shell: bash
+        env:
+          GITHUB_CONTEXT: ${{toJson(github)}}
+        run: |
+          cat /etc/lsb-release
+          monodis --assembly /usr/lib/mono/msbuild/15.0/bin/NuGet.Packaging.dll | grep Version
+          echo "secrets              ${{secrets.GITHUB_TOKEN}}"
+          echo "github_action        ${GITHUB_ACTION}"
+          echo "github_run_id        ${GITHUB_RUN_ID}"
+          echo "github_run_number    ${GITHUB_RUN_NUMBER}"
+          echo "event_name1          ${GITHUB_EVENT_NAME}"
+          echo "event_name2          ${{github.event_name}}"
+          echo "actor                ${{github.actor}}"
+          echo "workflow             ${{github.workflow}}"
+          echo "github_repository    ${{github.repository}}"
+          echo "owner                ${{github.repository_owner}}"
+          echo "repository           ${{steps.extract_metadata.outputs.repository}}"
+          echo "branch               ${{steps.extract_metadata.outputs.branch}}"
+          echo "branchsafe           ${{steps.extract_metadata.outputs.branchsafe}}"
+          echo "coauthoredby         ${{steps.extract_metadata.outputs.coauthoredby}}"
+          echo "build_info_path      ${{steps.extract_metadata.outputs.buildinfopath}}"
+          echo "default_branch       ${{github.event.repository.default_branch}}"
+          echo "sender_user_login    ${{github.event.sender.login}}"
+          echo "sender_user_id       ${{github.event.sender.id}}"
+          echo "pr_user_login        ${{github.event.pull_request.user.login}}"
+          echo "pr_user_id           ${{github.event.pull_request.user.id}}"
+          echo "workflow_run_branch  ${{github.event.workflow_run.head_branch}}"
+          echo "pull_request_branch  ${{github.event.pull_request.head.ref}}"
+          echo "badge                https://github.com/${{github.repository}}/workflows/${{github.workflow}}/badge.svg"
+          echo "build_configuration1 ${{env.BUILD_CONFIGURATION}}"
+          echo "build_configuration2 ${BUILD_CONFIGURATION}"
+          echo "buildNumber          ${BUILD_NUMBER}"
+          echo "headref              ${GITHUB_HEAD_REF}"
+          echo "baseref              ${GITHUB_BASE_REF}"
+          echo "ref                  ${GITHUB_REF}"
+          echo "ref-modified         ${GITHUB_REF#refs/heads/}"
+          # echo "path                 ${PATH}"
+          # echo ${GITHUB_CONTEXT}
+
+      - name: Debug details as PowerShell
+        if: failure()
+        shell: pwsh
+        env:
+          GITHUB_CONTEXT: ${{toJson(github)}}
+        run: |
+          Get-Location
+          echo "secrets              ${{secrets.GITHUB_TOKEN}}"
+          echo "github_action        ${env:GITHUB_ACTION}"
+          echo "github_run_id        ${env:GITHUB_RUN_ID}"
+          echo "github_run_number    ${env:GITHUB_RUN_NUMBER}"
+          echo "event_name1          ${env:GITHUB_EVENT_NAME}"
+          echo "event_name2          ${{github.event_name}}"
+          echo "actor                ${{github.actor}}"
+          echo "workflow             ${{github.workflow}}"
+          echo "github_repository    ${{github.repository}}"
+          echo "owner                ${{github.repository_owner}}"
+          echo "repository           ${{steps.extract_metadata.outputs.repository}}"
+          echo "branch               ${{steps.extract_metadata.outputs.branch}}"
+          echo "branchsafe           ${{steps.extract_metadata.outputs.branchsafe}}"
+          echo "coauthoredby         ${{steps.extract_metadata.outputs.coauthoredby}}"
+          echo "build_info_path      ${{steps.extract_metadata.outputs.buildinfopath}}"
+          echo "default_branch       ${{github.event.repository.default_branch}}"
+          echo "sender_user_login    ${{github.event.sender.login}}"
+          echo "sender_user_id       ${{github.event.sender.id}}"
+          echo "pr_user_login        ${{github.event.pull_request.user.login}}"
+          echo "pr_user_id           ${{github.event.pull_request.user.id}}"
+          echo "workflow_run_branch  ${{github.event.workflow_run.head_branch}}"
+          echo "pull_request_branch  ${{github.event.pull_request.head.ref}}"
+          echo "badge                https://github.com/${{github.repository}}/workflows/${{github.workflow}}/badge.svg"
+          echo "build_configuration1 $env:BUILD_CONFIGURATION"
+          echo "build_configuration2 ${env:BUILD_CONFIGURATION}"
+          echo "buildNumber          ${env:BUILD_NUMBER}"
+          echo "headref              ${env:GITHUB_HEAD_REF}"
+          echo "baseref              ${env:GITHUB_BASE_REF}"
+          echo "ref                  ${env:GITHUB_REF}"
+          echo "ref-modified         ${env:GITHUB_REF#refs/heads/}"
+          # echo "path                 ${env:PATH}"
+          # echo $env:GITHUB_CONTEXT
+
+  base-debug:
+    needs: [base]
+    if: failure() || (contains(toJson(github.event.commits), '[actions debug]') || contains(toJson(github.event.commits), '[debug actions]'))
+    runs-on: ubuntu-latest
+
+    env:
+      REGISTRY: ghcr.io/${{needs.base.outputs.owner}}
+
+    steps:
+      - name: Debug details as BASH
+        shell: bash
+        env:
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          BRANCH: ${{needs.base.outputs.branch}}
+          BRANCHSAFE: ${{needs.base.outputs.branchsafe}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          METADATA_NAME: ${{needs.base.outputs.metadata_name}}
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          CO_AUTHORED_BY: ${{needs.base.outputs.co_authored_by}}
+          BUILD_INFO_PATH: ${{needs.base.outputs.build_info_path}}
+          PROJECT_PATH: ${{needs.base.outputs.project_path}}
+        run: |
+          echo "owner                ${OWNER}"
+          echo "repository           ${REPOSITORY}"
+          echo "branch               ${BRANCH}"
+          echo "branchsafe           ${BRANCHSAFE}"
+          echo "build_number         ${BUILD_NUMBER}"
+          echo "metadata_name        ${METADATA_NAME}"
+          echo "deployment_name      ${DEPLOYMENT_NAME}"
+          echo "co_authored_by       ${CO_AUTHORED_BY}"
+          echo "build_info_path      ${BUILD_INFO_PATH}"
+          echo "project_path         ${PROJECT_PATH}"
+          echo "registry             ${REGISTRY}"
+
+  format:
+    needs: [base]
+    if: (!contains(toJson(github.event.commits), '[skip format]')) && (contains(toJson(github.event.commits), '[build]') || contains(toJson(github.event.commits), '[build-docker]'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git AutoCrlf Setup
+        run: |
+          git config --global core.autocrlf true
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        # submodules: recursive
+        # fetch-depth: 0
+        with:
+         ref: ${{needs.base.outputs.branch}}
+         # ref: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Format
+        run: |
+          dotnet tool update -g dotnet-format --version 6.0.* --add-source https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json
+          dotnet format --fix-whitespace --fix-style --fix-analyzers
+
+      - name: Git Status Checker for Format
+        run: |
+          echo "##[set-output name=modified;]$(if [ -n "$(git status --porcelain --untracked-files=no)" ]; then echo 'true'; else echo 'false'; fi)"
+          # echo ::set-output name=modified::$(git update-index -q --refresh && if git diff-index --quiet HEAD --; then echo "false"; else echo "true"; fi)
+        id: git-status-check
+
+      - name: Push changes
+        if: steps.git-status-check.outputs.modified == 'true'
+        continue-on-error: true
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          CO_AUTHORED_BY: ${{needs.base.outputs.co_authored_by}}
+        run: |
+          echo steps.git-status-check.outputs.modified
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/${{env.OWNER}}/${{env.REPOSITORY}}
+          git status
+          git commit -a -m "$(echo -e 'Automated FORMAT update\nCo-authored-by: ${{env.CO_AUTHORED_BY}}')"
+          git push
+
+  build:
+    needs: [base, format]
+    if: (contains(toJson(github.event.commits), '[build]')) || (!contains(toJson(github.event.commits), '[actions debug]') && !contains(toJson(github.event.commits), '[debug actions]'))
+    runs-on: ubuntu-latest
+
+    env:
+      BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download BuildInfo file
+        env:
+          BUILD_INFO_PATH: ${{needs.base.outputs.build_info_path}}
+        uses: actions/download-artifact@v2
+        with:
+          name: buildinfotxt
+          path: ${{env.BUILD_INFO_PATH}}
+        id: download
+
+      - name: Setup DotNet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.nuget/packages
+          key: ${{runner.os}}-nuget-${{hashFiles('**/packages.lock.json')}}
+          restore-keys: ${{runner.os}}-nuget
+
+      - name: Add PackageManager
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget add source https://nuget.pkg.github.com/cilerler/index.json -n github -u github_actions -p ${TOKEN} --store-password-in-clear-text
+
+      - name: Restore
+        run: dotnet restore ${{env.PROJECT_FILE}}
+
+      - name: Build
+        run: dotnet build ${{env.PROJECT_FILE}} --configuration ${{env.BUILD_CONFIGURATION}} --no-restore -p:BuildNumber=$BUILD_NUMBER
+
+      - name: Test
+        run: dotnet test ${{env.PROJECT_TEST_FILE}} --configuration ${{env.BUILD_CONFIGURATION}} -p:CollectCoverage=true
+        continue-on-error: true
+
+      - name: Publish
+        run: dotnet publish ${{env.PROJECT_FILE}} --configuration ${{env.BUILD_CONFIGURATION}} --no-restore --no-build --output ${{env.OUTPUT_PATH_PUBLISH}}
+
+      - name: Pack
+        run: dotnet pack ${{env.PROJECT_FILE}} --configuration ${{env.BUILD_CONFIGURATION}} --no-restore --no-build --output ${{env.OUTPUT_PATH_PACKAGE}} -p:BuildNumber=$BUILD_NUMBER
+
+      - name: Publish artifacts (packages)
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: ${{env.OUTPUT_PATH_PACKAGE}}
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Publish artifacts (staging)
+        uses: actions/upload-artifact@v2
+        with:
+          name: staging
+          path: ${{env.OUTPUT_PATH_PUBLISH}}
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Publish artifacts (output)
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: output
+          path: ./
+          if-no-files-found: error
+          retention-days: 1
+
+  push-registry-nuget:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Package artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: ${{env.OUTPUT_PATH_PACKAGE}}
+        id: download
+
+      - name: Add PackageManager
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget add source https://nuget.pkg.github.com/cilerler/index.json -n github -u github_actions -p ${TOKEN} --store-password-in-clear-text
+
+      - name: Push to GitHub Packages
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: dotnet nuget push "${{env.OUTPUT_PATH_PACKAGE}}/*.nupkg" --skip-duplicate --source "github" --api-key ${TOKEN}
+
+      - name: Push to Nuget
+        if: github.event_name == 'push'
+        env:
+          TOKEN: ${{secrets.NUGET_API_KEY}}
+        run: dotnet nuget push "${{env.OUTPUT_PATH_PACKAGE}}/*.nupkg" --skip-duplicate --source "nuget" --api-key ${TOKEN}
+        continue-on-error: true
+
+      - name: Existing Nuget Sources
+        if: failure()
+        run: dotnet nuget list source
+
+  build-docker:
+    needs: [base, format]
+    if: (contains(toJson(github.event.commits), '[build-docker]')) || (!contains(toJson(github.event.commits), '[actions debug]') && !contains(toJson(github.event.commits), '[debug actions]'))
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download BuildInfo file
+        env:
+          BUILD_INFO_PATH: ${{needs.base.outputs.build_info_path}}
+        uses: actions/download-artifact@v2
+        with:
+          name: buildinfotxt
+          path: ${{env.BUILD_INFO_PATH}}
+        id: download
+
+      - name: Build Docker
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          PROJECT_PATH: ${{needs.base.outputs.project_path}}
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          OUTPUT_PATH_DOCKER: ${{env.OUTPUT_PATH_DOCKER}}
+          SHA: $GITHUB_SHA
+          REF: $GITHUB_REF
+        run: |
+          docker build \
+            -t ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} \
+            -t ${{env.DEPLOYMENT_NAME}}:${{env.BUILD_NUMBER}} \
+            -t ${{env.DEPLOYMENT_NAME}}:latest \
+            -f ${{env.PROJECT_PATH}}/Dockerfile \
+            --build-arg BUILDNUMBER="${{env.BUILD_NUMBER}}" \
+            --build-arg GITHUB_SHA="${{env.SHA}}" \
+            --build-arg GITHUB_REF="${{env.REF}}" \
+            --build-arg GITHUB_PAT="${{env.TOKEN}}" \
+            .
+          mkdir -p ${{env.OUTPUT_PATH_DOCKER}}
+          docker save ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} > ${{env.OUTPUT_PATH_DOCKER}}/docker-artifact.tar
+
+      - name: Publish artifacts (packages)
+        uses: actions/upload-artifact@v2
+        with:
+          name: docker-artifact
+          path: ${{env.OUTPUT_PATH_DOCKER}}
+          if-no-files-found: error
+          retention-days: 1
+
+  push-registry-docker-github:
+    needs: [base, build-docker]
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{steps.publish.outputs.image}}
+
+    env:
+      REGISTRY: ghcr.io/${{needs.base.outputs.owner}}
+
+    steps:
+      - name: Download Docker artifact
+        uses: actions/download-artifact@v2
+        with:
+          name:  docker-artifact
+          path: ${{env.OUTPUT_PATH_DOCKER}}
+
+      - name: Load Docker artifact
+        env:
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          OUTPUT_PATH_DOCKER: ${{env.OUTPUT_PATH_DOCKER}}
+          SHA: $GITHUB_SHA
+        run: |
+            docker load --input ${{env.OUTPUT_PATH_DOCKER}}/docker-artifact.tar
+            docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} ${{env.DEPLOYMENT_NAME}}:${{env.BUILD_NUMBER}}
+
+      - name: Log in to registry
+        env:
+          TOKEN: ${{secrets.GITHUB_TOKEN}}
+          ACTOR: ${{needs.base.outputs.actor}}
+        run: echo "${{env.TOKEN}}" | docker login ${{env.REGISTRY}} -u ${{env.ACTOR}} --password-stdin
+
+      - name: Publish to registry
+        id: publish
+        env:
+          OWNER: ${{needs.base.outputs.owner}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          SHA: $GITHUB_SHA
+        run: |
+          IMAGE=${{env.REGISTRY}}/${{env.REPOSITORY}}
+          echo "##[set-output name=image;]$(echo $IMAGE)"
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:${{env.SHA}}
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:${{env.BUILD_NUMBER}}
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:latest
+          docker push $IMAGE:${{env.SHA}}
+          docker push $IMAGE:${{env.BUILD_NUMBER}}
+          docker push $IMAGE:latest
+
+  push-registry-docker-gcp:
+    needs: [base, build-docker]
+    runs-on: ubuntu-latest
+
+    outputs:
+      image: ${{steps.publish.outputs.image}}
+
+    env:
+      GKE_PROJECT: ${{secrets.GKE_PROJECT}}
+
+    steps:
+      - name: Download Docker artifact
+        uses: actions/download-artifact@v2
+        with:
+          name:  docker-artifact
+          path: ${{env.OUTPUT_PATH_DOCKER}}
+
+      - name: Load Docker artifact
+        env:
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          OUTPUT_PATH_DOCKER: ${{env.OUTPUT_PATH_DOCKER}}
+          SHA: $GITHUB_SHA
+        run: |
+            docker load --input ${{env.OUTPUT_PATH_DOCKER}}/docker-artifact.tar
+            docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} ${{env.DEPLOYMENT_NAME}}:${{env.BUILD_NUMBER}}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        env:
+          GKE_KEY: ${{secrets.GKE_KEY}}
+        with:
+          service_account_key: ${{env.GKE_KEY}}
+          project_id: ${{env.GKE_PROJECT}}
+
+      - name: Auth GCloud
+        run: |
+          gcloud --quiet auth configure-docker
+
+      - name: Publish to registry
+        id: publish
+        env:
+          OWNER: ${{needs.base.outputs.owner}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+          REGISTRY: gcr.io/${{env.GKE_PROJECT}}/github.com
+          SHA: $GITHUB_SHA
+        run: |
+          IMAGE=${{env.REGISTRY}}/${{env.OWNER}}/${{env.REPOSITORY}}
+          echo "##[set-output name=image;]$(echo $IMAGE)"
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:${{env.SHA}}
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:${{env.BUILD_NUMBER}}
+          docker tag ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} $IMAGE:latest
+          docker push $IMAGE:${{env.SHA}}
+          docker push $IMAGE:${{env.BUILD_NUMBER}}
+          docker push $IMAGE:latest
+
+  deploy-k8s-gcp:
+    needs: [base, push-registry-docker-gcp]
+    runs-on: ubuntu-latest
+
+    env:
+      GKE_PROJECT: ${{secrets.GKE_PROJECT}}
+      GKE_KEY: ${{secrets.GKE_KEY}}
+      GKE_EMAIL: ${{secrets.GKE_EMAIL}}
+      GKE_ZONE: ${{secrets.GKE_ZONE}}
+      GKE_CLUSTER: ${{secrets.GKE_CLUSTER}}
+
+    steps:
+     - name: Checkout
+       uses: actions/checkout@v2
+
+     - name: Set up Cloud SDK
+       uses: google-github-actions/setup-gcloud@v0.2.0
+       with:
+         service_account_key: ${{env.GKE_KEY}}
+         project_id: ${{env.GKE_PROJECT}}
+
+     - name: Get GKE Credentials
+       uses: google-github-actions/get-gke-credentials@v0.2.1
+       with:
+         cluster_name: ${{env.GKE_CLUSTER}}
+         location: ${{env.GKE_ZONE}}
+         credentials: ${{env.GKE_KEY}}
+
+     - name: Set up Kustomize
+       run: |
+         cd ./tools/Kubernetes
+         curl --location https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv4.2.0/kustomize_v4.2.0_linux_amd64.tar.gz | tar xz
+         chmod u+x ./kustomize
+
+     - name: Deploy
+       env:
+         SHA: $GITHUB_SHA
+         NAMESPACE: ${{env.K8S_NAMESPACE}}
+         APPLICATION_NAME: ${{env.APPLICATION_NAME}}
+         REPOSITORY: ${{needs.base.outputs.repository}}
+         BRANCHSAFE: ${{needs.base.outputs.branchsafe}}
+         METADATA_NAME: ${{needs.base.outputs.metadata_name}}
+         DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+         IMAGE: ${{needs.push-registry-docker-gcp.outputs.image}}
+       run: |
+         cd ./tools/Kubernetes
+         sed -i "s/\$(APPLICATION_NAME)/${{env.APPLICATION_NAME}}/g;s/\$(REPOSITORY)/${{env.REPOSITORY}}/g;s/\$(BRANCH)/${{env.BRANCHSAFE}}/g;s/\$(DEPLOYMENT_NAME)/${{env.DEPLOYMENT_NAME}}/g;" *.yaml
+         ./kustomize edit set nameprefix "${{env.METADATA_NAME}}-"
+         ./kustomize edit set namespace ${{env.NAMESPACE}}
+         ./kustomize edit set image IMAGE=${{env.IMAGE}}:${{env.SHA}}
+         ./kustomize build . | kubectl apply -f -
+
+     - name: Verify
+       continue-on-error: true
+       env:
+         NAMESPACE: ${{env.K8S_NAMESPACE}}
+         DEPLOYMENT_NAME: ${{needs.base.outputs.deployment_name}}
+       run: |
+         kubectl rollout status -n ${{env.NAMESPACE}} deployment/${{env.DEPLOYMENT_NAME}}
+         kubectl get services -o wide
+
+     - name: Debug Artifacts
+       if: failure()
+       run: |
+         cd ./tools/Kubernetes
+         cat kustomization.yaml
+         ./kustomize build .
+
+  release:
+    needs: [base, build]
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    outputs:
+      RELEASE_ID: ${{steps.create_release.outputs.id}}
+
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          BRANCH: ${{needs.base.outputs.branch}}
+          WORKFLOW: ${{needs.base.outputs.workflow}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+        with:
+          tag_name: v${{env.BUILD_NUMBER}}
+          release_name: ${{env.WORKFLOW}}.${{env.BUILD_NUMBER}}
+          draft: false
+          prerelease: false
+          body: |
+            [Changelog](https://github.com/${{env.OWNER}}/${{env.REPOSITORY}}/blob/${{env.BRANCH}}/CHANGELOG.md)
+          #  [Release Notes](https://github.com/${{env.OWNER}}/${{env.REPOSITORY}}/blob/${{env.BRANCH}}/release-notes/${{env.BUILD_NUMBER}}.md)
+
+      - name: Download Package artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: packages
+          path: ${{env.OUTPUT_PATH_PACKAGE}}
+        id: download
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+          PROJECT_NAME: ${{needs.base.outputs.project_name}}
+        with:
+          upload_url: ${{steps.create_release.outputs.upload_url}}
+          asset_path: ${{steps.download.outputs.download-path}}/${{env.PROJECT_NAME}}.${{env.BUILD_NUMBER}}.nupkg
+          asset_name: ${{env.PROJECT_NAME}}.${{env.BUILD_NUMBER}}.nupkg
+          asset_content_type: application/zip
+
+  changelog:
+    needs: [base, release]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Git AutoCrlf Setup
+        run: |
+          git config --global core.autocrlf true
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - run: git fetch --prune --unshallow --tags
+
+      - name: Extract metadata
+        run: |
+          echo "##[set-output name=currenttag;]$(echo $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=0 --max-count=1)))"
+          echo "##[set-output name=sincetag;]$(echo $(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1)))"
+        id: extract_metadata
+
+      - name: Install github_changelog_generator
+        run: |
+          sudo gem install github_changelog_generator
+
+      - name: ChangeLog Generator
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          ACTOR: ${{needs.base.outputs.actor}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          SINCE_TAG: ${{steps.extract_metadata.outputs.sincetag}}
+        run: |
+          github_changelog_generator -u ${{env.ACTOR}} -p ${{env.REPOSITORY}} -t ${{env.GITHUB_TOKEN}} -o ${{env.CHANGELOG_FILE}} --config-file .github/.github_changelog_generator
+
+      - name: Replace Changelog Footer
+        shell: pwsh
+        run: |
+          $PartToReplace = [Regex]::Escape("\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*")
+          (Get-Content $env:CHANGELOG_FILE -raw) -replace $PartToReplace, '' | Set-Content $env:CHANGELOG_FILE
+
+      - name: Git Status Checker for ChangeLog
+        run: |
+          echo "##[set-output name=modified;]$(echo $(if [ -n "$(git status --porcelain --untracked-files=no)" ]; then echo 'true'; else echo 'false'; fi))"
+        id: git-status-check
+
+      - name: Push CHANGELOG.md
+        if: steps.git-status-check.outputs.modified == 'true'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{env.GITHUB_TOKEN}}@github.com/${{env.OWNER}}/${{env.REPOSITORY}}
+          git commit -a -m 'Automated CHANGELOG update'
+          git push
+
+      - name: ReleaseNotes Generator
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          ACTOR: ${{needs.base.outputs.actor}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          SINCE_TAG: ${{steps.extract_metadata.outputs.sincetag}}
+        run: |
+          github_changelog_generator -u ${{env.ACTOR}} -p ${{env.REPOSITORY}} -t ${{env.GITHUB_TOKEN}} -o ${{env.RELEASENOTES_FILE}} --config-file .github/.github_releasenotes_generator --since-tag ${{env.SINCE_TAG}}
+          # sed -r 's/\\\* \*This Changelog was automatically generated by \[github_changelog_generator\]\(https\:\/\/github.com\/github-changelog-generator\/github-changelog-generator\)\*//g' ${{env.RELEASENOTES_FILE}} > ${{env.RELEASENOTES_FILE}}
+
+      - name: Replace ReleaseNotes Footer
+        shell: pwsh
+        run: |
+          $PartToReplace = [Regex]::Escape("\* *This Changelog was automatically generated by [github_changelog_generator](https://github.com/github-changelog-generator/github-changelog-generator)*")
+          (Get-Content $env:RELEASENOTES_FILE -raw) -replace $PartToReplace, '' | Set-Content $env:RELEASENOTES_FILE
+
+      - name: Update Release Notes
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          CURRENT_TAG: ${{steps.extract_metadata.outputs.currenttag}}
+          RELEASE_ID: ${{needs.release.outputs.RELEASE_ID}}
+        run: |
+          $headers = @{ 'Accept'='application/vnd.github.v3+json;charset=utf-8'; 'Authorization' = "bearer $env:GITHUB_TOKEN" }
+          $bodyContent = (Get-Content $env:RELEASENOTES_FILE | where { !($_ -like '\*') } | %{ $_.replace('\', '\\') }) -join '\n'
+          $body = '{ "body":"' + $bodyContent + '" }'| ConvertFrom-Json | ConvertTo-Json
+          $url = "$env:GITHUB_API_URL/repos/$env:OWNER/$env:REPOSITORY/releases/$env:RELEASE_ID"
+          Invoke-WebRequest $url -Method PATCH -Headers $headers -Body $body | select -ExpandProperty StatusCode # | select -ExpandProperty Content | ConvertFrom-Json | ConvertTo-Json
+
+  docs:
+    needs: [base, release]
+    runs-on: windows-latest
+
+    steps:
+      - name: Git AutoCrlf Setup
+        shell: bash
+        run: |
+          git config --global core.autocrlf true
+
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Build
+        env:
+          BUILD_NUMBER: ${{needs.base.outputs.build_number}}
+        run: |
+          dotnet build $PROJECT_FILE --configuration "$BUILD_CONFIGURATION" -p:BuildNumber="$BUILD_NUMBER" -p:BuildDocFx="true" -p:DOCFX_SOURCE_BRANCH_NAME="master"
+
+      - name: Push changes
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          OWNER: ${{needs.base.outputs.owner}}
+          REPOSITORY: ${{needs.base.outputs.repository}}
+          DOCUMENT_BRANCH: 'gh-pages'
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git stash --include-untracked
+          git checkout --orphan ${{env.DOCUMENT_BRANCH}}
+          git reset --hard
+          git clean -f -d
+          git checkout master -- _site
+          git stash pop
+          mv _docfx/_site/* ./
+          rm -rf _docfx/
+          cp ./index.html ./index.htm
+          git add --all
+          git remote set-url origin https://x-access-token:${{env.GITHUB_TOKEN}}@github.com/${{env.OWNER}}/${{env.REPOSITORY}}
+          git commit -a -m 'Automated DOCS update'
+          git push --force --set-upstream origin ${{env.DOCUMENT_BRANCH}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# - name: Download artifact
+#   uses: dawidd6/action-download-artifact@v2
+#   with:
+#     # Optional, GitHub token, a Personal Access Token with `public_repo` scope if needed
+#     github_token: ${{secrets.GITHUB_TOKEN}}, required if artifact is from a different repo
+#     # Required, workflow file name or ID
+#     workflow: workflow_name.yml
+#     # Optional, the status or conclusion of a completed workflow to search for
+#     # Can be one of a workflow conclusion::
+#     # "failure", "success", "neutral", "cancelled", "skipped", "timed_out", "action_required"
+#     # Or a workflow status:
+#     # "completed", "in_progress", "queued"
+#     # Default: "completed,success"
+#     workflow_conclusion: success
+#     # Optional, will get head commit SHA
+#     pr: ${{github.event.pull_request.number}}
+#     # Optional, no need to specify if PR is
+#     commit: ${{github.event.pull_request.head.sha}}
+#     # Optional, will use the branch
+#     branch: master
+#     # Optional, defaults to all types
+#     event: push
+#     # Optional, will use specified workflow run
+#     run_id: 1122334455
+#     # Optional, run number from the workflow
+#     run_number: 34
+#     # Optional, uploaded artifact name,
+#     # will download all artifacts if not specified
+#     # and extract them in respective subdirectories
+#     # https://github.com/actions/download-artifact#download-all-artifacts
+#     name: artifact_name
+#     # Optional, directory where to extract artifact. Defaults to the artifact name (see `name` input)
+#     path: extract_here
+#     # Optional, defaults to current repo
+#     repo: ${{github.repository}}
+#     #     workflow: ${{ github.event.workflow_run.workflow_id }}
+
+
+# ====================
+
+# https://github.community/t5/GitHub-Actions/Triggering-by-other-repository/m-p/30688/highlight/true#M512
+
+# - name: Directory update request
+#         run: |
+#           [ -z "${{ secrets.ISSUE_PAT }}" ] && echo "Skipping, no ISSUE_PAT" && exit 0
+#           curl --request POST \
+#           --url https://api.github.com/repos/<company>/<registry>/dispatches \
+#           --header 'authorization: Bearer ${{ secrets.ISSUE_PAT }}' \
+#           --header 'content-type: application/json' \
+#           --data '{
+#             "event_type": "repo_updated",
+#             "client_payload": {
+#                 "repo": "${{ github.repository }}"
+#               }
+#             }'
+
+# on:
+#   repository_dispatch:
+#     types: [repo_updated]
+# jobs:
+#   do-the-thing:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v2
+#       - name: Process update
+#         run: ./update-cloned-plugin.py "${{ github.event.client_payload.repo }}"
+
+# ====================
+      #  - name: Setup NuGet
+      #    uses: NuGet/setup-nuget@v1.0.2
+      #    with:
+      #     nuget-version: latest
+
+      #  - name: Setup NuGet GPR
+      #    run: |
+      #      nuget sources Add -Name GPR -Source https://nuget.pkg.github.com/cilerler/index.json -Username CILERLER -Password ${{secrets.GITHUB_TOKEN}}
+      #      nuget setApiKey ${{secrets.GITHUB_TOKEN}} -Source "GPR"
+      #      nuget push ./packages/*.nupkg -Source "GPR" -SkipDuplicate
+# ====================
+
+
+      # - uses: actions/delete-package-versions@v1
+      #   with:
+      #     package-name: 'Burcin.Domain'
+      #     num-old-versions-to-delete: 3
+
+      # - name: Tag commit
+      #   uses: tvdias/github-tagger@v0.0.1
+      #   with:
+      #     repo-token: "${{ secrets.GITHUB_TOKEN }}"
+      #     tag: v${{env.buildNumber}}
+
+      # - name: Delete latest release
+      #   uses: ame-yu/action-delete-latest-release@v2
+      #   with:
+      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: FTP-Deploy-Action
+      #   uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      #   with:
+      #     ftp-server: ftps://server:port/
+      #     ftp-username: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     ftp-password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     git-ftp-args: --insecure # if your certificate is setup correctly this can be removed
+      #     local-dir: artifact/packages
+      #     remote-root: /publish/github-actions
+      #.git-ftp-include
+      #.git-ftp-ignore
+
+      # - name: Upload FTP
+      #   uses: sebastianpopp/ftp-action@releases/v2
+      #   with:
+      #     host: server:port
+      #     user: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     localDir: artifact/packages
+      #     remoteDir: /publish/github-actions
