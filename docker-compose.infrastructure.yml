@@ -215,6 +215,29 @@ services:
   #   links:
   #     - postgresql
 
+  # mysql:
+  #   container_name: mysql
+  #   image: mysql:8.0.26
+  #   command: --default-authentication-plugin=mysql_native_password
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #       - /c/.ignore/volumes/mysql/:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_DATABASE=db
+  #     - MYSQL_USER=user
+  #     - MYSQL_PASSWORD=password
+  #     - MYSQL_ROOT_PASSWORD=password
+
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   ports:
+  #     - "8080:80"
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #   links:
+  #     - mysql
+
 networks:
   default:
     name: burcin_network
