@@ -19,11 +19,12 @@
 	</PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);ConsoleApplication;WebApiApplication;BlazorApplication;EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;WindowsService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
+		<DefineConstants>$(DefineConstants);ConsoleApplication;WebApiApplication;BlazorApplication;OData;EntityFramework;CacheSqlServer;CacheRedis;BackgroundService;WindowsService;HealthChecks;Swagger;ResponseCaching;</DefineConstants>
 		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
 		<ConsoleApplication>true</ConsoleApplication>
 		<WebApiApplication>true</WebApiApplication>
 		<BlazorApplication>true</BlazorApplication>
+		<OData>true</OData>
 		<EntityFramework>true</EntityFramework>
 		<CacheSqlServer>true</CacheSqlServer>
 		<CacheRedis>true</CacheRedis>

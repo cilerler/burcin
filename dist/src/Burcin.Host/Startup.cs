@@ -32,11 +32,13 @@ using Ruya;
 using Burcin.Host.Middlewares;
 using Burcin.Data;
 using Burcin.Domain;
+#if (OData)
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
 using Microsoft.OData.Edm;
+#endif
 #if (CacheRedis)
 using StackExchange.Redis;
 #endif
@@ -73,8 +75,15 @@ namespace Burcin.Host
 										options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
 									});
 
+#if (OData)
 			services.AddOData();
-
+			var queryAttribute = new EnableQueryAttribute()
+            {
+                MaxTop = 3,
+                PageSize = 4
+            };
+			services.AddODataQueryFilter(queryAttribute);
+#endif
 			services.AddOptions();
 			services.AddMemoryCache();
 
@@ -339,6 +348,9 @@ namespace Burcin.Host
 			app.UseResponseCaching();
 			app.UseStaticFiles();
             //app.UseSerilogRequestLogging();
+
+			app.UseODataBatching();
+
 			app.UseRouting();
 			app.UseCors();
 			app.UseAuthentication();
@@ -405,6 +417,7 @@ namespace Burcin.Host
 #endif
 
 				endpoints.MapControllers();
+#if (OData)
 				endpoints.SetDefaultQuerySettings(new Microsoft.AspNet.OData.Query.DefaultQuerySettings
 				{
 					EnableSelect = true,
@@ -416,7 +429,8 @@ namespace Burcin.Host
 					MaxTop = 100
 				});
 				endpoints.Select().Expand().Filter().OrderBy().Count().SkipToken().MaxTop(100);
-				endpoints.MapODataRoute("odata", "odata", ODataEdmModelBuilder.GetEdmModel());
+				endpoints.MapODataRoute("odata", "odata", ODataEdmModelBuilder.GetEdmModel(), batchHandler: new DefaultODataBatchHandler());
+#endif
 				endpoints.MapDefaultControllerRoute();
 #if (BlazorApplication)
 				endpoints.MapBlazorHub();

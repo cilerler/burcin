@@ -58,6 +58,11 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
+		"OData": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"DatabaseName": {
 			"type": "parameter",
 			"defaultValue": "WideWorldImporters",

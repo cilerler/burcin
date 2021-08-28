@@ -1,5 +1,6 @@
 # Burcin 
 
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/cilerler/burcin)
 [![](https://img.shields.io/badge/stackoverflow-burcin-orange.svg?style=for-the-badge&logo=stackoverflow)](https://stackoverflow.com/questions/tagged/burcin)
 ![](https://img.shields.io/github/release/cilerler/burcin.svg?style=for-the-badge&logo=github)
 ![](https://img.shields.io/github/downloads/cilerler/burcin/latest/total.svg?style=for-the-badge&logo=github&color=yellow)
@@ -53,5 +54,5 @@ dotnet new burcin --help
 ```powershell
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
 
-dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --WindowsService --BackgroundService --EntityFramework --DatabaseName "ChangeMe" --TestFramework --DocFx --DockerSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/bedia" --SkipRestore;
+dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --OData --WindowsService --BackgroundService --EntityFramework --DatabaseName "ChangeMe" --TestFramework --DocFx --DockerSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "ChangeMe" --RepositoryUrl "https://github.com/<changeme>/burcin" --SkipRestore;
 ```
