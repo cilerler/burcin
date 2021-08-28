@@ -3,7 +3,7 @@ name: ci
 on:
   workflow_dispatch:
   # push:
-    # branches: [ master ] #[ develop, 'feature/*', 'release/*' ]
+  #   branches: [ master ] #[ develop, 'feature/*', 'release/*' ]
   #   branches: [ main, dev, 'feature/*', 'rel/*' ]
   #   paths-ignore:
   #     - license
