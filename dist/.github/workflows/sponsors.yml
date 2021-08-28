@@ -1,0 +1,27 @@
+name: sponsors
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  sponsors:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: sponsors
+        shell: |
+          pwsh -noninteractive -command "try {{ $ErrorActionPreference='Stop'; . '{0}' }} catch {{ Write-Error ""FAILED: $_""; throw; }} if ((Test-Path -LiteralPath variable:\LASTEXITCODE)) {{ exit $LASTEXITCODE }}"
+        run: ./.github/workflows/sponsors.ps1
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Publish artifacts (output)
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: output
+          path: /tmp/orange/
+          if-no-files-found: error
+          retention-days: 1
