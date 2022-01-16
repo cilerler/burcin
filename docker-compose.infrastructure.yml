@@ -1,6 +1,7 @@
 version: '3.7'
 
 services:
+
   plantuml:
     container_name: plantuml
     image: plantuml/plantuml-server:tomcat
@@ -30,40 +31,31 @@ services:
           cpus: '0.25'
           memory: 256M
 
+  seq-ingestion:
+    container_name: "seq-ingestion"
+    image: datalust/seq-input-gelf:latest
+    depends_on:
+      - seq
+    ports:
+      - "12201:12201/udp"
+    environment:
+      SEQ_ADDRESS: "http://seq:5341"
+    restart: unless-stopped
+
   seq:
     container_name: seq
     image: datalust/seq:latest
-    ports:
-      - "5341:5341"
-      - "15341:80"
     environment:
       - ACCEPT_EULA=Y
     volumes:
-      - /c/.ignore/volumes/seq/data:/data
-
-  # seq:
-  #   container_name: "seq_service"
-  #   image: datalust/seq:2020.2
-  #   environment:
-  #     - ACCEPT_EULA=Y
-  #   volumes:
-  #     - /c/.ignore/volumes/seq/data:/data
-  #   ports:
-  #     - "5341:80"
-
-  # seq-input-gelf:
-  #   image: datalust/seq-input-gelf:latest
-  #   depends_on:
-  #     - seq
-  #   ports:
-  #     - "12201:12201/udp"
-  #   environment:
-  #     SEQ_ADDRESS: "http://seq:5341"
-  #   restart: unless-stopped
+      - ~/.docker/volumes/seq/data:/data
+    ports:
+      - "5341:5341"
+      - "15341:80"
 
   mssql:
     container_name: mssql
-    image: cilerler/mssql-server-linux:2017
+    image: cilerler/mssql-server-linux:2019
     ports:
       - "1433:1433"
     environment:
@@ -74,43 +66,55 @@ services:
       - MSSQL_AGENT_ENABLED=true
       - MSSQL_ENABLE_HADR=0
     volumes:
-      - /c/.ignore/volumes/mssql:/var/opt/mssql
-
-  rabbitmq:
-    container_name: rabbitmq
-    hostname: rabbit-1
-    image: rabbitmq:3.8.3-management-alpine
-    command: bash -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - /c/.ignore/volumes/rabbitmq:/var/lib/rabbitmq/mnesia
-    environment:
-      - RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
-      - RABBITMQ_DEFAULT_USER=test
-      - RABBITMQ_DEFAULT_PASS=test
-      # rabbitmqctl add_user test test && rabbitmqctl set_user_tags test administrator && rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+      - ~/.docker/volumes/mssql/data:/var/opt/mssql/data
+      - ~/.docker/volumes/mssql/log:/var/opt/mssql/log
+    extra_hosts:
+      - "azuredb.database.windows.net:172.17.1.17"
+    user: root
 
   redis:
-    container_name: "redis"
-    image: "redis:6.0.7-alpine"
+    container_name: redis
+    image: "redis:6.2.6-alpine"
     ports:
       - "6379:6379"
     volumes:
-      - /c/.ignore/volumes/redis/data:/data
+      - ~/.docker/volumes/redis/data:/data
       - ./tools/docker-config/redis.conf:/usr/local/etc/redis/redis.conf
     command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  redis-insight:
+    container_name: redis-insight
+    image: redislabs/redisinsight:latest
+    ports:
+      - "16379:8001"
+    depends_on:
+      - redis
 
   # redis-commander:
   #   image: rediscommander/redis-commander:latest
   #   environment:
-  #     - REDIS_HOSTS=local:redis:6379
+  #     - REDIS_HOSTS=local:localhost:6379
   #     - REDIS_PASSWORD="S0m3P@$$w0rd"
   #   ports:
   #     - "16379:8081"
   #   depends_on:
   #     - redis
+
+  rabbitmq:
+    container_name: rabbitmq
+    hostname: rabbit-1
+    image: rabbitmq:3.9.11-management-alpine
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=unique-erlang-cookie
+      - RABBITMQ_DEFAULT_USER=test
+      - RABBITMQ_DEFAULT_PASS=test
+      # rabbitmqctl add_user test test && rabbitmqctl set_user_tags test administrator && rabbitmqctl set_permissions -p / test ".*" ".*" ".*"
+    command: bash -c "rabbitmq-plugins enable rabbitmq_shovel rabbitmq_shovel_management && rabbitmq-server"
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ~/.docker/volumes/rabbitmq:/var/lib/rabbitmq/mnesia
 
   grafana:
     image: grafana/grafana:6.7.1
@@ -238,7 +242,95 @@ services:
   #   links:
   #     - mysql
 
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+  #   container_name: elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     # - node.name=elasticsearch
+  #     # - cluster.name=docker-cluster
+  #     # - cluster.initial_master_nodes=elasticsearch
+  #     # - bootstrap.memory_lock=true
+  #     # - 'ES_JAVA_OPTS=-Xms1024M -Xmx1024M'
+  #     # - http.cors.enabled=true
+  #     # - http.cors.allow-origin=*
+  #     # - network.host=_eth0_
+  #   # ulimits:
+  #   #   nproc: 65535
+  #   #   memlock:
+  #   #     soft: -1
+  #   #     hard: -1
+  #   # cap_add:
+  #   #   - ALL
+  #   # privileged: true
+  #   # volumes:
+  #   #   - 'elastic_data:/usr/share/elasticsearch/data'
+  #   ports:
+  #     - 9200:9200
+  #     - 9300:9300
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:7.16.2
+  #   container_name: kibana
+  #   environment:
+  #     - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+  #   ports:
+  #     - "5601:5601"
+  #   # volumes:
+  #   #   - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+
+  burcin:
+    container_name: burcin
+    image: smartprocure-burcin
+    build:
+      context: ../burcin
+      dockerfile: ./src/Burcin.Host/Dockerfile
+      args:
+        - BUILD_CONFIGURATION=Debug
+        - GITHUB_PAT=${GITHUB_PAT}
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=${DEV_CERTS_PASSWORD}
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - Logging__Console__FormatterName=json
+      - Logging__Console__FormatterOptions__IncludeScopes=true
+      - Logging__Console__FormatterOptions__UseUtcTimestamp=false
+      - Logging__Console__FormatterOptions__TimestampFormat=yyyyMMddHHmmss
+      - Logging__Console__FormatterOptions__JsonWriterOptions__Indented=false
+    ports:
+      - "5000:80"
+      - "5001:443"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets/Burcin.Host:/root/.microsoft/usersecrets/Burcin.Host:ro
+      - ~/.aspnet/https:/https:ro
+    depends_on:
+      - seq-ingestion
+      - mssql
+      - redis
+    logging:
+      driver: "gelf"
+      options:
+        gelf-address: "udp://host.docker.internal:12201"
+        # tag: "first-logs"
+        # max-size: "200k"
+        # max-file: "10"
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.25'
+    #       memory: 256M
+    #     reservations:
+    #       cpus: '0.125'
+    #       memory: 128M
+
 networks:
   default:
     name: burcin_network
     driver: bridge
+    ipam:
+     config:
+       - subnet: 192.168.32.224/27
+         gateway: 192.168.32.225
