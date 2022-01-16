@@ -23,7 +23,9 @@ spec:
           value: Production
         name: $(APPLICATION_NAME)
         image: IMAGE:latest
-        imagePullPolicy: Always
+        imagePullSecrets:
+        - name: github-dockerconfigjson
+        imagePullPolicy: IfNotPresent
         resources:
           requests:
             memory: 128Mi
