@@ -2,6 +2,11 @@ name: ci
 
 on:
   workflow_dispatch:
+  # inputs:
+  #   environment:
+  #     type: environment
+  #     description: 'Environment'
+  #     required: false
   # push:
   #   branches: [ master ] #[ develop, 'feature/*', 'release/*' ]
   #   branches: [ main, dev, 'feature/*', 'rel/*' ]
@@ -45,11 +50,8 @@ on:
 
 env:
   DOTNET_NOLOGO: true
-  # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-
   #BUILD_PLATFORM: 'Any CPU'
   BUILD_CONFIGURATION: 'Release'
   BUILD_NUMBER: '1.0'
@@ -69,6 +71,10 @@ env:
 defaults:
   run:
     shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
