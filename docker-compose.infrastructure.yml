@@ -31,24 +31,6 @@ services:
           cpus: '0.25'
           memory: 256M
 
-  vault:
-    container_name: vault
-    image: vault:1.10.1
-    environment:
-      # - VAULT_DEV_ROOT_TOKEN_ID=myroot
-      - VAULT_LOG_LEVEL=info
-      - SKIP_SETCAP=DISABLE_MEMORY_LOCKING
-      - 'VAULT_LOCAL_CONFIG={"backend":{"file":{"path":"/vault/file"}},"default_lease_ttl":"168h","max_lease_ttl":"720h","disable_mlock":true,"ui":true, "listener": {"tcp":{"address": "0.0.0.0:8200", "tls_disable": 1}}}'
-    command: [ 'vault', 'server', '-config=/vault/config' ]
-    ports:
-      - "8200:8200"
-    volumes:
-      - ~/.docker/volumes/smartprocure/vault/logs:/vault/logs
-      - ~/.docker/volumes/smartprocure/vault/file:/vault/file
-      - ~/.docker/volumes/smartprocure/vault/config:/vault/config
-    # cap_add:
-    #   - IPC_LOCK
-
   seq-ingestion:
     container_name: "seq-ingestion"
     image: datalust/seq-input-gelf:latest
@@ -179,19 +161,23 @@ services:
       - "./tools/docker-config/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf:ro"
 
   vault:
-    image: vault:1.4.3
+    image: vault:1.10.1
     container_name: vault
-    cap_add:
-      - IPC_LOCK
     environment:
-      - VAULT_API_ADDR=http://vault:8200
-    volumes:
-      - ./tools/docker-config/vault.hcl:/etc/vault/config.hcl
-      - /c/.ignore/volumes/vault/file:/vault/file
-      - /c/.ignore/volumes/vault/logs:/vault/logs
-    command: server -config=/etc/vault/config.hcl
+      # - VAULT_DEV_ROOT_TOKEN_ID=myroot
+      - VAULT_LOG_LEVEL=info
+      - SKIP_SETCAP=DISABLE_MEMORY_LOCKING
+      - 'VAULT_LOCAL_CONFIG={"backend":{"file":{"path":"/vault/file"}},"default_lease_ttl":"168h","max_lease_ttl":"720h","disable_mlock":true,"ui":true, "listener": {"tcp":{"address": "0.0.0.0:8200", "tls_disable": 1}}}'
+    command: [ 'vault', 'server', '-config=/vault/config' ]
     ports:
       - "8200:8200"
+    volumes:
+      - ~/.docker/volumes/smartprocure/vault/logs:/vault/logs
+      - ~/.docker/volumes/smartprocure/vault/file:/vault/file
+      - ~/.docker/volumes/smartprocure/vault/config:/vault/config
+    # cap_add:
+    #   - IPC_LOCK
+
 
   # mongodb:
   #   container_name: mongodb
