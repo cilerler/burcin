@@ -306,7 +306,7 @@ jobs:
         id: download
 
       - name: Setup DotNet
-        uses: actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 5.0.x
 
