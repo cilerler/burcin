@@ -289,6 +289,11 @@
 				{
 					"condition": "(!CacheSqlServer)",
 					"exclude": ["tools/sql-cache.ps1"]
+				},
+				{
+					"condition": "(!OData)",
+					"exclude": [
+						"src/Burcin.Data/ODataEdmModelBuilder.cs"]
 				}
 			]
 		}

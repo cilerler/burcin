@@ -226,10 +226,10 @@ namespace Burcin.Host.Controllers
                 return NotFound();
             }
 
-            _logger.LogDebug("Patching {id}", record.Id);
+            _logger.LogDebug("Patching {id}", record.RecipeId);
             delta.Patch(record);
             SaveChanges();
-            _logger.LogDebug("Patched {id}", record.Id);
+            _logger.LogDebug("Patched {id}", record.RecipeId);
 
             return Updated(record);
         }
@@ -258,10 +258,10 @@ namespace Burcin.Host.Controllers
             {
                 // Chef does not have a disable property.
             } else {
-                _logger.LogDebug("Deleting {id}", record.Id);
+                _logger.LogDebug("Deleting {id}", record.RecipeId);
                 _dbContext.RecipeExpansions.Remove(record);
                 SaveChanges();
-                _logger.LogDebug("Deleted {id}", record.Id);
+                _logger.LogDebug("Deleted {id}", record.RecipeId);
             }
 
             return NoContent();
