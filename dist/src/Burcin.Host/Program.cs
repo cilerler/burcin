@@ -117,9 +117,11 @@ namespace Burcin.Host
 
 		private static void Initialize(IServiceProvider serviceProvider)
 		{
+#if (SerilogSupport)
 			// Waiting for https://github.com/serilog/serilog-aspnetcore/issues/49
 			serviceProvider.GetRequiredService<IHostApplicationLifetime>()
 						   .ApplicationStopped.Register(Log.CloseAndFlush);
+#endif
 
 			ILogger<Program> logger = serviceProvider.GetService<ILogger<Program>>();
 
