@@ -89,6 +89,11 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
+		"SerilogSupport": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
 		"VsCodeDirectory": {
 			"type": "parameter",
 			"dataType": "bool",
