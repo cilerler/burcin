@@ -9,7 +9,7 @@ Remove-Item .\Burcin.Templates.CSharp.0.0.1.nupkg;
 Remove-Item -Recurse -Force $folderPath;
 New-Item -ItemType "directory" -Path $folderPath -ErrorAction Ignore;
 Set-Location $folderPath
-dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --OData --WindowsService --BackgroundService --EntityFramework --DatabaseName $database --TestFramework --DocFx --DockerSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/$repository" --SkipRestore;
+dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --OData --WindowsService --BackgroundService --EntityFramework --DatabaseName $database --TestFramework --DocFx --DockerSupport --SerilogSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "Cengiz Ilerler" --RepositoryUrl "https://github.com/cilerler/$repository" --SkipRestore;
 dotnet new -u Burcin.Templates.CSharp.0.0.1;
 &".\tools\createSolutionFile.ps1";
 code .;
