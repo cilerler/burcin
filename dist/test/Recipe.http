@@ -1,5 +1,9 @@
 @host = localhost:44302
+#--if (OData)
 @baseUrl = https://{{host}}/odata
+#--else
+@baseUrl = https://{{host}}/api
+#--endif
 @entitySet = Recipe
 @finalUrl = {{baseUrl}}/{{entitySet}}
 
