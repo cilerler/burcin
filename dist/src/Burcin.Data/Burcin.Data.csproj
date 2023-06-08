@@ -28,9 +28,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
-	<!--#if (OData)-->
-    <PackageReference Include="Microsoft.OData.ModelBuilder" Version="1.0.1-beta" />
-	<!--#endif-->
+	<PackageReference Include="Microsoft.OData.ModelBuilder" Version="1.0.9" Condition="'$(OData)' == 'true'"/>
   </ItemGroup>
 
   <ItemGroup>
