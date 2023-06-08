@@ -353,9 +353,9 @@ namespace Burcin.Host
 			app.UseResponseCaching();
 			app.UseStaticFiles();
             //app.UseSerilogRequestLogging();
-
+#if (OData)
 			app.UseODataBatching();
-
+#endif
 			app.UseRouting();
 			app.UseCors();
 			app.UseAuthentication();
