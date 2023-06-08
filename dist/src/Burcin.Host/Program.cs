@@ -22,12 +22,14 @@ using Microsoft.Extensions.Hosting;
 using Ruya.AppDomain;
 using Ruya.Extensions.Logging;
 using Ruya.Primitives;
+#if (SerilogSupport)
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.Destructurers;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Exceptions.SqlServer.Destructurers;
+#endif
 #if (CacheRedis)
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using StackExchange.Redis;
@@ -156,6 +158,7 @@ namespace Burcin.Host
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
             Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
+#if (SerilogSupport)
                 .UseSerilog((hostingContext, loggerConfiguration) => loggerConfiguration
                         .ReadFrom.Configuration(hostingContext.Configuration)
                         .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
@@ -177,6 +180,7 @@ namespace Burcin.Host
 				//.WriteTo.Seq(Environment.GetEnvironmentVariable("SEQ_URL") ?? "http://localhost:5341")
 				//.MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
 				)
+#endif
 #if (WebApiApplication)
 				 .ConfigureWebHostDefaults(webBuilder =>
 				 {
