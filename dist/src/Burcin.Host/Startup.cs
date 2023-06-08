@@ -347,7 +347,9 @@ namespace Burcin.Host
 			app.UseResponseCompression();
 			app.UseResponseCaching();
 			app.UseStaticFiles();
+#if (SerilogSupport)
             //app.UseSerilogRequestLogging();
+#endif
 
 			app.UseODataBatching();
 
