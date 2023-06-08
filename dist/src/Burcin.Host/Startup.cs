@@ -49,7 +49,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using Burcin.Host.HealthChecks;
 #endif
-#if(BlazorApplication)
+#if (BlazorApplication)
 using Burcin.Host.Data;
 #endif
 #if (Swagger)
