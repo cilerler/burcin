@@ -465,7 +465,7 @@ namespace Burcin.Host
 					});
 		}
 
-#if (Swagger&&OData)
+#if (Swagger && OData)
 		private void SetOutputFormatters(IServiceCollection services)
 		{
 			services.AddMvcCore(options =>
