@@ -38,6 +38,7 @@ using Microsoft.AspNet.OData.Builder;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Formatter;
 using Microsoft.OData.Edm;
+using Microsoft.AspNet.OData.Batch;
 #endif
 #if (CacheRedis)
 using StackExchange.Redis;
@@ -47,6 +48,8 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using HealthChecks.UI.Client;
 using Burcin.Host.HealthChecks;
+#endif
+#if (BlazorApplication)
 using Burcin.Host.Data;
 #endif
 #if (Swagger)
@@ -155,8 +158,10 @@ namespace Burcin.Host
 									   string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 									   options.IncludeXmlComments(xmlPath);
 								   });
+#if (OData)
 			// Workaround: https://github.com/OData/WebApi/issues/1177
 			SetOutputFormatters(services);
+#endif
 #endif
 
 #if (BlazorApplication)
@@ -348,11 +353,11 @@ namespace Burcin.Host
 			app.UseResponseCaching();
 			app.UseStaticFiles();
 #if (SerilogSupport)
-            //app.UseSerilogRequestLogging();
+      //app.UseSerilogRequestLogging();
 #endif
-
+#if (OData)
 			app.UseODataBatching();
-
+#endif
 			app.UseRouting();
 			app.UseCors();
 			app.UseAuthentication();
@@ -460,7 +465,7 @@ namespace Burcin.Host
 					});
 		}
 
-#if (Swagger)
+#if (Swagger && OData)
 		private void SetOutputFormatters(IServiceCollection services)
 		{
 			services.AddMvcCore(options =>
