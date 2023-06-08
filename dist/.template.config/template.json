@@ -298,13 +298,7 @@
 				{
 					"condition": "(!OData)",
 					"exclude": [
-						"src/Burcin.Data/ODataEdmModelBuilder.cs",
-						"src/Burcin.Host/Controllers/CategoryCodeController.cs",
-						"src/Burcin.Host/Controllers/CategoryCodeGroupController.cs",
-						"src/Burcin.Host/Controllers/CategoryGroupController.cs",
-						"src/Burcin.Host/Controllers/ChefController.cs",
-						"src/Burcin.Host/Controllers/RecipeController.cs",
-						"src/Burcin.Host/Controllers/RecipeExpansionController.cs"
+						"src/Burcin.Data/ODataEdmModelBuilder.cs"
 					]
 				}
 			]
