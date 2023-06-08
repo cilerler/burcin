@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Linq;
+#if (OData)
 using Microsoft.AspNet.OData;
 using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNet.OData.Routing;
+#endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
+#if (OData)
 using Microsoft.OData;
+#endif
 using Burcin.Data;
 using Burcin.Models.BurcinDatabase;
 using Microsoft.AspNetCore.Http;
@@ -14,12 +18,18 @@ using Microsoft.AspNetCore.Http;
 namespace Burcin.Host.Controllers
 {
 
-    /// <summary>
-    /// Represents a RESTful service.
-    /// </summary>
-    //[ControllerName(ChefControllerModelConfiguration.ControllerName)]
+	/// <summary>
+	/// Represents a RESTful service.
+	/// </summary>
+	//[ControllerName(ChefControllerModelConfiguration.ControllerName)]
+#if (OData)
     [ODataRoutePrefix(nameof(Chef))]
     public class ChefController : ODataController
+#else
+	[ApiController]
+	[Route("api/[controller]")]
+	public class ChefController : ControllerBase
+#endif
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger _logger;
@@ -46,7 +56,9 @@ namespace Burcin.Host.Controllers
         /// <response code="400">The record is invalid.</response>
         /// <response code="201">The record was successfully placed.</response>
         [HttpPost]
+#if (OData)
         [ODataRoute]
+#endif
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Chef), StatusCodes.Status201Created)]
@@ -62,31 +74,37 @@ namespace Burcin.Host.Controllers
             SaveChanges();
             _logger.LogDebug("Inserted {id}", record.Id);
 
-   //         if (record.Recipes != null)
-   //         {
-	  //          _logger.LogDebug("Inserting recipes", record.Id);
-	  //          _dbContext.Recipes.AddRange(record.Recipes);
-	  //          _logger.LogDebug("Inserted recipes", record.Id);
-			//	SaveChanges();
-			//}
-
+			// if (record.Recipes != null)
+			// {
+			// 	_logger.LogDebug("Inserting recipes", record.Id);
+			// 	_dbContext.Recipes.AddRange(record.Recipes);
+			// 	_logger.LogDebug("Inserted recipes", record.Id);
+			// 	SaveChanges();
+			// }
+#if (OData)
 			return Created(record);
+#else
+			return Ok(record);
+#endif
         }
 
-        /// <summary>
-        /// Retrieves all records
-        /// </summary>
-        /// <param name="options">The current OData query options.</param>
-        /// <returns>All available records.</returns>
-        /// <response code="400">The parameters are invalid.</response>
-        /// <response code="404">The record does not exist.</response>
-        /// <response code="200">The record was successfully retrieved.</response>
-        [HttpGet]
-        [ODataRoute]
+		/// <summary>
+		/// Retrieves all records
+		/// </summary>
+#if (OData)
+		/// <param name="options">The current OData query options.</param>  
+#endif
+		/// <returns>All available records.</returns>
+		/// <response code="400">The parameters are invalid.</response>
+		/// <response code="404">The record does not exist.</response>
+		/// <response code="200">The record was successfully retrieved.</response>
+		[HttpGet]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+#if (OData)
         //[ProducesResponseType(typeof(ODataValue<IEnumerable<Chef>>), StatusCodes.Status200OK)]
+		[ODataRoute]
         public IActionResult Get(ODataQueryOptions<Chef> options)
         {
             var validationSettings = new ODataValidationSettings()
@@ -122,6 +140,14 @@ namespace Burcin.Host.Controllers
 
             return Ok(records);
         }
+#else
+		[ProducesResponseType(typeof(Chef[]), StatusCodes.Status200OK)]
+		public IActionResult Get()
+		{
+			var records = _dbContext.Chefs.ToList();
+			return Ok(records);
+		}
+#endif
 
         /// <summary>
         /// Retrieves a single specific record
@@ -131,12 +157,13 @@ namespace Burcin.Host.Controllers
         /// <response code="400">The parameters are invalid.</response>
         /// <response code="404">The record does not exist.</response>
         /// <response code="200">The record was successfully retrieved.</response>
-        [HttpGet]
-        [ODataRoute("({key})")]
         [Produces("application/json")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Chef), StatusCodes.Status200OK)]
+#if (OData)
+        [HttpGet]
+		[ODataRoute("({key})")]
         [EnableQuery(
 	        AllowedQueryOptions = AllowedQueryOptions.All,
 	        AllowedArithmeticOperators = AllowedArithmeticOperators.All,
@@ -150,6 +177,10 @@ namespace Burcin.Host.Controllers
 	        MaxExpansionDepth = 3
         )]
 		public IActionResult Get([FromODataUri] long key)
+#else
+		[HttpGet("{key}")]
+		public IActionResult Get([FromRoute] long key)
+#endif
         {
 	        var record = _dbContext.Chefs.Where(r => r.Id == key).AsQueryable();
 			if (record == null || !record.Any())
@@ -169,14 +200,19 @@ namespace Burcin.Host.Controllers
 		/// <response code="400">The record is invalid.</response>
 		/// <response code="404">The record does not exist.</response>
 		/// <response code="204">The record was successfully updated.</response>
-		[HttpPut]
-        [ODataRoute("({key})")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Chef), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+#if (OData)
+		[HttpPut]
+		[ODataRoute("({key})")]
         public IActionResult Put([FromODataUri] long key, [FromBody] Delta<Chef> delta)
+#else
+		[HttpPut("{key}")]
+		public IActionResult Put([FromRoute] long key, [FromBody] Chef delta)
+#endif
         {
             if (!ModelState.IsValid)
             {
@@ -190,11 +226,20 @@ namespace Burcin.Host.Controllers
             }
 
             _logger.LogDebug("Updating {id}", record.Id);
+#if (OData)
             delta.Put(record);
+#else
+			record.Name = delta.Name;
+			record.Url = delta.Url;
+#endif
             SaveChanges();
             _logger.LogDebug("Updated {id}", record.Id);
 
+#if (OData)
             return Updated(record);
+#else
+			return Ok(record);
+#endif
         }
 
         /// <summary>
@@ -206,13 +251,14 @@ namespace Burcin.Host.Controllers
         /// <response code="400">The record is invalid.</response>
         /// <response code="404">The record does not exist.</response>
         /// <response code="204">The record was successfully updated.</response>
-        [HttpPatch]
-        [ODataRoute("({key})")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(Chef), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+#if (OData)
+        [HttpPatch]
+		[ODataRoute("({key})")]
         public IActionResult Patch([FromODataUri] long key, [FromBody] Delta<Chef> delta)
         {
             if (!ModelState.IsValid)
@@ -233,6 +279,10 @@ namespace Burcin.Host.Controllers
 
             return Updated(record);
         }
+#else
+		[HttpPatch("{key}")]
+		public IActionResult Patch([FromRoute] long key, [FromBody] Chef delta) => Put(key, delta);
+#endif
 
         /// <summary>
         /// Cancels a record.
@@ -242,11 +292,16 @@ namespace Burcin.Host.Controllers
         /// <returns>None</returns>
         /// <response code="404">The record does not exist.</response>
         /// <response code="204">The record was successfully canceled.</response>
-        [HttpDelete]
-        [ODataRoute("({key})")]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
+#if (OData)
+        [HttpDelete]
+        [ODataRoute("({key})")]
         public IActionResult Delete([FromODataUri] long key, bool suspendOnly)
+#else
+		[HttpDelete("{key}")]
+		public IActionResult Delete([FromRoute] long key, bool suspendOnly)
+#endif
         {
             var record = _dbContext.Chefs.SingleOrDefault(r => r.Id == key);
             if (record == null)
