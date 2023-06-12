@@ -154,6 +154,7 @@
 		<PackageReference Include="Ruya.AppDomain" Version="1.2.11" />
 		<PackageReference Include="Ruya.Extensions.Logging" Version="1.2.8" />
 		<PackageReference Include="Ruya.Helpers.Primitives" Version="1.2.8" />
+		<PackageReference Include="Ruya.Services.CloudStorage.Abstractions" Version="1.2.7" />
 		<PackageReference Include="Ruya.Services.CloudStorage.Google" Version="1.2.10" />
 	</ItemGroup>
 	<ItemGroup>
