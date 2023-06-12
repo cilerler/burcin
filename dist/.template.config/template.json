@@ -374,6 +374,21 @@
 				}
 			]
 		},
+		"**/Dockerfile": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["#--if"],
+						"else": ["#--else"],
+						"elseif": ["#--elseif", "#--elif"],
+						"endif": ["#--endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
 		"**/*.http": {
 			"operations": [
 				{
