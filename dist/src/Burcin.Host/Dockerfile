@@ -1,32 +1,37 @@
 #--if (WebApiApplicationExists)
-FROM mcr.microsoft.com/dotnet/core/aspnet:3.1.6-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 #--else
-FROM mcr.microsoft.com/dotnet/core/runtime:3.1-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
 #--endif
 WORKDIR /app
+#--if (WebApiApplicationExists)
+EXPOSE 80
+EXPOSE 443
+#--endif
 
-FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+ARG BUILD_CONFIGURATION=Release
+ENV BUILD_CONFIGURATION=${BUILD_CONFIGURATION}
+#--if (GitHubTemplates)
+ARG GITHUB_PAT
+RUN dotnet nuget add source https://nuget.pkg.github.com/burcin/index.json -n "github" -u "docker" -p "${GITHUB_PAT}" --store-password-in-clear-text
+#--endif
 WORKDIR /src
 COPY ["nuget.config","src/"]
 COPY ["src/Burcin.Host/Burcin.Host.csproj","src/Burcin.Host/"]
 RUN dotnet restore "src/Burcin.Host/Burcin.Host.csproj"
 COPY . .
 WORKDIR "/src/src/Burcin.Host"
-RUN dotnet build "Burcin.Host.csproj" -c Release -o /app/build
+RUN dotnet build "Burcin.Host.csproj" -c ${BUILD_CONFIGURATION} -o /app/build
 
 FROM build AS publish
-ARG BUILDNUMBER
-ENV BuildNumber=${BUILDNUMBER}
-RUN dotnet publish "Burcin.Host.csproj" -c Release -o /app/publish /p:BuildNumber=${BuildNumber:-$(date "+%y.%m%d.%H%M")}
+ARG VERSION
+ENV Version=${VERSION}
+RUN dotnet publish "Burcin.Host.csproj" -c ${BUILD_CONFIGURATION} -o /app/publish /p:Version=${Version:-$(date "+%y.%m%d.%H%M")}
 
 FROM base AS final
-# ENV DOTNET_USE_POLLING_FILE_WATCHER=true
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Burcin.Host.dll"]
 
-#--if (WebApiApplicationExists)
-EXPOSE 80
-EXPOSE 443
-#--endif
 
