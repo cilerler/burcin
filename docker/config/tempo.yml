@@ -1,0 +1,53 @@
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    jaeger:
+      protocols:
+        thrift_http:
+        grpc:
+        thrift_binary:
+        thrift_compact:
+    zipkin:
+    otlp:
+      protocols:
+        http:
+        grpc:
+    opencensus:
+
+storage:
+  trace:
+    backend: s3
+    s3:
+      bucket: tempo
+      endpoint: minio:9000
+      access_key: minio
+      secret_key: minio123
+      insecure: true
+
+ingester:
+  trace_idle_period: 10s
+  max_block_bytes: 1_000_000
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    compaction_window: 1h
+    max_block_bytes: 100_000_000
+    block_retention: 1h
+    compacted_block_retention: 10m
+
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+      cluster: docker-compose
+  storage:
+    path: /tmp/tempo/generator/wal
+    remote_write:
+      - url: http://prometheus:9090/api/vw1/write
+        send_exemplars: true
+
+overrides:
+  metrics_generator_processors: [service-graphs, span-metrics]
