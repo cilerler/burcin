@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Burcin.Models;
@@ -14,7 +14,7 @@ namespace Burcin.Data
            foreach (var entry in changeTracker.Entries())
            {
                var timestamp = DateTime.UtcNow;
-               if (entry.Entity is IAuditable)
+               if (entry.Entity is ITimestamp)
                {
                    if (entry.State == EntityState.Added)
                    {
