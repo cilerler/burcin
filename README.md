@@ -7,7 +7,7 @@
  
 [![](https://img.shields.io/nuget/v/Burcin.Templates.CSharp.svg?logo=nuget)](https://www.nuget.org/packages/Burcin.Templates.CSharp)
 ![](https://img.shields.io/nuget/dt/Burcin.Templates.CSharp.svg?logo=nuget&color=yellow)
-![](https://github.com/cilerler/burcin/workflows/build_on_push/badge.svg)
+![ci](https://github.com/cilerler/burcin/workflows/ci/badge.svg?branch=main)
 
 
 The template will change all `Burcin` words under the `dist` folder to the folder name.
@@ -16,10 +16,10 @@ The template will change all `Burcin` words under the `dist` folder to the folde
 
 ```powershell
 # retrieves latest
-dotnet new --install "Burcin.Templates.CSharp"
+dotnet new install "Burcin.Templates.CSharp"
 
 # retrieves a specific version with source definition
-dotnet new --install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.nuget.org/v3/index.json
+dotnet new install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.nuget.org/v3/index.json
 ```
 
 ## Update
@@ -40,7 +40,7 @@ dotnet new "Burcin.Templates.CSharp" --update-apply
 ## Uninstall
 
 ```powershell
-dotnet new --uninstall "Burcin.Templates.CSharp"
+dotnet new uninstall "Burcin.Templates.CSharp"
 ```
 
 ## Help

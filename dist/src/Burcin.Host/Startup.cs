@@ -298,7 +298,7 @@ namespace Burcin.Host
 					//.AddPrometheusGatewayPublisher()
 					//.AddSeqPublisher(options => options.Endpoint = Configuration["ConnectionStrings:SeqConnection"])
 					;
-			services.AddHealthChecksUI();
+			services.AddHealthChecksUI().AddInMemoryStorage();
 		#endif
 		}
 
@@ -466,7 +466,7 @@ namespace Burcin.Host
 		}
 
 #if (Swagger && OData)
-		private void SetOutputFormatters(IServiceCollection services)
+		private static void SetOutputFormatters(IServiceCollection services)
 		{
 			services.AddMvcCore(options =>
 			{
