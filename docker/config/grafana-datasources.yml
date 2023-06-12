@@ -1,0 +1,91 @@
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus-server:9090
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: false
+    apiVersion: 1
+    uid: tempo
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: 'loki'
+        tags: ['job', 'instance', 'pod', 'namespace']
+        mappedTags: [{ key: 'service.name', value: 'service' }]
+        mapTagNamesEnabled: false
+        spanStartTimeShift: '1h'
+        spanEndTimeShift: '1h'
+        filterByTraceID: false
+        filterBySpanID: false
+      lokiSearch:
+        datasourceUid: 'loki'
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: "TraceId=(\\w+)"
+          name: TraceId
+          url: "$${__value.raw}"
+      httpHeaderName1: "X-Scope-OrgID"
+    secureJsonData:
+      httpHeaderValue1: "tenant1"
+  - name: MSSQL
+    uid: mssql
+    type: mssql
+    url: host.docker.internal:11433
+    database: Development
+    user: sa
+    jsonData:
+      maxOpenConns: 0 # Grafana v5.4+
+      maxIdleConns: 2 # Grafana v5.4+
+      connMaxLifetime: 14400 # Grafana v5.4+
+    secureJsonData:
+      password: 'S0m3P@$$w0rd'
+  - name: JSON API (burcin)
+    uid: burcin
+    type: marcusolsson-json-datasource
+    url: http://host.docker.internal:5000
+  - name: Mimir
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://load-balancer:9009/prometheus
+    version: 1
+    editable: true
+    jsonData:
+      httpHeaderName1: 'X-Scope-OrgID'
+      alertmanagerUid: 'alertmanager'
+    secureJsonData:
+      httpHeaderValue1: 'burcin'
+  - name: Mimir Alertmanager
+    uid: alertmanager
+    type: alertmanager
+    access: proxy
+    orgId: 1
+    url: http://load-balancer:9009/
+    version: 1
+    editable: true
+    jsonData:
+      httpHeaderName1: 'X-Scope-OrgID'
+      implementation: 'cortex'
+    secureJsonData:
+      httpHeaderValue1: 'burcin'
