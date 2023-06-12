@@ -172,9 +172,9 @@ services:
     ports:
       - "8200:8200"
     volumes:
-      - ~/.docker/volumes/smartprocure/vault/logs:/vault/logs
-      - ~/.docker/volumes/smartprocure/vault/file:/vault/file
-      - ~/.docker/volumes/smartprocure/vault/config:/vault/config
+      - ~/.docker/volumes/burcin/vault/logs:/vault/logs
+      - ~/.docker/volumes/burcin/vault/file:/vault/file
+      - ~/.docker/volumes/burcin/vault/config:/vault/config
     # cap_add:
     #   - IPC_LOCK
 
@@ -285,7 +285,7 @@ services:
 
   burcin:
     container_name: burcin
-    image: smartprocure-burcin
+    image: (authors)-burcin
     build:
       context: ../burcin
       dockerfile: ./src/Burcin.Host/Dockerfile

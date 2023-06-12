@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Burcin.Models.BurcinDatabase
 {
-	public partial class Chef : ICloneable, IEquatable<Chef>, IBaseEntity, IAuditable, ISoftDelete
+	public partial class Chef : ICloneable, IEquatable<Chef>, IBaseEntity, ITimestamp, ISoftDelete
 	{
 		#region ICloneable Members
 
@@ -86,5 +86,7 @@ namespace Burcin.Models.BurcinDatabase
 				return hash;
 			}
 		}
+
+		public byte[] RowVersion { get; set; }
 	}
 }

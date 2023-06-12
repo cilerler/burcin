@@ -8,6 +8,6 @@ namespace Burcin.Models
 
         Guid RowGuid { set; get; }
 
-        byte[] UpdateVersion { get; set; }
+        byte[] RowVersion { get; set; }
     }
 }
