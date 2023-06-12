@@ -5,7 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+#if (SerilogSupport)
 using Serilog;
+#endif
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace Burcin.Domain.Tests
@@ -35,12 +37,16 @@ namespace Burcin.Domain.Tests
             ServiceCollection.AddLogging(loggingBuilder =>
                                          {
                                              loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
+#if (SerilogSupport)
                                              loggingBuilder.AddSerilog(dispose: true);
+#endif
                                          });
 
             ServiceProvider = ServiceCollection.BuildServiceProvider();
+#if (SerilogSupport)
             Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(ServiceProvider.GetRequiredService<IConfiguration>())
                                                   .CreateLogger();
+#endif
         }
 
         [AssemblyCleanup]
@@ -48,7 +54,9 @@ namespace Burcin.Domain.Tests
         {
             _logger.LogInformation("Cleaning up the assembly...");
 
+#if (SerilogSupport)
             Log.CloseAndFlush();
+#endif
             Thread.Sleep(TimeSpan.FromSeconds(5));
         }
 
