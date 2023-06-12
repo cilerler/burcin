@@ -6,7 +6,7 @@ namespace Burcin.Models
        public const string ModifiedAt = "ModifiedAt";
        public const string SoftDelete = "SoftDelete";
        public const string RowGuid = "RowGuid";
-       public const string UpdateVersion = "UpdateVersion";
+       public const string RowVersion = "RowVersion";
        public const string DefaultSchema = "dbo";
     }
 }

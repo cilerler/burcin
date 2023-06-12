@@ -1,8 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>disable</ImplicitUsings>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 
@@ -16,8 +18,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<BuildNumber Condition=" '$(BuildNumber)' == '' ">0.0.0</BuildNumber>
-		<VersionPrefix>$(BuildNumber)</VersionPrefix>
+		<Version Condition="'$(Configuration)' == 'Debug' ">0.0.0.0</Version>
 		<VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
 		<Product>Burcin.Data</Product>
 		<Authors>(authors-xml-encoded)</Authors>
@@ -25,11 +26,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.4" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.5" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.5" />
 		<!--#if (OData)-->
-		<PackageReference Include="Microsoft.OData.ModelBuilder" Version="1.0.1-beta" />
+		<PackageReference Include="Microsoft.OData.ModelBuilder" Version="1.0.9" />
 		<!--#endif-->
 	</ItemGroup>
 

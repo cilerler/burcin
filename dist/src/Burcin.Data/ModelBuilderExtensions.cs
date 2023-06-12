@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Reflection;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Burcin.Models;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Burcin.Data
 {
@@ -10,25 +11,25 @@ namespace Burcin.Data
 	{
 		public static void ShadowProperties(this ModelBuilder modelBuilder)
 		{
-			foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+			foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
 			{
 				Type type = entityType.ClrType;
 
 				if (typeof(ISoftDelete).IsAssignableFrom(type))
 				{
-					var method = SetSoftDeleteShadowPropertyMethodInfo.MakeGenericMethod(type);
+					MethodInfo method = SetSoftDeleteShadowPropertyMethodInfo.MakeGenericMethod(type);
 					method.Invoke(modelBuilder, new object[] {modelBuilder});
 				}
 
-				if (typeof(IAuditable).IsAssignableFrom(type))
+				if (typeof(ITimestamp).IsAssignableFrom(type))
 				{
-					var method = SetAuditingShadowPropertiesMethodInfo.MakeGenericMethod(type);
+					MethodInfo method = SetAuditingShadowPropertiesMethodInfo.MakeGenericMethod(type);
 					method.Invoke(modelBuilder, new object[] {modelBuilder});
 				}
 
 				if (typeof(IBaseEntity).IsAssignableFrom(type))
 				{
-					var method = SetBaseEntityShadowPropertiesMethodInfo.MakeGenericMethod(type);
+					MethodInfo method = SetBaseEntityShadowPropertiesMethodInfo.MakeGenericMethod(type);
 					method.Invoke(modelBuilder, new object[] { modelBuilder });
 				}
 			}
@@ -41,7 +42,7 @@ namespace Burcin.Data
 
 		private static readonly MethodInfo SetAuditingShadowPropertiesMethodInfo = typeof(ModelBuilderExtensions)
 			.GetMethods(BindingFlags.Public | BindingFlags.Static)
-			.Single(t => t.IsGenericMethod && t.Name == nameof(SetAuditingShadowProperties));
+			.Single(t => t.IsGenericMethod && t.Name == nameof(SetTimestampShadowProperties));
 
 		private static readonly MethodInfo SetBaseEntityShadowPropertiesMethodInfo = typeof(ModelBuilderExtensions)
 			.GetMethods(BindingFlags.Public | BindingFlags.Static)
@@ -52,11 +53,11 @@ namespace Burcin.Data
 			modelBuilder.Entity<T>().Property<bool>(Constants.SoftDelete).HasDefaultValue(false).ValueGeneratedOnAdd();
 		}
 
-		public static void SetAuditingShadowProperties<T>(ModelBuilder modelBuilder) where T : class, IAuditable
+		public static void SetTimestampShadowProperties<T>(ModelBuilder modelBuilder) where T : class, ITimestamp
 		{
 			modelBuilder.Entity<T>().Property<DateTime>(Constants.CreatedAt).HasDefaultValueSql("SYSUTCDATETIME()")
 				.ValueGeneratedOnAdd();
-			modelBuilder.Entity<T>().Property<DateTime>(Constants.ModifiedAt).HasDefaultValueSql("GETUTCDATE()")
+			modelBuilder.Entity<T>().Property<DateTime>(Constants.ModifiedAt).HasDefaultValueSql("SYSUTCDATETIME()")
 				.ValueGeneratedOnAddOrUpdate();
 		}
 
@@ -64,7 +65,7 @@ namespace Burcin.Data
 		{
 			modelBuilder.Entity<T>().Property<Guid>(Constants.RowGuid).IsConcurrencyToken()
 				.HasDefaultValueSql("NEWID()").ValueGeneratedOnAddOrUpdate();
-			modelBuilder.Entity<T>().Property<byte[]>(Constants.UpdateVersion).IsRowVersion()
+			modelBuilder.Entity<T>().Property<byte[]>(Constants.RowVersion).IsRowVersion()
 				.ValueGeneratedOnAddOrUpdate();
 		}
 	}
