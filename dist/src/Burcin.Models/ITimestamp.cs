@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 
 namespace Burcin.Models
 {
-    public interface IAuditable
+	public interface ITimestamp
     {
         DateTime CreatedAt { get; set; }
         DateTime ModifiedAt { get; set; }
