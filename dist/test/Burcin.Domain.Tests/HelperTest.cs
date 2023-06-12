@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Burcin.Domain;
 
