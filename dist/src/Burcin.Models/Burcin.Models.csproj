@@ -27,7 +27,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" Version="7.0.7" />
 	</ItemGroup>
 
 </Project>
