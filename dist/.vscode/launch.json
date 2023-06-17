@@ -3,6 +3,12 @@
 	// Use hover for the description of the existing attributes
 	// For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
 	"version": "0.2.0",
+	"compounds": [
+        {
+            "name": "Web and API",
+            "configurations": [".NET Core Launch"]
+        }
+    ],
 	"configurations": [
 		{
 			"name": ".NET Core Launch",
@@ -15,14 +21,22 @@
 			"cwd": "${workspaceFolder}/src/Burcin.Host",
 			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
 			"console": "internalConsole",
+			"launchSettingsProfile": "https",
 			"stopAtEntry": false,
+			// Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
+			"serverReadyAction": {
+				"action": "openExternally",
+				"pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+			},
 			"internalConsoleOptions": "openOnSessionStart",
 			"env": {
 				"ASPNETCORE_ENVIRONMENT": "Development",
 				"ASPNETCORE_URLS": "https://+:5001;http://+:5000"
+			},
+			"sourceFileMap": {
+				"/Views": "${workspaceFolder}/src/Burcin.Host/Views"
 			}
-		}
-		,
+		},
 		{
 			"name": ".NET Core Attach",
 			"type": "coreclr",
