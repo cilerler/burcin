@@ -575,7 +575,7 @@ jobs:
          project_id: ${{env.GKE_PROJECT}}
 
      - name: Get GKE Credentials
-       uses: google-github-actions/get-gke-credentials@v0.2.1
+       uses: google-github-actions/get-gke-credentials@v1.0.2
        with:
          cluster_name: ${{env.GKE_CLUSTER}}
          location: ${{env.GKE_ZONE}}
