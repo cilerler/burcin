@@ -116,7 +116,7 @@ jobs:
       - name: Publish artifacts (BuildInfo.txt)
         env:
           BUILD_INFO_FILE: ${{env.BUILD_INFO_FILE}}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: buildinfotxt
           path: ${{env.BUILD_INFO_FILE}}
@@ -339,7 +339,7 @@ jobs:
         run: dotnet pack ${{env.PROJECT_FILE}} --configuration ${{env.BUILD_CONFIGURATION}} --no-restore --no-build --output ${{env.OUTPUT_PATH_PACKAGE}} -p:BuildNumber=$BUILD_NUMBER
 
       - name: Publish artifacts (packages)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: ${{env.OUTPUT_PATH_PACKAGE}}
@@ -347,7 +347,7 @@ jobs:
           retention-days: 1
 
       - name: Publish artifacts (staging)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: staging
           path: ${{env.OUTPUT_PATH_PUBLISH}}
@@ -355,7 +355,7 @@ jobs:
           retention-days: 1
 
       - name: Publish artifacts (output)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: failure()
         with:
           name: output
@@ -437,7 +437,7 @@ jobs:
           docker save ${{env.DEPLOYMENT_NAME}}:${{env.SHA}} > ${{env.OUTPUT_PATH_DOCKER}}/docker-artifact.tar
 
       - name: Publish artifacts (packages)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: docker-artifact
           path: ${{env.OUTPUT_PATH_DOCKER}}
