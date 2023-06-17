@@ -299,7 +299,7 @@ jobs:
       - name: Download BuildInfo file
         env:
           BUILD_INFO_PATH: ${{needs.base.outputs.build_info_path}}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: buildinfotxt
           path: ${{env.BUILD_INFO_PATH}}
@@ -368,7 +368,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Package artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: packages
           path: ${{env.OUTPUT_PATH_PACKAGE}}
@@ -407,7 +407,7 @@ jobs:
       - name: Download BuildInfo file
         env:
           BUILD_INFO_PATH: ${{needs.base.outputs.build_info_path}}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: buildinfotxt
           path: ${{env.BUILD_INFO_PATH}}
@@ -456,7 +456,7 @@ jobs:
 
     steps:
       - name: Download Docker artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name:  docker-artifact
           path: ${{env.OUTPUT_PATH_DOCKER}}
@@ -507,7 +507,7 @@ jobs:
 
     steps:
       - name: Download Docker artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name:  docker-artifact
           path: ${{env.OUTPUT_PATH_DOCKER}}
@@ -650,7 +650,7 @@ jobs:
           #  [Release Notes](https://github.com/${{env.OWNER}}/${{env.REPOSITORY}}/blob/${{env.BRANCH}}/release-notes/${{env.BUILD_NUMBER}}.md)
 
       - name: Download Package artifact
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: packages
           path: ${{env.OUTPUT_PATH_PACKAGE}}
