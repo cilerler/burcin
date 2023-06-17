@@ -20,7 +20,7 @@ on:
     - 'dist/**'
 
 env:
-  version: '7.0.${GITHUB_RUN_NUMBER}'
+  version: '7.0'
   productionBranch: 'master'
   stagingBranch: 'release-preview'
   testingBranch: 'release-qa'
@@ -128,7 +128,6 @@ jobs:
           Add-Content $env:GITHUB_OUTPUT "isIntegration=$isIntegration"
           Add-Content $env:GITHUB_OUTPUT "isDevelopment=$isDevelopment"
           Add-Content $env:GITHUB_ENV "version=$version"
-
 
       - name: Add PackageManager
         run: |
