@@ -45,6 +45,7 @@ jobs:
       packageOutputPath: './artifacts/packages'
       publishOutputPath: './artifacts/staging'
       projectFile: './burcin.nuspec'
+      repositoryDispatchEventType: 'Burcin.Templates.CSharp'
     if: contains(toJson(github.event.commits), '[skip ci]') == false
     timeout-minutes: 3
     runs-on: ubuntu-latest

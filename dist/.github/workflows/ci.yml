@@ -43,6 +43,8 @@ on:
   #   types: [published, released]
   # schedule:
   #   - cron: "0 0 * * *"
+  # repository_dispatch:
+  #   types: []
   # workflow_run:
   #   workflows: [build]
   #   branches: [master]
@@ -50,7 +52,9 @@ on:
 
 env:
   DOTNET_NOLOGO: true
+  # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   #BUILD_PLATFORM: 'Any CPU'
   BUILD_CONFIGURATION: 'Release'
@@ -967,3 +971,26 @@ jobs:
       #           cp $projectPath/appsettings.Development.json $projectPath/appsettings.Production.json
       #     fi
       #   id: extract_metadata_environment
+      
+# ====================
+      
+      # - name: FTP-Deploy-Action
+      #   uses: SamKirkland/FTP-Deploy-Action@3.1.1
+      #   with:
+      #     ftp-server: ftps://server:port/
+      #     ftp-username: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     ftp-password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     git-ftp-args: --insecure # if your certificate is setup correctly this can be removed
+      #     local-dir: artifact/packages
+      #     remote-root: /publish/github-actions
+      #.git-ftp-include
+      #.git-ftp-ignore
+
+      # - name: Upload FTP
+      #   uses: sebastianpopp/ftp-action@releases/v2
+      #   with:
+      #     host: server:port
+      #     user: ${{ secrets.FTP_USERNAME_DOTNETSERVICES }}
+      #     password: ${{ secrets.FTP_PASSWORD_DOTNETSERVICES }}
+      #     localDir: artifact/packages
+      #     remoteDir: /publish/github-actions
