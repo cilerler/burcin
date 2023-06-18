@@ -249,7 +249,10 @@
 				},
 				{
 					"condition": "(!DocFx)",
-					"exclude": ["docs/docfx/**/*"]
+					"exclude": [
+						"docs/docfx/**/*",
+						"apiSpec/**/*"
+					]
 				},
 				{
 					"condition": "(!DockerSupport)",
