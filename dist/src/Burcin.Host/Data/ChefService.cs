@@ -2,7 +2,11 @@
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
+#if (EntityFramework)
 using Burcin.Models.BurcinDatabase;
+#else
+using Burcin.Host.Data.Models;
+#endif
 using Microsoft.AspNetCore.Http;
 
 namespace Burcin.Host.Data

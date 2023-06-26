@@ -1,10 +1,10 @@
-#--if (WebApiApplicationExists)
+#--if (WebApplicationExists)
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 #--else
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
 #--endif
 WORKDIR /app
-#--if (WebApiApplicationExists)
+#--if (WebApplicationExists)
 EXPOSE 80
 EXPOSE 443
 #--endif

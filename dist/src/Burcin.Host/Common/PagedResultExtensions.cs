@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+#if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
+#endif
 
 namespace Burcin.Host.Common
 {
@@ -24,6 +26,7 @@ namespace Burcin.Host.Common
 
             return result;
         }
+#if (EntityFramework)
 
         public static async Task<PagedResult<T>> GetPagedResultAsync<T>(this IQueryable<T> query, int page, int pageSize) where T : class
         {
@@ -42,5 +45,6 @@ namespace Burcin.Host.Common
 
             return result;
         }
+#endif
     }
 }

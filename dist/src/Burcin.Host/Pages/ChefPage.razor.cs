@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using Burcin.Host.Data;
+#if (EntityFramework)
 using Burcin.Models.BurcinDatabase;
+#else
+using Burcin.Host.Data.Models;
+#endif
 using Microsoft.AspNetCore.Http;
 
 namespace Burcin.Host.Pages

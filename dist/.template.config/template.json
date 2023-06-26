@@ -175,9 +175,13 @@
 			"type": "computed",
 			"value": "(ConsoleApplication == \"true\" || WindowsService == \"true\")"
 		},
-		"WebApiApplicationExists": {
+		"WebApplicationExists": {
 			"type": "computed",
-			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" ||HealthChecks == \"true\" || Swagger == \"true\")"
+			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" || HealthChecks == \"true\")"
+		},
+		"OnlyODataExists": {
+			"type": "computed",
+			"value": "(OData == \"true\" && EntityFramework == \"false\")"
 		},
 		"SkipRestore": {
 			"type": "parameter",
@@ -211,12 +215,28 @@
 					]
 				},
 				{
-					"condition": "(!WebApiApplicationExists)",
+					"condition": "(!WebApplicationExists)",
+					"exclude": [
+						"src/Burcin.Host/Middlewares/**/*"
+					]
+				},
+				{
+					"condition": "(!WebApiApplication)",
 					"exclude": [
 						"src/Burcin.Host/Controllers/**/*",
-						"src/Burcin.Host/Middlewares/**/*",
 						"src/Burcin.Host/DomainAttribute.cs",
 						"src/Burcin.Host/DomainMatcherPolicy.cs"
+					]
+				},
+				{
+					"condition": "(WebApiApplication && !OData && !EntityFramework)",
+					"exclude": [
+						"src/Burcin.Host/Controllers/CategoryCodeController.cs",
+						"src/Burcin.Host/Controllers/CategoryCodeGroupController.cs",
+						"src/Burcin.Host/Controllers/CategoryGroupController.cs",
+						"src/Burcin.Host/Controllers/ChefController.cs",
+						"src/Burcin.Host/Controllers/RecipeController.cs",
+						"src/Burcin.Host/Controllers/RecipeExpansionController.cs"
 					]
 				},
 				{
@@ -226,6 +246,7 @@
 						"src/Burcin.Host/Shared/**/*",
 						"src/Burcin.Host/Pages/**/*",
 						"src/Burcin.Host/Data/**/*",
+						"src/Burcin.Host/Data/Models/**/*",
 						"src/Burcin.Host/Common/**/*",
 						"src/Burcin.Host/_Imports.razor",
 						"src/Burcin.Host/App.razor"
@@ -241,6 +262,12 @@
 						"src/Burcin.Models/**/*",
 						"src/Burcin.Data/**/*",
 						"src/Burcin.Migrations/**/*"
+					]
+				},
+				{
+					"condition": "(EntityFramework)",
+					"exclude": [
+						"src/Burcin.Host/Data/Models/**/*"
 					]
 				},
 				{
@@ -262,6 +289,8 @@
 						"docker-compose.override.yml",
 						".dockerignore",
 						"src/Burcin.Host/Dockerfile",
+						"src/Burcin.Host/Dockerfile.develop",
+						"src/Burcin.Host/azds.yaml",
 						".github/workflows/build_on_push_gke.yml",
 						"tools/Kubernetes/**/*"
 					]
@@ -275,7 +304,8 @@
 				{
 					"condition": "(!WindowsService)",
 					"exclude": [
-						"tools/windows-service.ps1"
+						"tools/windows-service.ps1",
+						"src/Burcin.Host/ServiceBaseLifetime.cs"
 					]
 				},
 				{
@@ -302,6 +332,12 @@
 					"condition": "(!OData)",
 					"exclude": [
 						"src/Burcin.Data/ODataEdmModelBuilder.cs"
+					]
+				},
+				{
+					"condition": "(!OnlyODataExists)",
+					"exclude": [
+						"src/Burcin.Host/ODataEdmModelBuilder.cs"
 					]
 				}
 			]

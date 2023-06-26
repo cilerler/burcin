@@ -7,7 +7,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+#if (WebApplicationExists)
 using Burcin.Host.Middlewares;
+#endif
 using Burcin.Domain;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HostFiltering;
@@ -123,6 +125,7 @@ namespace Burcin.Host
 						   .ApplicationStopped.Register(Log.CloseAndFlush);
 #endif
 
+#if (WebApplicationExists)
 			ILogger<Program> logger = serviceProvider.GetService<ILogger<Program>>();
 
 			DateTimeOffset serverStartTime = DateTime.UtcNow;
@@ -150,6 +153,7 @@ namespace Burcin.Host
 				logger.LogError(e, e.Message);
 			}
 
+#endif
 			var scopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
 			using (var scope = scopeFactory.CreateScope())
 			{
