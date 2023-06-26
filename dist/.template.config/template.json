@@ -232,6 +232,17 @@
 					]
 				},
 				{
+					"condition": "(WebApiApplication && !OData && !EntityFramework)",
+					"exclude": [
+						"src/Burcin.Host/Controllers/CategoryCodeController.cs",
+						"src/Burcin.Host/Controllers/CategoryCodeGroupController.cs",
+						"src/Burcin.Host/Controllers/CategoryGroupController.cs",
+						"src/Burcin.Host/Controllers/ChefController.cs",
+						"src/Burcin.Host/Controllers/RecipeController.cs",
+						"src/Burcin.Host/Controllers/RecipeExpansionController.cs"
+					]
+				},
+				{
 					"condition": "(!BlazorApplication)",
 					"exclude": [
 						"src/Burcin.Host/wwwroot/**/*",
@@ -253,7 +264,10 @@
 						"src/Burcin.Models/**/*",
 						"src/Burcin.Data/**/*",
 						"src/Burcin.Migrations/**/*"
-					],
+					]
+				},
+				{
+					"condition": "(!EntityFramework && BlazorApplication)",
 					"include": [
 						"src/Burcin.Host/Data/Models/**/*"
 					]
