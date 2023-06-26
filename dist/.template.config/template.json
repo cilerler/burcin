@@ -207,9 +207,6 @@
 	},
 	"sources": [
 		{
-			"exclude": [
-				"src/Burcin.Host/Data/Models/**/*"
-			],
 			"modifiers": [
 				{
 					"condition": "(!ConsoleApplicationExists)",
@@ -249,6 +246,7 @@
 						"src/Burcin.Host/Shared/**/*",
 						"src/Burcin.Host/Pages/**/*",
 						"src/Burcin.Host/Data/**/*",
+						"src/Burcin.Host/Data/Models/**/*",
 						"src/Burcin.Host/Common/**/*",
 						"src/Burcin.Host/_Imports.razor",
 						"src/Burcin.Host/App.razor"
@@ -267,8 +265,8 @@
 					]
 				},
 				{
-					"condition": "(!EntityFramework && BlazorApplication)",
-					"include": [
+					"condition": "(EntityFramework)",
+					"exclude": [
 						"src/Burcin.Host/Data/Models/**/*"
 					]
 				},
