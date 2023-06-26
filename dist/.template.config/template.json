@@ -175,9 +175,13 @@
 			"type": "computed",
 			"value": "(ConsoleApplication == \"true\" || WindowsService == \"true\")"
 		},
-		"WebApiApplicationExists": {
+		"WebApplicationExists": {
 			"type": "computed",
-			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" ||HealthChecks == \"true\" || Swagger == \"true\")"
+			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" || HealthChecks == \"true\")"
+		},
+		"OnlyODataExists": {
+			"type": "computed",
+			"value": "(OData == \"true\" && EntityFramework == \"false\")"
 		},
 		"SkipRestore": {
 			"type": "parameter",
@@ -203,6 +207,9 @@
 	},
 	"sources": [
 		{
+			"exclude": [
+				"src/Burcin.Host/Data/Models/**/*"
+			],
 			"modifiers": [
 				{
 					"condition": "(!ConsoleApplicationExists)",
@@ -211,10 +218,15 @@
 					]
 				},
 				{
-					"condition": "(!WebApiApplicationExists)",
+					"condition": "(!WebApplicationExists)",
+					"exclude": [
+						"src/Burcin.Host/Middlewares/**/*"
+					]
+				},
+				{
+					"condition": "(!WebApiApplication)",
 					"exclude": [
 						"src/Burcin.Host/Controllers/**/*",
-						"src/Burcin.Host/Middlewares/**/*",
 						"src/Burcin.Host/DomainAttribute.cs",
 						"src/Burcin.Host/DomainMatcherPolicy.cs"
 					]
@@ -241,6 +253,9 @@
 						"src/Burcin.Models/**/*",
 						"src/Burcin.Data/**/*",
 						"src/Burcin.Migrations/**/*"
+					],
+					"include": [
+						"src/Burcin.Host/Data/Models/**/*"
 					]
 				},
 				{
@@ -262,6 +277,8 @@
 						"docker-compose.override.yml",
 						".dockerignore",
 						"src/Burcin.Host/Dockerfile",
+						"src/Burcin.Host/Dockerfile.develop",
+						"src/Burcin.Host/azds.yaml",
 						".github/workflows/build_on_push_gke.yml",
 						"tools/Kubernetes/**/*"
 					]
@@ -275,7 +292,8 @@
 				{
 					"condition": "(!WindowsService)",
 					"exclude": [
-						"tools/windows-service.ps1"
+						"tools/windows-service.ps1",
+						"src/Burcin.Host/ServiceBaseLifetime.cs"
 					]
 				},
 				{
@@ -302,6 +320,12 @@
 					"condition": "(!OData)",
 					"exclude": [
 						"src/Burcin.Data/ODataEdmModelBuilder.cs"
+					]
+				},
+				{
+					"condition": "(!OnlyODataExists)",
+					"exclude": [
+						"src/Burcin.Host/ODataEdmModelBuilder.cs"
 					]
 				}
 			]

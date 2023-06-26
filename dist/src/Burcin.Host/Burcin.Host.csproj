@@ -82,6 +82,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="7.0.7" Condition="'$(CacheSqlServer)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.7" Condition="'$(CacheRedis)' == 'true'" />
 		<PackageReference Include="Microsoft.OData.Edm" Version="7.16.0" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Microsoft.OData.ModelBuilder" Version="1.0.9" Condition="'$(OnlyODataExists)' == 'true'" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="7.7.0" Condition="'$(OData)' == 'true'" />
 	</ItemGroup>
 	<!--#if (HealthChecks)-->
@@ -169,16 +170,14 @@
 		<PackageReference Include="ncrontab" Version="3.3.1" />
 		<PackageReference Include="CsvHelper" Version="30.0.1" />
 		<!--#endif-->
-		<!--#if (Swagger)-->
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" Condition="'$(Swagger)' == 'true'" />
-		<!--#endif-->
 		<PackageReference Include="prometheus-net.AspNetCore" Version="8.0.0" />
 	</ItemGroup>
 	<ItemGroup>
-	<ProjectReference Include="..\Burcin.Migrations\Burcin.Migrations.csproj">
+	<ProjectReference Include="..\Burcin.Migrations\Burcin.Migrations.csproj" Condition="'$(EntityFramework)' == 'true'">
 	  <PrivateAssets>All</PrivateAssets>
 	</ProjectReference>
-		<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
+	<ProjectReference Include="..\Burcin.Domain\Burcin.Domain.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="dotnet.css">

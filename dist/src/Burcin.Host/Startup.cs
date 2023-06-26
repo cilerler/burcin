@@ -14,13 +14,14 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Routing;
+#if (EntityFramework)
 using Microsoft.EntityFrameworkCore;
+#endif
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Polly.Retry;
@@ -29,8 +30,12 @@ using Polly.Extensions.Http;
 using Polly.Timeout;
 using Prometheus;
 using Ruya;
+#if (WebApplicationExists)
 using Burcin.Host.Middlewares;
+#endif
+#if (EntityFramework)
 using Burcin.Data;
+#endif
 using Burcin.Domain;
 #if (OData)
 using Microsoft.AspNet.OData;
@@ -135,7 +140,9 @@ namespace Burcin.Host
 
 			services.AddHelper(Configuration);
 
+#if (WebApiApplication)
 			services.TryAddEnumerable(ServiceDescriptor.Singleton<MatcherPolicy, DomainMatcherPolicy.DomainMatcherPolicy>());
+#endif
 			services.AddResponseCaching();
 			services.AddResponseCompression();
 
@@ -145,7 +152,7 @@ namespace Burcin.Host
 									   options.IgnoreObsoleteActions();
 									   options.IgnoreObsoleteProperties();
 									   options.SwaggerDoc("v1"
-														, new OpenApiInfo
+														, new Microsoft.OpenApi.Models.OpenApiInfo
 														{
 															Title = "Burcin API"
 															,
@@ -343,7 +350,7 @@ namespace Burcin.Host
 					});
 				});
 #endif
-#if (WebApiApplicationExists)
+#if (WebApplicationExists)
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 #endif
@@ -364,9 +371,10 @@ namespace Burcin.Host
 			app.UseAuthorization();
 			app.UseStatusCodePages();
 
+#if (WebApplicationExists)
 			app.UseStartTimeHeader();
 			app.UseApplicationInfoHeaders();
-
+#endif
 			Counter counter = Metrics.CreateCounter("PathCounter", "Counts requests to endpoints", new CounterConfiguration { LabelNames = new[] { "method", "endpoint" } });
 			app.Use((context, next) =>
 			{
