@@ -7,9 +7,14 @@ on:
   #     type: environment
   #     description: 'Environment'
   #     required: false
+  # rollingDeployment:
+  #   type: boolean
+  #   description: 'initiate rolling deployment'
+  #   default: false
   # push:
   #   branches: [ master ] #[ develop, 'feature/*', 'release/*' ]
   #   branches: [ main, dev, 'feature/*', 'rel/*' ]
+  #   branches: [master, release-preview, release-qa, develop]
   #   paths-ignore:
   #     - license
   #     - readme.md
@@ -52,9 +57,7 @@ on:
 
 env:
   DOTNET_NOLOGO: true
-  # Stop wasting time caching packages
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
-  # Disable sending usage data to Microsoft
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   #BUILD_PLATFORM: 'Any CPU'
   BUILD_CONFIGURATION: 'Release'
@@ -971,9 +974,9 @@ jobs:
       #           cp $projectPath/appsettings.Development.json $projectPath/appsettings.Production.json
       #     fi
       #   id: extract_metadata_environment
-      
+
 # ====================
-      
+
       # - name: FTP-Deploy-Action
       #   uses: SamKirkland/FTP-Deploy-Action@3.1.1
       #   with:
