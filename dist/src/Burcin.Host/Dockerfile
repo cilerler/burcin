@@ -1,7 +1,7 @@
 #--if (WebApiApplicationExists)
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 #--else
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 #--endif
 WORKDIR /app
 #--if (WebApiApplicationExists)
@@ -9,7 +9,7 @@ EXPOSE 80
 EXPOSE 443
 #--endif
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ENV BUILD_CONFIGURATION=${BUILD_CONFIGURATION}
 #--if (GitHubTemplates)
