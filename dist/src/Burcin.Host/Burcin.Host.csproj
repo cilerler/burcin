@@ -83,7 +83,7 @@
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" Condition="'$(CacheRedis)' == 'true'" />
 		<PackageReference Include="Microsoft.OData.Edm" Version="7.21.3" Condition="'$(OData)' == 'true'" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Version="7.7.6" Condition="'$(OData)' == 'true'" />
-	</ItemGroup>7.7.6
+	</ItemGroup>
 	<!--#if (HealthChecks)-->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.8" />
