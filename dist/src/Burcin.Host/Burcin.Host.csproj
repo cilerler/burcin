@@ -81,8 +81,8 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.*" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Version="8.*" Condition="'$(CacheSqlServer)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.*" Condition="'$(CacheRedis)' == 'true'" />
-		<PackageReference Include="Microsoft.OData.Edm" Version="7.21.3" Condition="'$(OData)' == 'true'" />
-		<PackageReference Include="Microsoft.AspNetCore.OData" Version="7.7.6" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Microsoft.OData.Edm" Version="7.16.0" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Version="7.7.0" Condition="'$(OData)' == 'true'" />
 	</ItemGroup>
 	<!--#if (HealthChecks)-->
 	<ItemGroup>
