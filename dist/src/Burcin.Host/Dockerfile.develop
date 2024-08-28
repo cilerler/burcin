@@ -1,7 +1,8 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS base
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 ARG BUILD_CONFIGURATION=Debug
 ENV DOTNET_ENVIRONMENT=Development
 ENV DOTNET_USE_POLLING_FILE_WATCHER=true
+ENV ASPNETCORE_HTTP_PORTS=80
 EXPOSE 80
 
 WORKDIR /src

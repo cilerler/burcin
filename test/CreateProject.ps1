@@ -6,7 +6,7 @@ $database = "WideWorldImporters";
 $datetime = $(get-date -Format "yyyyMMdd");
 $folderPath = "$env:userprofile\Source\local\$datetime\$repository";
 $originalLocation = Get-Location;
-nuget pack burcin.nuspec;
+nuget pack burcin.nuspec -NoDefaultExcludes;
 dotnet new install .\Burcin.Templates.CSharp.0.0.1.nupkg;
 Remove-Item .\Burcin.Templates.CSharp.0.0.1.nupkg;
 Remove-Item -Recurse -Force $folderPath;
