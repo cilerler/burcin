@@ -136,7 +136,7 @@ jobs:
 
 
       - name: Pack
-        run: nuget pack $projectFile -NonInteractive -OutputDirectory ${{env.packageOutputPath}} -Verbosity Detailed -version $version
+        run: nuget pack $projectFile -NonInteractive -OutputDirectory ${{env.packageOutputPath}} -Verbosity Detailed -version $version -NoDefaultExcludes
     #   waiting for https://github.com/NuGet/Home/issues/4254
     #   run: dotnet pack -p:projectFile=<path to nuspec file> -p:NuspecProperties=<> -p:NuspecBasePath=<Base path>
 

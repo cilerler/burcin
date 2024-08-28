@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
-  <metadata>
-    <id>Burcin.Templates.CSharp</id>
-    <version>0.0.1</version>
-    <description>
+	<metadata>
+		<id>Burcin.Templates.CSharp</id>
+		<version>0.0.1</version>
+		<description>
       Boilerplate for .NET CORE Web/Console Application
-    </description>
-    <authors>Cengiz Ilerler</authors>
-	<projectUrl>https://github.com/cilerler/burcin</projectUrl>
-    <licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
-	<repository type="git" url="https://github.com/cilerler/burcin.git" />
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <packageTypes>
-      <packageType name="Template" />
-    </packageTypes>
-  </metadata>
+		</description>
+		<authors>Cengiz Ilerler</authors>
+		<projectUrl>https://github.com/cilerler/burcin</projectUrl>
+		<licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
+		<repository type="git" url="https://github.com/cilerler/burcin.git" />
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<packageTypes>
+			<packageType name="Template" />
+		</packageTypes>
+	</metadata>
 
-  <files>
-    <file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
-  </files>
+	<files>
+		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
+	</files>
 </package>
