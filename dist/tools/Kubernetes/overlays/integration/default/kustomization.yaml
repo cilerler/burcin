@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ../base
+nameSuffix: -default
+labels:
+- includeSelectors: true
+  pairs:
+    component: default
+patches:
+- path: deployment.yaml
+  target:
+    kind: Deployment
+- path: configmap.yaml
+  target:
+    kind: ConfigMap
+replacements:
+- source:
+    kind: ConfigMap
+    fieldPath: metadata.name
+  targets:
+  - select:
+      kind: Deployment
+    fieldPaths:
+    - spec.template.spec.volumes.[name=configmap-volume].configMap.name

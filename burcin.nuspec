@@ -2,13 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
 	<metadata>
 		<id>Burcin.Templates.CSharp</id>
-		<version>0.0.1</version>
+		<version>10.0.1</version>
 		<description>
-      Boilerplate for .NET CORE Web/Console Application
+			Boilerplate for .NET 10 Web/Console Application
 		</description>
 		<authors>Cengiz Ilerler</authors>
 		<projectUrl>https://github.com/cilerler/burcin</projectUrl>
-		<licenseUrl>https://raw.githubusercontent.com/cilerler/burcin/master/LICENSE</licenseUrl>
+		<license type="expression">MIT</license>
 		<repository type="git" url="https://github.com/cilerler/burcin.git" />
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<packageTypes>
@@ -17,6 +17,6 @@
 	</metadata>
 
 	<files>
-		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
+		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\artifacts\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
 	</files>
 </package>

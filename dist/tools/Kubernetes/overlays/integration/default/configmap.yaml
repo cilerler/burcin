@@ -1,0 +1,8 @@
+- op: replace
+  path: /data/appsettings.ConfigMap.json
+  value: |
+    {
+        "FeatureManagement": {
+            "default": true
+        }
+    }

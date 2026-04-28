@@ -14,7 +14,7 @@ The template will change all `Burcin` words under the `dist` folder to the folde
 
 ## Install
 
-```powershell
+```pwsh
 # retrieves latest
 dotnet new install "Burcin.Templates.CSharp"
 
@@ -27,32 +27,38 @@ dotnet new install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.
 > [!WARNING]
 > It looks like `--update-*` commands are not working (4/22/2020)
 
-```powershell
+```pwsh
 # checks if tere is an update
 dotnet new "Burcin.Templates.CSharp" --update-check
 ```
 
-```powershell
+```pwsh
 # applies if tere is an update
 dotnet new "Burcin.Templates.CSharp" --update-apply
 ```
 
 ## Uninstall
 
-```powershell
+```pwsh
 dotnet new uninstall "Burcin.Templates.CSharp"
 ```
 
 ## Help
 
-```powershell
+```pwsh
 dotnet new burcin --help
 ```
 
 ## Run
 
-```powershell
+```pwsh
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
 
 dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --OData --WindowsService --BackgroundService --EntityFramework --DatabaseName "ChangeMe" --TestFramework --DocFx --DockerSupport --SerilogSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "ChangeMe" --RepositoryUrl "https://github.com/<changeme>/burcin" --SkipRestore;
+```
+
+## List all templates
+
+```pwsh
+dotnet new list burcin;
 ```

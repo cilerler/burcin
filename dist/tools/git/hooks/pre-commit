@@ -1,0 +1,4 @@
+#!/bin/sh
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+pwsh -File "$REPO_ROOT/tools/git/pre-commit.ps1"

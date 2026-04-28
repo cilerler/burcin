@@ -1,0 +1,5 @@
+{
+  "appHost": {
+    "path": "src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj"
+  }
+}

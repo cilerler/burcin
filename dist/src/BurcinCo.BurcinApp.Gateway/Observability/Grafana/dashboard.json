@@ -1,0 +1,115 @@
+{
+	"annotations": {
+		"list": [
+			{
+				"builtIn": 1,
+				"datasource": { "type": "grafana", "uid": "-- Grafana --" },
+				"enable": true,
+				"hide": true,
+				"iconColor": "rgba(0, 211, 255, 1)",
+				"name": "Annotations & Alerts",
+				"type": "dashboard"
+			}
+		]
+	},
+	"description": "Stub dashboard for BurcinCo.BurcinApp.Gateway. Panels use placeholder PromQL that matches Gateway's Constants.Metrics. Replace datasource UIDs after importing.",
+	"editable": true,
+	"fiscalYearStartMonth": 0,
+	"graphTooltip": 0,
+	"liveNow": false,
+	"panels": [
+		{
+			"id": 1,
+			"title": "Webhook received rate (by outcome)",
+			"type": "timeseries",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+			"targets": [
+				{
+					"refId": "A",
+					"expr": "sum(rate(gateway_webhook_received_total{deployment_environment=~\"$env\"}[5m])) by (outcome)",
+					"legendFormat": "{{outcome}}"
+				}
+			],
+			"options": { "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true } }
+		},
+		{
+			"id": 2,
+			"title": "Webhook publish duration (p50 / p95 / p99)",
+			"type": "timeseries",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+			"targets": [
+				{
+					"refId": "A",
+					"expr": "histogram_quantile(0.50, sum(rate(gateway_webhook_publish_duration_milliseconds_bucket{deployment_environment=~\"$env\"}[5m])) by (le))",
+					"legendFormat": "p50"
+				},
+				{
+					"refId": "B",
+					"expr": "histogram_quantile(0.95, sum(rate(gateway_webhook_publish_duration_milliseconds_bucket{deployment_environment=~\"$env\"}[5m])) by (le))",
+					"legendFormat": "p95"
+				},
+				{
+					"refId": "C",
+					"expr": "histogram_quantile(0.99, sum(rate(gateway_webhook_publish_duration_milliseconds_bucket{deployment_environment=~\"$env\"}[5m])) by (le))",
+					"legendFormat": "p99"
+				}
+			]
+		},
+		{
+			"id": 3,
+			"title": "Webhook publish failures (by reason)",
+			"type": "timeseries",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+			"targets": [
+				{
+					"refId": "A",
+					"expr": "sum(rate(gateway_webhook_publish_failures_total{deployment_environment=~\"$env\"}[5m])) by (reason)",
+					"legendFormat": "{{reason}}"
+				}
+			]
+		},
+		{
+			"id": 4,
+			"title": "YARP request rate (by route)",
+			"type": "timeseries",
+			"datasource": { "type": "prometheus", "uid": "prometheus" },
+			"gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+			"targets": [
+				{
+					"refId": "A",
+					"expr": "sum(rate(yarp_proxy_requests_total{deployment_environment=~\"$env\"}[5m])) by (route)",
+					"legendFormat": "{{route}}"
+				}
+			]
+		}
+	],
+	"refresh": "30s",
+	"schemaVersion": 38,
+	"style": "dark",
+	"tags": ["burcinco", "gateway"],
+	"templating": {
+		"list": [
+			{
+				"name": "env",
+				"label": "Environment",
+				"type": "query",
+				"datasource": { "type": "prometheus", "uid": "prometheus" },
+				"query": { "query": "label_values(deployment_environment)", "refId": "env" },
+				"refresh": 1,
+				"multi": false,
+				"includeAll": false,
+				"current": { "text": "Development", "value": "Development" }
+			}
+		]
+	},
+	"time": { "from": "now-6h", "to": "now" },
+	"timepicker": {},
+	"timezone": "",
+	"title": "BurcinCo.BurcinApp.Gateway",
+	"uid": "burcinco-burcinapp-gateway",
+	"version": 1,
+	"weekStart": ""
+}

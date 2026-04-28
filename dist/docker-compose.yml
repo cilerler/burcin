@@ -1,8 +1,0 @@
-version: '3.4'
-
-services:
-  burcin.host:
-    image: ${DOCKER_REGISTRY-}burcinhost
-    build:
-      context: .
-      dockerfile: src/Burcin.Host/Dockerfile

@@ -1,0 +1,17 @@
+@baseUrl = {{ burcinco_burcinapp_api }}
+
+###
+# comment for FirstFunction
+# @name FirstFunction
+GET {{baseUrl}}/api/FirstFunction HTTP/1.1
+Cache-Control: no-cache
+
+###
+# comment for SecondFunction
+# @name SecondFunction
+POST {{baseUrl}}/api/SecondFunction HTTP/1.1
+Cache-Control: no-cache
+Content-Type: application/json; charset=utf-8
+{
+  "name": "value"
+}

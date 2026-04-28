@@ -1,0 +1,105 @@
+<Project>
+
+	<PropertyGroup>
+		<Authors>(authors-xml-encoded)</Authors>
+		<Company>BurcinLegal</Company>
+		<Title>$(MSBuildProjectName)</Title>
+		<Copyright>Copyright © BurcinLegal $([System.DateTime]::Now.Year)</Copyright>
+		<PackageProjectUrl>(repositoryUrl-xml-encoded)</PackageProjectUrl>
+		<RepositoryBranch>$(SourceBranchName)</RepositoryBranch>
+		<!--
+		<RepositoryUrl>(repositoryUrl-xml-encoded)</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		-->
+		<!-- <PackageLicenseExpression>MIT</PackageLicenseExpression> -->
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+
+		<!-- <PackageIcon>icon.png</PackageIcon> -->
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+
+		<PackageId>$(MSBuildProjectName)</PackageId>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<ChangelogFile>$(MSBuildThisFileDirectory)CHANGELOG.md</ChangelogFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="Exists('$(ChangelogFile)')">
+		<PackageReleaseNotes>$([System.IO.File]::ReadAllText('$(ChangelogFile)'))</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Nullable>enable</Nullable>
+		<!-- Deliberate: explicit usings for full visibility over dependencies in each file -->
+		<ImplicitUsings>disable</ImplicitUsings>
+		<InvariantGlobalization>false</InvariantGlobalization>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<LangVersion>latest</LangVersion>
+		<UseArtifactsOutput>true</UseArtifactsOutput>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<AnalysisMode>All</AnalysisMode>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<HotReloadAutoRestart>true</HotReloadAutoRestart>
+		<!-- <NoWarn>$(NoWarn);CS1591</NoWarn> -->
+		<!-- <WarningsNotAsErrors>CA1305,CA1062</WarningsNotAsErrors> -->
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<PlatformTarget>x64</PlatformTarget>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<PlatformTarget>x64</PlatformTarget>
+		<Optimize>true</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Version Condition="'$(Configuration)' == 'Debug' ">0.0.0.0</Version>
+		<VersionSuffix Condition=" '$(Configuration)' == 'Debug' ">dev</VersionSuffix>
+	</PropertyGroup>
+
+	<!-- Detect CI -->
+	<PropertyGroup>
+		<IsCI>false</IsCI>
+		<IsCI Condition="'$(GITHUB_ACTIONS)' == 'true' Or '$(TF_BUILD)' != ''">true</IsCI>
+	</PropertyGroup>
+
+	<!-- Always-on for local and CI -->
+	<PropertyGroup>
+		<Deterministic>true</Deterministic>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	</PropertyGroup>
+
+	<!-- CI-only -->
+	<PropertyGroup Condition="'$(IsCI)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE" Pack="true" PackagePath="." />
+		<None Include="..\..\README.md" Pack="true" PackagePath="." />
+		<!-- <None Include="..\..\icon.png" Pack="true" PackagePath="." /> -->
+	</ItemGroup>
+
+	<ItemGroup Condition="Exists('BuildInfo.txt')">
+		<None Remove="BuildInfo.txt" />
+		<Content Include="BuildInfo.txt">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+</Project>

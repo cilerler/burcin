@@ -1,15 +1,34 @@
-Set-Location ".\src\Burcin.Host";
-
-dotnet ef dbcontext scaffold "data source=localhost;initial catalog=BurcinDatabase;Trusted_Connection=True;MultipleActiveResultSets=True;App=Burcin" Microsoft.EntityFrameworkCore.SqlServer -f -d -o "..\Burcin.Models\BurcinDatabase" -c "BurcinDatabaseDbContext" --schema MySchema -t MySchema.MyTable1 -t MySchema.MyTable2;
-
-Set-Location "..\Burcin.Models\BurcinDatabase";
-# 1. Rename all `namespace Burcin.Host` to `namespace Burcin.Models.BurcinDatabase` in directory `..\Burcin.Models\BurcinDatabase`
-Get-ChildItem "." -Recurse | ForEach-Object { (Get-Content $_ | ForEach-Object  { $_ -replace "namespace Burcin.Host", "namespace Burcin.Models.BurcinDatabase" }) | Set-Content $_ };
-# 2. locate `BurcinDatabaseDbContext.cs` file in directory `..\Burcin.Models\BurcinDatabase`
-#   a. add `using Burcin.Models.BurcinDatabase;` to the top
-#   b. rename `namespace Burcin.Models.BurcinDatabase` to `namespace Burcin.Data`
-(Get-Content "BurcinDatabaseDbContext.cs").replace("namespace Burcin.Models.BurcinDatabase", "using Burcin.Models.BurcinDatabase;`n`nnamespace Burcin.Data") | Set-Content "BurcinDatabaseDbContext.cs";
-#   c. clean #warning pragma & server connection string under `protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)`
-Set-Content -Path "BurcinDatabaseDbContext.cs" -Value (Get-Content -Path "BurcinDatabaseDbContext.cs" | Select-String -pattern "(#warning)|(optionsBuilder.UseSqlServer)" -notmatch)
-#   d. move it into `Burcin.Data` project
-Move-Item -Path ".\BurcinDatabaseDbContext.cs" -Destination "..\..\Burcin.Data\BurcinDatabaseDbContext.cs";
+# if the database user is not the dbowner, scaffolding will not generate default values as it states here https://github.com/dotnet/efcore/issues/22842
+Push-Location $PSScriptRoot
+try {
+	Remove-Item -Recurse -Force ".\Scaffold";
+	New-Item ".\Scaffold" -ItemType directory;
+	Set-Location ".\Scaffold";
+	dotnet new sln;
+	New-Item ".\src" -ItemType directory;
+	Set-Location ".\src";
+	dotnet new classlib -n BurcinCo.BurcinApp.Data --framework net10.0;
+	dotnet new classlib -n BurcinCo.BurcinApp.Models --framework net10.0;
+	dotnet add BurcinCo.BurcinApp.Data/BurcinCo.BurcinApp.Data.csproj reference BurcinCo.BurcinApp.Models/BurcinCo.BurcinApp.Models.csproj;
+	Remove-Item -Recurse -Force -Path .\* -Include Class1.cs;
+	dotnet sln "..\Scaffold.slnx" add ./BurcinCo.BurcinApp.Models/BurcinCo.BurcinApp.Models.csproj;
+	dotnet sln "..\Scaffold.slnx" add ./BurcinCo.BurcinApp.Data/BurcinCo.BurcinApp.Data.csproj;
+	Set-Location ".\BurcinCo.BurcinApp.Data";
+	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.*;
+	Set-Location "..\BurcinCo.BurcinApp.Models";
+	dotnet add package Microsoft.EntityFrameworkCore.Abstractions --version 10.*;
+	dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.*;
+	dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.*;
+	dotnet ef dbcontext scaffold "data source=tcp:host.docker.internal,1433;initial catalog=BurcinDatabase;persist security info=True;user id=sa;password=passwordadmin1;MultipleActiveResultSets=True;Connection Timeout=30;Encrypt=True;TrustServerCertificate=False;App=Scaffold" Microsoft.EntityFrameworkCore.SqlServer `
+		--force  --no-onconfiguring --data-annotations `
+		--context-namespace "BurcinCo.BurcinApp.Data" --context-dir "..\BurcinCo.BurcinApp.Data" --context "BurcinCo.BurcinDatabaseDbContext" `
+		--namespace "BurcinCo.BurcinApp.Models" --output-dir ".\BurcinCo.BurcinApp" `
+		--schema dbo `
+		# --table "non_production.DataFileCopyQueue" `
+		;
+	dotnet remove package Microsoft.EntityFrameworkCore.Design;
+	dotnet remove package Microsoft.EntityFrameworkCore.SqlServer;
+}
+finally {
+	Pop-Location
+}

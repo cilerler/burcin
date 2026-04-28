@@ -1,0 +1,28 @@
+<Solution>
+	<Folder Name="/Solution Items/">
+		<File Path=".dockerignore" />
+		<File Path=".editorconfig" />
+		<File Path=".gitattributes" />
+		<File Path=".gitignore" />
+		<File Path="Directory.Build.props" />
+		<File Path="Directory.Build.targets" />
+		<File Path="Directory.Packages.props" />
+		<File Path="global.json" />
+		<File Path="LICENSE" />
+		<File Path="README.md" />
+		<File Path="nuget.config" />
+	</Folder>
+	<Folder Name="/src/">
+		<Project Path="src/BurcinCo.BurcinApp.Models/BurcinCo.BurcinApp.Models.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Data/BurcinCo.BurcinApp.Data.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Migrations/BurcinCo.BurcinApp.Migrations.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Domain/BurcinCo.BurcinApp.Domain.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj" />
+	</Folder>
+	<Folder Name="/tests/">
+		<Project Path="tests/BurcinCo.BurcinApp.AppHost.Tests/BurcinCo.BurcinApp.AppHost.Tests.csproj" />
+		<Project Path="tests/BurcinCo.BurcinApp.Domain.Tests/BurcinCo.BurcinApp.Domain.Tests.csproj" />
+	</Folder>
+</Solution>

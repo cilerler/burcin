@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json.schemastore.org/template",
 	"author": "Cengiz Ilerler",
-	"classifications": ["Web", "Blazor"],
+	"classifications": ["Web"],
 	"identity": "Burcin.BoilerPlate.CSharp",
 	"name": "Burcin BoilerPlate",
 	"shortName": "burcin",
@@ -10,16 +10,78 @@
 		"type": "project"
 	},
 	"groupIdentity": "Burcin.Templates",
-	"sourceName": "Burcin",
 	"preferNameDirectory": true,
 	"guids": ["412f3e04-fa62-4566-8e71-3fe15dc33c1c"],
 	"PrimaryOutputs":
 	[
 		{
-			"path": "src/Burcin.Data/_BurcinDatabaseDbContext.cs"
+			"path": "src/BurcinCo.BurcinApp.Data/_BurcinDatabaseDbContext.cs"
 		}
 	],
+	"forms": {
+		"lowerCase": {
+			"identifier": "lowerCase"
+		},
+		"upperCase": {
+			"identifier": "upperCase"
+		}
+	},
 	"symbols": {
+		"OrganizationName": {
+			"type": "parameter",
+			"datatype": "string",
+			"defaultValue": "Company",
+			"replaces": "BurcinCo",
+			"fileRename": "BurcinCo",
+			"description": "Short organization name used in namespaces and folder names (e.g. Acme)"
+		},
+		"OrganizationNameLower": {
+			"type": "derived",
+			"valueSource": "OrganizationName",
+			"valueTransform": "lowerCase",
+			"replaces": "burcinco",
+			"description": "Lowercase organization name (e.g. acme)"
+		},
+		"OrganizationNameUpper": {
+			"type": "derived",
+			"valueSource": "OrganizationName",
+			"valueTransform": "upperCase",
+			"replaces": "BURCINCO",
+			"description": "Uppercase organization name (e.g. ACME)"
+		},
+		"OrganizationLegalName": {
+			"type": "parameter",
+			"datatype": "string",
+			"defaultValue": "Company, Inc.",
+			"replaces": "BurcinLegal",
+			"description": "Full legal entity name for Company and Copyright fields (e.g. Acme, Inc.)"
+		},
+		"OrganizationLegalNameUpper": {
+			"type": "derived",
+			"valueSource": "OrganizationLegalName",
+			"valueTransform": "upperCase",
+			"replaces": "BURCINLEGAL"
+		},
+		"ProjectName": {
+			"type": "parameter",
+			"datatype": "string",
+			"defaultValue": "App",
+			"replaces": "BurcinApp",
+			"fileRename": "BurcinApp",
+			"description": "The project name (e.g. MyService)"
+		},
+		"ProjectNameLower": {
+			"type": "derived",
+			"valueSource": "ProjectName",
+			"valueTransform": "lowerCase",
+			"replaces": "burcinapp"
+		},
+		"ProjectNameUpper": {
+			"type": "derived",
+			"valueSource": "ProjectName",
+			"valueTransform": "upperCase",
+			"replaces": "BURCINAPP"
+		},
 		"Authors": {
 			"type": "parameter",
 			"datatype": "string",
@@ -37,31 +99,17 @@
 			"defaultValue": "https://github.com/cilerler/burcin",
 			"replaces": "(repositoryUrl)"
 		},
+		"RepositoryUrlLower": {
+			"type": "derived",
+			"valueSource": "RepositoryUrl",
+			"valueTransform": "lowerCase",
+			"replaces": "(repositoryUrl-lower)"
+		},
 		"RepositoryUrlXmlEncoded": {
 			"type": "derived",
 			"replaces": "(repositoryUrl-xml-encoded)",
-			"valueSource": "RepositoryUrl",
+			"valueSource": "RepositoryUrlLower",
 			"valueTransform": "xmlEncode"
-		},
-		"ConsoleApplication": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"WebApiApplication": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"BlazorApplication": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"OData": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
 		},
 		"DatabaseName": {
 			"type": "parameter",
@@ -74,69 +122,10 @@
 			"dataType": "bool",
 			"defaultValue": "false"
 		},
-		"TestFramework": {
+		"OData": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false"
-		},
-		"DocFx": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"DockerSupport": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"SerilogSupport": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"VsCodeDirectory": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"GitHubTemplates": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"HealthChecks": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"BackgroundService": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"WindowsService": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"Swagger": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"NugetSourceGitHub": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"NugetSourceAzureDevOps": {
-			"type": "parameter",
-			"dataType": "bool",
-			"defaultValue": "false"
-		},
-		"NugetSourceExists": {
-			"type": "computed",
-			"value": "(NugetSourceGitHub == \"true\" || NugetSourceAzureDevOps == \"true\")"
 		},
 		"Cache": {
 			"type": "parameter",
@@ -171,81 +160,66 @@
 			"type": "computed",
 			"value": "(CacheSqlServer == \"true\" || CacheRedis == \"true\")"
 		},
-		"ConsoleApplicationExists": {
-			"type": "computed",
-			"value": "(ConsoleApplication == \"true\" || WindowsService == \"true\")"
+		"DocFx": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
 		},
-		"WebApiApplicationExists": {
+		"GitHubTemplates": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"NugetSourceGitHub": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"NugetSourceAzureDevOps": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false"
+		},
+		"NugetSourceExists": {
 			"type": "computed",
-			"value": "(WebApiApplication == \"true\" || BlazorApplication == \"true\" ||HealthChecks == \"true\" || Swagger == \"true\")"
+			"value": "(NugetSourceGitHub == \"true\" || NugetSourceAzureDevOps == \"true\")"
 		},
 		"SkipRestore": {
 			"type": "parameter",
 			"datatype": "bool",
 			"defaultValue": "false",
 			"description": "Skip `dotnet restore`"
-		}
-	},
-	"DockerId": {
-		"type": "generated",
-		"generator": "guid",
-		"replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
-		"parameters": {
-			"format": "D"
-		}
-	},
-	"TemplateEditMode": {
-		"type": "generated",
-		"generator": "constant",
-		"parameters": {
-			"value": "false"
+		},
+		"DockerId": {
+			"type": "generated",
+			"generator": "guid",
+			"replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
+			"parameters": {
+				"format": "D"
+			}
+		},
+		"TemplateEditMode": {
+			"type": "generated",
+			"generator": "constant",
+			"parameters": {
+				"value": "false"
+			}
 		}
 	},
 	"sources": [
 		{
 			"modifiers": [
 				{
-					"condition": "(!ConsoleApplicationExists)",
-					"exclude": [
-						"src/Burcin.Host/hostsettings.json"
-					]
-				},
-				{
-					"condition": "(!WebApiApplicationExists)",
-					"exclude": [
-						"src/Burcin.Host/Controllers/**/*",
-						"src/Burcin.Host/Middlewares/**/*",
-						"src/Burcin.Host/DomainAttribute.cs",
-						"src/Burcin.Host/DomainMatcherPolicy.cs"
-					]
-				},
-				{
-					"condition": "(!BlazorApplication)",
-					"exclude": [
-						"src/Burcin.Host/wwwroot/**/*",
-						"src/Burcin.Host/Shared/**/*",
-						"src/Burcin.Host/Pages/**/*",
-						"src/Burcin.Host/Data/**/*",
-						"src/Burcin.Host/Common/**/*",
-						"src/Burcin.Host/_Imports.razor",
-						"src/Burcin.Host/App.razor"
-					]
-				},
-				{
 					"condition": "(!EntityFramework)",
 					"exclude": [
 						"tools/EntityFramework/**/*",
-						"src/Burcin.Host/DbContextFactory.cs",
-						"src/Burcin.Domain/EntityFramework.targets",
-						"src/Burcin.Host/EntityFramework.targets",
-						"src/Burcin.Models/**/*",
-						"src/Burcin.Data/**/*",
-						"src/Burcin.Migrations/**/*"
+						"src/BurcinCo.BurcinApp.Host/DbContextFactory.cs",
+						"src/BurcinCo.BurcinApp.Domain/EntityFramework.targets",
+						"src/BurcinCo.BurcinApp.Host/EntityFramework.targets",
+						"src/BurcinCo.BurcinApp.Models/**/*",
+						"src/BurcinCo.BurcinApp.Data/**/*",
+						"src/BurcinCo.BurcinApp.Migrations/**/*"
 					]
-				},
-				{
-					"condition": "(!TestFramework)",
-					"exclude": ["test/**/*"]
 				},
 				{
 					"condition": "(!DocFx)",
@@ -253,42 +227,6 @@
 						"docs/docfx/**/*",
 						"apiSpec/**/*"
 					]
-				},
-				{
-					"condition": "(!DockerSupport)",
-					"exclude": [
-						"docker-compose.dcproj",
-						"docker-compose.yml",
-						"docker-compose.override.yml",
-						".dockerignore",
-						"src/Burcin.Host/Dockerfile",
-						".github/workflows/build_on_push_gke.yml",
-						"tools/Kubernetes/**/*"
-					]
-				},
-				{
-					"condition": "(!BackgroundService)",
-					"exclude": [
-						"src/Burcin.Host/Services/**/*"
-					]
-				},
-				{
-					"condition": "(!WindowsService)",
-					"exclude": [
-						"tools/windows-service.ps1"
-					]
-				},
-				{
-					"condition": "(!HealthChecks)",
-					"exclude": [
-						"src/Burcin.Host/Controllers/HealthCheckController.cs",
-						"src/Burcin.Host/HealthChecks/**/*",
-						"src/Burcin.Host/dotnet.css"
-					]
-				},
-				{
-					"condition": "(!VsCodeDirectory)",
-					"exclude": [".vscode/**/*"]
 				},
 				{
 					"condition": "(!GitHubTemplates)",
@@ -301,7 +239,7 @@
 				{
 					"condition": "(!OData)",
 					"exclude": [
-						"src/Burcin.Data/ODataEdmModelBuilder.cs"
+						"src/BurcinCo.BurcinApp.Data/ODataEdmModelBuilder.cs"
 					]
 				}
 			]
@@ -363,6 +301,36 @@
 			]
 		},
 		"**/nuget.config": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["<!--#if"],
+						"else": ["<!--#else"],
+						"elseif": ["<!--#elseif", "<!--#elif"],
+						"endif": ["<!--#endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
+		"**/*.targets": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["<!--#if"],
+						"else": ["<!--#else"],
+						"elseif": ["<!--#elseif", "<!--#elif"],
+						"endif": ["<!--#endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
+		"**/*.props": {
 			"operations": [
 				{
 					"type": "conditional",

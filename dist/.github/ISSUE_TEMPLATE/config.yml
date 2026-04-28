@@ -1,11 +1,11 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
   - name: General
-    url: (repositoryUrl)/discussions/new?category=general
+    url: (repositoryUrl-lower)/discussions/new?category=general
     about: Want to discuss something?
   - name: Ideas
-    url: (repositoryUrl)/discussions/new?category=ideas
+    url: (repositoryUrl-lower)/discussions/new?category=ideas
     about: Want to suggest an idea?
   - name: Questions
-    url: (repositoryUrl)/discussions/new?category=q-a
+    url: (repositoryUrl-lower)/discussions/new?category=q-a
     about: Have a question?

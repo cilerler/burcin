@@ -1,0 +1,257 @@
+name: BurcinCo.BurcinApp.Host
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: 'Environment'
+        required: false
+      rollingDeployment:
+        type: boolean
+        description: 'initiate rolling deployment'
+        default: false
+  #--if (GitHubTemplates)
+  repository_dispatch:
+    types: []
+  push:
+    branches: [main, release-preview, release-qa, develop]
+    paths:
+      - 'tools/Kubernetes/**'
+      - 'Directory.*.props'
+      - 'Directory.*.targets'
+      - '.github/workflows/BurcinCo.BurcinApp.Host.yml'
+      - 'src/BurcinCo.BurcinApp.*/**'
+  #--endif
+
+env:
+  productionBranch: 'main'
+  stagingBranch: 'release-preview'
+  testingBranch: 'release-qa'
+  integrationBranch: 'develop'
+  hasSha: ${{contains(toJson(github.event.client_payload), '"sha"')}}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: contains(toJson(github.event.commits), '[skip ci]') == false
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      IMAGE_SUFFIX:
+      IMAGE:
+      REGISTRY: ghcr.io/${{github.repository_owner}}
+      projectName: 'BurcinCo.BurcinApp.Host'
+      projectPath: './src/BurcinCo.BurcinApp.Host'
+      repositoryDispatchEventType: 'BurcinCo.BurcinApp.Host'
+      GITHUB_SHA: ${{github.sha}}
+      NAMESPACE_PREFIX: default
+    environment: ${{github.event.inputs.environment}}
+    outputs:
+      version: ${{env.version}}
+      repositoryDispatchEventType: ${{env.repositoryDispatchEventType}}
+      repository: ${{steps.extract_metadata.outputs.repository}}
+      branch: ${{steps.extract_metadata.outputs.branch}}
+      isProduction: ${{steps.extract_metadata_environment.outputs.isProduction}}
+      isStaging: ${{steps.extract_metadata_environment.outputs.isStaging}}
+      isTesting: ${{steps.extract_metadata_environment.outputs.isTesting}}
+      isIntegration: ${{steps.extract_metadata_environment.outputs.isIntegration}}
+      isDevelopment: ${{steps.extract_metadata_environment.outputs.isDevelopment}}
+
+    steps:
+      - if: env.hasSha=='false'
+        name: Checkout
+        uses: actions/checkout@v6
+
+      - if: env.hasSha=='true'
+        name: CheckoutRepositoryDispatch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{github.event.client_payload.branch}}
+
+      - name: Extract Version from Project
+        id: extract_project_version
+        shell: pwsh
+        run: |
+          [xml]$csproj = Get-Content '${{env.projectPath}}/${{env.projectName}}.csproj'
+          $version = $csproj.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          if (-not $version) { $version = '0.0.0' }
+          $versionParts = $version -split '\.'
+          $majorMinor = "$($versionParts[0]).$($versionParts[1])"
+          Add-Content $env:GITHUB_OUTPUT "base-version=$majorMinor"
+
+      - name: Extract metadata
+        id: extract_metadata
+        shell: pwsh
+        run: |
+          if ($env:hasSha -eq $true) {
+            $branch = "${{github.event.client_payload.branch}}"
+          } else {
+            $branch = "$env:GITHUB_REF" -replace 'refs/heads/', ''
+          };
+          Add-Content $env:GITHUB_OUTPUT "branch=$branch"
+          Add-Content $env:GITHUB_OUTPUT "branchsafe=$($branch -replace '/', '-')"
+          Add-Content $env:GITHUB_OUTPUT "repository=$($env:GITHUB_REPOSITORY -replace '.*/', '')"
+          Add-Content $env:GITHUB_ENV "version=${{steps.extract_project_version.outputs.base-version}}.$env:GITHUB_RUN_NUMBER"
+
+      - name: Extract metadata environment
+        id: extract_metadata_environment
+        shell: pwsh
+        run: |
+          $isProduction = 0
+          $isStaging = 0
+          $isTesting = 0
+          $isIntegration = 0
+          $isDevelopment = 0
+          $environment = "";
+          $branch = "${{steps.extract_metadata.outputs.branch}}"
+
+          if ($branch -eq "${{env.productionBranch}}" -or "${{github.event.inputs.environment}}" -eq "production") {
+            $isProduction = 1;
+            $environment = "production";
+          }
+          elseif ($branch -eq  "${{env.stagingBranch}}" -or "${{github.event.inputs.environment}}" -eq "staging") {
+            $isStaging = 1;
+            $versionSuffix = "preview";
+            $environment = "staging";
+          }
+          elseif ($branch -eq "${{env.testingBranch}}" -or "${{github.event.inputs.environment}}" -eq "testing") {
+            $isTesting = 1;
+            $versionSuffix = "qa";
+            $environment = "testing";
+          }
+          elseif ($branch -eq "${{env.integrationBranch}}" -or "${{github.event.inputs.environment}}" -eq "integration") {
+            $isIntegration = 1;
+            $versionSuffix = "develop";
+            $environment = "integration";
+          }
+          else {
+            $isDevelopment = 1
+            $versionSuffix = "dev"
+            $environment = "development";
+          }
+
+          if ($versionSuffix) {
+            $version = "$env:version-$versionSuffix"
+          } else {
+            $version = $env:version
+          }
+
+          Add-Content $env:GITHUB_OUTPUT "isProduction=$isProduction"
+          Add-Content $env:GITHUB_OUTPUT "isStaging=$isStaging"
+          Add-Content $env:GITHUB_OUTPUT "isTesting=$isTesting"
+          Add-Content $env:GITHUB_OUTPUT "isIntegration=$isIntegration"
+          Add-Content $env:GITHUB_OUTPUT "isDevelopment=$isDevelopment"
+          Add-Content $env:GITHUB_OUTPUT "environment=$environment"
+          Add-Content $env:GITHUB_ENV "version=$version"
+
+      - name: Initial modifications
+        shell: pwsh
+        run: |
+            Write-Output "1. Set IMAGE variable";
+            $lowerCaseValue = "${{env.REGISTRY}}/${{steps.extract_metadata.outputs.repository}}".ToLower();
+            if (![string]::IsNullOrWhiteSpace($env:IMAGE_SUFFIX)) { `
+                $lowerCaseValue += ".${{env.IMAGE_SUFFIX}}".ToLower(); `
+            }
+            Add-Content $env:GITHUB_ENV "IMAGE=$lowerCaseValue";
+            Write-Output "2. Generate BuildInfo file"
+            $buildInfo = "${{steps.extract_metadata.outputs.repository}}_${{steps.extract_metadata.outputs.branch}}:${{env.GITHUB_SHA}}`n${{env.version}}`n$(Get-Date -AsUTC -Format 'o')"
+            $buildInfo | Out-File -FilePath "${{env.projectPath}}/BuildInfo.txt"
+            Write-Output $buildInfo
+
+      - name: Build
+        run: |
+          docker build -t $IMAGE:$GITHUB_SHA \
+            -t $IMAGE:${{env.version}} \
+            -t $IMAGE:latest \
+            -f $projectPath/Dockerfile \
+            --build-arg VERSION="${{env.version}}" \
+            --secret id=GITHUB_PAT,env=GITHUB_PAT .
+        env:
+          GITHUB_PAT: ${{secrets.PAT}}
+
+      - name: Log in to container registry
+        run: echo "${{secrets.GITHUB_TOKEN}}" | docker login ${{env.REGISTRY}} -u ${{github.actor}} --password-stdin
+
+      - name: Publish
+        run: |
+          docker push $IMAGE:$GITHUB_SHA
+          docker push $IMAGE:${{env.version}}
+          docker push $IMAGE:latest
+
+      - name: Create tag
+        if: steps.extract_metadata_environment.outputs.isProduction == false
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/tags/v${{env.version}}',
+              sha: context.sha
+            })
+
+      - name: Create Release
+        if: steps.extract_metadata_environment.outputs.isProduction == true
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          tag_name: v${{env.version}}
+          name: ${{github.workflow}}.${{env.version}}
+          draft: false
+          prerelease: false
+          # files: |
+          #   ${{env.packageOutputPath}}/*.nupkg
+          body: |
+            Changelog
+
+      - name: Deploy
+        shell: pwsh
+        run: |
+          $environment = "${{steps.extract_metadata_environment.outputs.environment}}";
+          $k8sDir = "./tools/Kubernetes";
+
+          # Set image tag in repo layer
+          Push-Location "$k8sDir/repo"
+          kustomize edit set image "app-image:latest=${{env.IMAGE}}:${{env.GITHUB_SHA}}"
+          Pop-Location
+
+          # Read components from kustomization.yaml and deploy each one
+          $envDir = "$k8sDir/overlays/$environment"
+          $components = (Get-Content "$envDir/kustomization.yaml" | Select-String '^\s*-\s+(?!.*://)(.+)' | ForEach-Object { $_.Matches.Groups[1].Value.Trim() }) | Where-Object { $_ -ne 'base' }
+          foreach ($componentName in $components) {
+            $componentDir = Join-Path $envDir $componentName
+            Push-Location $componentDir
+            kustomize edit set namespace "${{env.NAMESPACE_PREFIX}}-$environment"
+            Pop-Location
+
+            kubectl kustomize $componentDir | kubectl apply -f -
+          }
+
+  dispatch:
+    needs: build
+    if: (contains(toJson(github.event.commits), '[rolling deployment]') || contains(toJson(github.event.client_payload), '"sha"') || github.event.inputs.rollingDeployment == 'true' )
+    # strategy:
+    #   matrix:
+    #     repo: []
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository Dispatch
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{secrets.PAT}}
+          repository: ${{matrix.repo}}
+          event-type: ${{needs.build.outputs.repositoryDispatchEventType}}
+          client-payload: '{"sha": "${{github.sha}}", "version": "${{needs.build.outputs.version}}", "repository": "${{needs.build.outputs.repository}}", "branch": "${{needs.build.outputs.branch}}", "isProduction": "${{needs.build.outputs.isProduction}}", "isStaging": "${{needs.build.outputs.isStaging}}", "isTesting": "${{needs.build.outputs.isTesting}}", "isIntegration": "${{needs.build.outputs.isIntegration}}", "isDevelopment": "${{needs.build.outputs.isDevelopment}}"}'

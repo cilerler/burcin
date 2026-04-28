@@ -1,4 +1,4 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
   - name: General
     url: https://github.com/cilerler/burcin/discussions/new?category=general

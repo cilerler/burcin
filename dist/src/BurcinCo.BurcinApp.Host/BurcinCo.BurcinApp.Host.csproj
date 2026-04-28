@@ -1,0 +1,105 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<UserSecretsId>BurcinCo.BurcinApp.Host</UserSecretsId>
+		<Version>0.1</Version>
+		<!-- <NoWarn>$(NoWarn);1591;1603;5119;1504;5104</NoWarn> -->
+	</PropertyGroup>
+	<!--#if (TemplateEditMode)-->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);OData;EntityFramework;CacheSqlServer;CacheRedis;</DefineConstants>
+		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
+		<OData>true</OData>
+		<EntityFramework>true</EntityFramework>
+		<CacheSqlServer>true</CacheSqlServer>
+		<CacheRedis>true</CacheRedis>
+	</PropertyGroup>
+	<!--#endif-->
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" />
+
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<!-- <PackageReference Include="Microsoft.Extensions.Hosting" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" /> -->
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Condition="'$(CacheSqlServer)' == 'true'" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Condition="'$(CacheRedis)' == 'true'" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Common" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.ResourceUtilization" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
+		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Scalar.AspNetCore" />
+		<PackageReference Include="morelinq" />
+		<PackageReference Include="CsvHelper" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+		<PackageReference Include="AspNetCore.HealthChecks.SqlServer" />
+		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" />
+		<PackageReference Include="AspNetCore.HealthChecks.Redis" />
+	</ItemGroup>
+	<!--#if (DocFx)-->
+	<PropertyGroup Label="docfx">
+		<DocfxConfigFile>../../docs/docfx/docfx.json</DocfxConfigFile>
+		<MetadataOutputFolder>../../_docfx</MetadataOutputFolder>
+		<LogFile>$(MSBuildProjectExtensionsPath)/docfx.log</LogFile>
+		<LogLevel>Info</LogLevel>
+		<BuildDocFx Condition="'$(BuildDocFx)' == ''">false</BuildDocFx>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="docfx.console" PrivateAssets="All" />
+		<PackageReference Include="DocFx.Plugins.PlantUml" />
+	</ItemGroup>
+	<!--#endif-->
+	<!--#if (EntityFramework)-->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+	</ItemGroup>
+	<!--#endif-->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Ruya.AspNetCore.Diagnostics" />
+		<PackageReference Include="Ruya.AspNetCore.Middleware" />
+		<PackageReference Include="Ruya.Diagnostics" />
+		<PackageReference Include="Ruya.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Ruya.Extensions.Configuration" />
+		<PackageReference Include="Ruya.Extensions.Hosting" />
+		<PackageReference Include="Ruya.OpenTelemetry" />
+		<PackageReference Include="Ruya.Services.DistributedLock" />
+		<PackageReference Include="Ruya.Services.DistributedLock.Redis" Condition="'$(CacheRedis)' == 'true'" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
+	</PropertyGroup>
+	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Diagnostics\Ruya.AspNetCore.Diagnostics.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Middleware\Ruya.AspNetCore.Middleware.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Diagnostics\Ruya.Diagnostics.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Primitives\Ruya.Primitives.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.EntityFrameworkCore.SqlServer\Ruya.EntityFrameworkCore.SqlServer.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Configuration\Ruya.Extensions.Configuration.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Hosting\Ruya.Extensions.Hosting.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.OpenTelemetry\Ruya.OpenTelemetry.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock.Redis\Ruya.Services.DistributedLock.Redis.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock\Ruya.Services.DistributedLock.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj">
+			<PrivateAssets>All</PrivateAssets>
+		</ProjectReference>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Domain\BurcinCo.BurcinApp.Domain.csproj" />
+	</ItemGroup>
+</Project>
