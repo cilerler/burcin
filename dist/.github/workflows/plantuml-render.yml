@@ -1,0 +1,140 @@
+name: Render PlantUML SVGs
+
+on:
+  pull_request:
+    paths:
+      - '**/*.puml'
+      - '**/*.plantuml'
+      - '.github/workflows/plantuml-render.yml'
+  push:
+    branches: [main]
+    paths:
+      - '**/*.puml'
+      - '**/*.plantuml'
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # For PRs from same repo, check out head branch so we can push back.
+          # For fork PRs, this falls back to the merge ref and push will be skipped.
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+
+      - name: Install PlantUML
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y plantuml
+
+      - name: Determine changed PlantUML files
+        id: changed
+        run: |
+          if ('${{ github.event_name }}' -eq 'pull_request') {
+            $base = '${{ github.event.pull_request.base.sha }}'
+            $head = '${{ github.event.pull_request.head.sha }}'
+          } else {
+            $base = '${{ github.event.before }}'
+            $head = '${{ github.sha }}'
+          }
+
+          $changed = @(git diff --name-only --diff-filter=ACM $base $head -- '*.puml' '*.plantuml')
+          $deleted = @(git diff --name-only --diff-filter=D $base $head -- '*.puml' '*.plantuml')
+
+          if ($changed.Count -eq 0 -and $deleted.Count -eq 0) {
+            Write-Host "No PlantUML files changed."
+          } else {
+            Write-Host "Changed: $($changed -join ', ')"
+            Write-Host "Deleted: $($deleted -join ', ')"
+          }
+
+          "changed=$($changed -join ' ')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "deleted=$($deleted -join ' ')" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Render SVGs and detect drift
+        id: render
+        if: steps.changed.outputs.changed != '' || steps.changed.outputs.deleted != ''
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $modified = @()
+
+          # Handle deletions first
+          $deletedFiles = '${{ steps.changed.outputs.deleted }}'.Trim() -split '\s+' | Where-Object { $_ }
+          foreach ($puml in $deletedFiles) {
+            $dir = Split-Path $puml -Parent
+            $base = [System.IO.Path]::GetFileNameWithoutExtension($puml)
+            $svg = if ($dir) { Join-Path $dir "$base.svg" } else { "$base.svg" }
+            if (Test-Path $svg) {
+              Write-Host "Removing orphaned SVG: $svg"
+              git rm $svg
+              $modified += $svg
+            }
+          }
+
+          # Render changed files
+          $changedFiles = '${{ steps.changed.outputs.changed }}'.Trim() -split '\s+' | Where-Object { $_ }
+          foreach ($puml in $changedFiles) {
+            if (-not (Test-Path $puml)) { continue }
+
+            $dir = Split-Path $puml -Parent
+            $base = [System.IO.Path]::GetFileNameWithoutExtension($puml)
+            $svg = if ($dir) { Join-Path $dir "$base.svg" } else { "$base.svg" }
+
+            $oldHash = if (Test-Path $svg) { (Get-FileHash $svg -Algorithm SHA256).Hash } else { $null }
+
+            $outDir = if ($dir) { $dir } else { '.' }
+            plantuml -tsvg -nometadata -failfast2 -o (Resolve-Path $outDir).Path $puml
+            if ($LASTEXITCODE -ne 0) {
+              Write-Host "::error file=$puml::PlantUML render failed"
+              exit 1
+            }
+
+            if (-not (Test-Path $svg)) {
+              Write-Host "::error file=$puml::Expected SVG not produced: $svg"
+              exit 1
+            }
+
+            $newHash = (Get-FileHash $svg -Algorithm SHA256).Hash
+
+            if ($oldHash -ne $newHash) {
+              Write-Host "Updated: $svg"
+              $modified += $svg
+            } else {
+              Write-Host "Unchanged: $svg"
+            }
+          }
+
+          if ($modified.Count -gt 0) {
+            "drift=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+            Write-Host "::notice::$($modified.Count) SVG(s) need to be committed"
+          } else {
+            "drift=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          }
+
+      - name: Commit and push SVGs
+        if: steps.render.outputs.drift == 'true'
+        run: |
+          # Skip push for fork PRs (no write access to head repo)
+          $isFork = '${{ github.event.pull_request.head.repo.full_name }}' -ne '' -and `
+                    '${{ github.event.pull_request.head.repo.full_name }}' -ne '${{ github.repository }}'
+
+          if ($isFork) {
+            Write-Host "::error::PR is from a fork. Cannot push SVG updates back. Please run the pre-commit hook locally and re-push."
+            exit 1
+          }
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add '*.svg'
+          git commit -m 'chore: update PlantUML SVGs'
+          git push

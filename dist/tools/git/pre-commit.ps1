@@ -5,31 +5,14 @@ exit 0;
 
 Write-Host "`n🔍 Running pre-commit checks..." -ForegroundColor Cyan
 
-$stagedFiles = @(git diff --cached --name-only --diff-filter=ACM "*.cs")
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-if ($stagedFiles.Count -eq 0) {
-    Write-Host "No C# files to format." -ForegroundColor Gray
-    exit 0
-}
+& "$scriptDir/scripts/plantuml-render.ps1"
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-Write-Host "Found $($stagedFiles.Count) C# file(s) to check." -ForegroundColor Yellow
+& "$scriptDir/scripts/dotnet-format.ps1"
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-$fileList = $stagedFiles -join ','
-
-Write-Host "Running: dotnet format --include $fileList --verify-no-changes" -ForegroundColor Gray
-
-dotnet format ".\BurcinCo.BurcinApp.slnx" --include $fileList --verify-no-changes --verbosity diagnostic
-
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "`n❌ Code formatting issues detected!`n" -ForegroundColor Red
-    Write-Host "Please run the following command to fix:" -ForegroundColor Yellow
-    Write-Host "  dotnet format" -ForegroundColor White
-    Write-Host "`nThen stage your changes and commit again." -ForegroundColor Yellow
-    exit 1
-
-    # Write-Host "Adding formatted files back to stage..." -ForegroundColor Gray
-    # git add $stagedFiles;
-}
 
 Write-Host "`n✅ All checks passed!" -ForegroundColor Green
 exit 0
