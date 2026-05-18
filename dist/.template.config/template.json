@@ -117,15 +117,31 @@
 			"replaces": "BurcinDatabase",
 			"fileRename": "BurcinDatabase"
 		},
+		"Sample": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false",
+			"description": "Include the reliable-messaging reference module (Modules.Sourcing) demonstrating Outbox/Inbox via Ruya. When on, the Data project gains a Ruya.Services.ReliableMessaging dep and registers Outbox/Inbox in the shared DbContext; when off, Data stays Ruya-free and Sourcing isn't generated. Sample also auto-enables --EntityFramework + --OData (both are required for the demo to function)."
+		},
 		"EntityFramework": {
 			"type": "parameter",
 			"dataType": "bool",
-			"defaultValue": "false"
+			"defaultValue": "false",
+			"description": "Generate the EF Core scaffold (Models/Data/Migrations projects + reference modules). Auto-enabled when --Sample is on, since the Sourcing reference module depends on it."
 		},
 		"OData": {
 			"type": "parameter",
 			"dataType": "bool",
-			"defaultValue": "false"
+			"defaultValue": "false",
+			"description": "Generate OData controllers for Recipe + Nutrition modules. Auto-enabled when --Sample is on, since the AppHost E2E demo exercises OData CRUD."
+		},
+		"EntityFrameworkScaffold": {
+			"type": "computed",
+			"value": "(EntityFramework || Sample)"
+		},
+		"ODataServices": {
+			"type": "computed",
+			"value": "(OData || Sample)"
 		},
 		"Cache": {
 			"type": "parameter",
@@ -210,11 +226,34 @@
 		{
 			"modifiers": [
 				{
-					"condition": "(!EntityFramework)",
+					"condition": "(!Sample)",
+					"exclude": [
+						"src/BurcinCo.BurcinApp.Modules.Recipe/**/*",
+						"src/BurcinCo.BurcinApp.Modules.Recipe.Abstractions/**/*",
+						"src/BurcinCo.BurcinApp.Modules.Nutrition/**/*",
+						"src/BurcinCo.BurcinApp.Modules.Sourcing/**/*",
+						"src/BurcinCo.BurcinApp.Modules.Sourcing.Abstractions/**/*",
+						"tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/**/*",
+						"tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests/**/*",
+						"tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests/**/*",
+						"tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests/**/*",
+						"tests/Chef.http",
+						"tests/Recipe.http",
+						"tests/CategoryCode.http",
+						"tests/CategoryGroup.http",
+						"tests/CategoryCodeGroupMapping.http",
+						"tests/NutritionFact.http",
+						"tests/Tag.http",
+						"tests/Photo.http",
+						"tests/Sourcing.http",
+						"tests/Batch.http"
+					]
+				},
+				{
+					"condition": "(!EntityFrameworkScaffold)",
 					"exclude": [
 						"tools/EntityFramework/**/*",
 						"src/BurcinCo.BurcinApp.Host/DbContextFactory.cs",
-						"src/BurcinCo.BurcinApp.Domain/EntityFramework.targets",
 						"src/BurcinCo.BurcinApp.Host/EntityFramework.targets",
 						"src/BurcinCo.BurcinApp.Models/**/*",
 						"src/BurcinCo.BurcinApp.Data/**/*",
@@ -237,9 +276,28 @@
 					"exclude": ["tools/sql-cache.ps1"]
 				},
 				{
-					"condition": "(!OData)",
+					"condition": "(!ODataServices)",
 					"exclude": [
-						"src/BurcinCo.BurcinApp.Data/ODataEdmModelBuilder.cs"
+						"src/BurcinCo.BurcinApp.Data/ODataExtensions.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Chef/Api/ChefController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Recipe/Api/RecipeController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Recipe/Models/RecipeSummary.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Category/Api/CategoryCodeController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Category/Api/CategoryGroupController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Category/Api/CategoryCodeGroupMappingController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/Tag/Api/TagController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Catalog/ConcurrencyCheck.cs",
+						"src/BurcinCo.BurcinApp.Modules.Recipe/Extensions/ODataExtensions.cs",
+						"src/BurcinCo.BurcinApp.Modules.Nutrition/Tracking/NutritionFact/Api/NutritionFactController.cs",
+						"src/BurcinCo.BurcinApp.Modules.Nutrition/Tracking/ConcurrencyCheck.cs",
+						"tests/Chef.http",
+						"tests/Recipe.http",
+						"tests/CategoryCode.http",
+						"tests/CategoryGroup.http",
+						"tests/CategoryCodeGroupMapping.http",
+						"tests/NutritionFact.http",
+						"tests/Tag.http",
+						"tests/Batch.http"
 					]
 				}
 			]
@@ -331,6 +389,21 @@
 			]
 		},
 		"**/*.props": {
+			"operations": [
+				{
+					"type": "conditional",
+					"configuration": {
+						"if": ["<!--#if"],
+						"else": ["<!--#else"],
+						"elseif": ["<!--#elseif", "<!--#elif"],
+						"endif": ["<!--#endif"],
+						"trim": "true",
+						"wholeLine": "true"
+					}
+				}
+			]
+		},
+		"**/*.slnx": {
 			"operations": [
 				{
 					"type": "conditional",

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+	</PropertyGroup>
+
+	<!-- Module's public cross-module contract. Dep-free by design — consumers reference only this csproj,
+	     never the Modules.Sourcing implementation csproj. Outbox event types (IngredientQuoteRequestedEvent,
+	     IngredientQuoteResponseReceivedEvent) live here so any module that subscribes to them can receive
+	     the typed payload without dragging in the producer's implementation assembly. -->
+
+</Project>

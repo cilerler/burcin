@@ -54,8 +54,24 @@ dotnet new burcin --help
 ```pwsh
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
 
-dotnet new burcin --WebApiApplication --HealthChecks --Swagger --BlazorApplication --ConsoleApplication --OData --WindowsService --BackgroundService --EntityFramework --DatabaseName "ChangeMe" --TestFramework --DocFx --DockerSupport --SerilogSupport --NugetSourceGitHub --NugetSourceAzureDevOps --VsCodeDirectory --GitHubTemplates --Cache "All" --Authors "ChangeMe" --RepositoryUrl "https://github.com/<changeme>/burcin" --SkipRestore;
+# Full Modular Polylith on .NET 10 (the canonical example):
+dotnet new burcin --name "MyProject" `
+    --OrganizationLegalName "Acme, Inc." --OrganizationName "Acme" --ProjectName "MyApp" `
+    --DatabaseName "MyAppDb" --Authors "Your Name" `
+    --RepositoryUrl "https://github.com/<changeme>/myproject" `
+    --EntityFramework --OData --Cache "All" `
+    --DocFx --GitHubTemplates --NugetSourceGitHub --NugetSourceAzureDevOps `
+    --SkipRestore;
+
+# Minimal scaffold (no EF / no modules / no OData) — useful for stateless services:
+dotnet new burcin --name "MyService" `
+    --OrganizationLegalName "Acme, Inc." --OrganizationName "Acme" --ProjectName "MyService" `
+    --DatabaseName "MyServiceDb" --Authors "Your Name" `
+    --SkipRestore;
 ```
+
+See the generated project's `README.md` for architecture details — the Modular Polylith pattern,
+per-module schemas, Outbox/Inbox flows, Aspire AppHost orchestration, and how to add a new module.
 
 ## List all templates
 

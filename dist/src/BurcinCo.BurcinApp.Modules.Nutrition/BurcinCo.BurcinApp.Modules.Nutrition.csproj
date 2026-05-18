@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<UserSecretsId>BurcinCo.BurcinApp.Modules.Nutrition</UserSecretsId>
+		<Version>0.1</Version>
+	</PropertyGroup>
+
+	<!--#if (TemplateEditMode)-->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);ODataServices;</DefineConstants>
+		<ODataServices>true</ODataServices>
+	</PropertyGroup>
+	<!--#endif-->
+
+	<!-- Module ships ASP.NET Core endpoints. Library, not entry point. -->
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
+		<!-- Cross-module reference: ONLY the public Abstractions of Modules.Recipe. The compiler physically prevents
+		     this module from touching Modules.Recipe's implementation types — Nutrition's Tracking/NutritionFact/Clients/RecipeClient
+		     implements IRecipeService over HTTP from the contract alone. -->
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe.Abstractions\BurcinCo.BurcinApp.Modules.Recipe.Abstractions.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,60 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+
+		<IsPackable>false</IsPackable>
+
+		<IsTestProject>true</IsTestProject>
+		<OutputType>Exe</OutputType>
+		<EnableMSTestRunner>true</EnableMSTestRunner>
+
+		<TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+		<TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
+
+		<TestingExtensionsProfile>AllMicrosoft</TestingExtensionsProfile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="MSTest" />
+		<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+		<PackageReference Include="Moq" />
+
+		<PackageReference Include="Testcontainers.MsSql" />
+		<PackageReference Include="Testcontainers.RabbitMQ" />
+
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+		<PackageReference Include="Microsoft.Extensions.Logging" />
+		<PackageReference Include="Microsoft.Extensions.Options" />
+		<PackageReference Include="RabbitMQ.Client" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Modules.Sourcing\BurcinCo.BurcinApp.Modules.Sourcing.csproj" />
+		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
+		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
+		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Testing.Primitives\Ruya.Testing.Primitives.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.MessageQueue\Ruya.Services.MessageQueue.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.MessageQueue.RabbitMq\Ruya.Services.MessageQueue.RabbitMq.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.ReliableMessaging.EntityFrameworkCore\Ruya.Services.ReliableMessaging.EntityFrameworkCore.csproj" />
+		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.ReliableMessaging.MessageQueue\Ruya.Services.ReliableMessaging.MessageQueue.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.Test.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<!-- Soft-delete triggers, applied per Testcontainer after MigrateAsync so tests run against
+		     production-equivalent DB behavior. Linked from tools/EntityFramework so the single source of
+		     truth stays with the migration scripts. -->
+		<None Include="..\..\tools\EntityFramework\triggers.sql" Link="triggers.sql" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+</Project>

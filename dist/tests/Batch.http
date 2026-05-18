@@ -1,0 +1,102 @@
+# OData $batch demonstration.
+#
+# OData lets you pack multiple operations into a single HTTP round-trip via POST /odata/$batch.
+# Each sub-request is routed and executed as if it had been sent individually. The response body
+# contains one entry per sub-request, in the same order, each with its own status + body. Sub-requests
+# can declare dependencies via an "id" + "dependsOn" — the server enforces the order so a CREATE can
+# be referenced by a follow-up GET in the same batch.
+#
+# Two formats supported:
+#   1. application/json — modern, easy to read, recommended (used here)
+#   2. multipart/mixed — original OData v3 wire format, still works
+#
+# Server wiring:
+#   - DefaultODataBatchHandler passed to AddRouteComponents in ProgramExtensionsCustom
+#   - app.UseODataBatching() before app.UseRouting in the pipeline
+@host = 127.0.01:443
+@batchUrl = https://{{host}}/odata/$batch
+
+###
+# @name JsonBatch_CreateChef_CreateRecipe_GetRecipe
+# Demonstrates inter-request dependencies. Operation r2 (POST Recipe) depends on r1 (POST Chef)
+# because the Chef must exist before the Recipe FK can resolve. Operation r3 (GET Recipe) depends on
+# r2. The server runs them in dependency order; if any earlier op fails, dependents short-circuit.
+POST {{batchUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"requests": [
+		{
+			"id": "r1",
+			"method": "POST",
+			"url": "/odata/Chef",
+			"headers": { "content-type": "application/json" },
+			"body": { "Name": "Batch Tester", "Url": "https://batch.test/" }
+		},
+		{
+			"id": "r2",
+			"method": "POST",
+			"url": "/odata/Recipe",
+			"headers": { "content-type": "application/json" },
+			"dependsOn": ["r1"],
+			"body": {
+				"ChefId": 1,
+				"Name": "Batch Recipe",
+				"Url": "https://batch.test/r1",
+				"Yield": 4,
+				"GramPerYield": 350,
+				"CategoryCode": null
+			}
+		},
+		{
+			"id": "r3",
+			"method": "GET",
+			"url": "/odata/Recipe/1?$expand=Chef",
+			"dependsOn": ["r2"]
+		}
+	]
+}
+
+###
+# @name JsonBatch_ParallelReads
+# Independent reads — no dependsOn means the server may execute them in parallel.
+# Useful for fanning out queries against multiple entity sets in a single round-trip.
+POST {{batchUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: application/json
+Cache-Control: no-cache
+
+{
+	"requests": [
+		{ "id": "chefs",      "method": "GET", "url": "/odata/Chef?$top=5&$select=Id,Name" },
+		{ "id": "recipes",    "method": "GET", "url": "/odata/Recipe?$top=5&$select=Id,Name" },
+		{ "id": "categories", "method": "GET", "url": "/odata/CategoryCode?$top=5" }
+	]
+}
+
+###
+# @name MultipartBatch_OriginalFormat
+# Same idea as the JSON batch, but using OData's original multipart/mixed wire format.
+# Some legacy OData clients only speak this — the server accepts both.
+POST {{batchUrl}} HTTP/1.1
+Host: {{host}}
+Content-Type: multipart/mixed; boundary=batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Cache-Control: no-cache
+
+--batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+GET /odata/Chef?$top=3 HTTP/1.1
+Host: {{host}}
+
+--batch_36522ad7-fc75-4b56-8c71-56071383e77b
+Content-Type: application/http
+Content-Transfer-Encoding: binary
+
+GET /odata/Recipe?$top=3 HTTP/1.1
+Host: {{host}}
+
+--batch_36522ad7-fc75-4b56-8c71-56071383e77b--

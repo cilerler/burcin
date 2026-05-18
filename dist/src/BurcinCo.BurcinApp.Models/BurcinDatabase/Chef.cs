@@ -1,51 +1,37 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace BurcinCo.BurcinApp.Models.BurcinDatabase
 {
-    [Table(nameof(Chef))]
-    public partial class Chef
-    {
-	    public Chef()
-	    {
-		    Recipes = new HashSet<Recipe>();
-	    }
+	[Table("Chef", Schema = "Recipe")]
+	[Index(nameof(SoftDelete), nameof(ModifiedAt), Name = "IX_Chef_SoftDelete_ModifiedAt")]
+	public partial class Chef
+	{
+		[Key]
+		public long Id { get; set; }
 
-	    [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public long Id { get; set; }
+		public Guid RowGuid { get; set; }
 
-        [ConcurrencyCheck]
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        [Column(TypeName="UNIQUEIDENTIFIER ROWGUIDCOL")]
-        public Guid RowGuid { get; set; }
+		public byte[] RowVersion { get; set; } = null!;
 
-        [Timestamp]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public byte[] RowVersion { get; set; }
+		public DateTime CreatedAt { get; set; }
 
-        [Required]
-        [DataType(DataType.DateTime)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime CreatedAt { get; set; }
+		public DateTime ModifiedAt { get; set; }
 
-        [Required]
-        [DataType(DataType.DateTime)]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public DateTime ModifiedAt { get; set; }
+		[StringLength(261)]
+		public string ModifiedBy { get; set; } = null!;
 
-        [Required]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-        public bool SoftDelete { get; set; }
+		public bool SoftDelete { get; set; }
 
-        [Required, StringLength(50), MaxLength(50)]
-		public string Name { get; set; }
+		[StringLength(50)]
+		public string Name { get; set; } = null!;
 
-		public string Url { get; set; }
+		public string Url { get; set; } = null!;
 
 		[InverseProperty(nameof(Recipe.Chef))]
-        public virtual ICollection<Recipe> Recipes { get; set; }
+		public virtual ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
 	}
 }

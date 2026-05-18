@@ -7,12 +7,13 @@
 	</PropertyGroup>
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);OData;EntityFramework;CacheSqlServer;CacheRedis;</DefineConstants>
+		<DefineConstants>$(DefineConstants);ODataServices;EntityFrameworkScaffold;CacheSqlServer;CacheRedis;Sample;</DefineConstants>
 		<!-- Reference https://github.com/dotnet/templating/issues/1438 -->
-		<OData>true</OData>
-		<EntityFramework>true</EntityFramework>
+		<ODataServices>true</ODataServices>
+		<EntityFrameworkScaffold>true</EntityFrameworkScaffold>
 		<CacheSqlServer>true</CacheSqlServer>
 		<CacheRedis>true</CacheRedis>
+		<Sample>true</Sample>
 	</PropertyGroup>
 	<!--#endif-->
 
@@ -21,16 +22,12 @@
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" />
 
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-		<!-- <PackageReference Include="Microsoft.Extensions.Hosting" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" /> -->
 		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Condition="'$(CacheSqlServer)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Condition="'$(CacheRedis)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Common" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.ResourceUtilization" />
-		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
 		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
@@ -57,7 +54,7 @@
 		<PackageReference Include="DocFx.Plugins.PlantUml" />
 	</ItemGroup>
 	<!--#endif-->
-	<!--#if (EntityFramework)-->
+	<!--#if (EntityFrameworkScaffold)-->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
@@ -96,10 +93,51 @@
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock.Redis\Ruya.Services.DistributedLock.Redis.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock\Ruya.Services.DistributedLock.csproj" />
 	</ItemGroup>
+
+	<!--#if (EntityFrameworkScaffold)-->
 	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj">
 			<PrivateAssets>All</PrivateAssets>
 		</ProjectReference>
-		<ProjectReference Include="..\BurcinCo.BurcinApp.Domain\BurcinCo.BurcinApp.Domain.csproj" />
 	</ItemGroup>
+	<!--#endif-->
+
+	<!--#if (Sample)-->
+	<!-- Broker side of the reliable-messaging stack. Persistence side (EF stores, interceptor, model)
+	     lives in Data. Host owns: the broker provider (RabbitMQ), the outbound dispatcher that drains
+	     Outbox rows to the broker, and the AddReliableMessaging() composition root that Data builds onto. -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Ruya.Services.MessageQueue" />
+		<PackageReference Include="Ruya.Services.MessageQueue.RabbitMq" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging.MessageQueue" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue\Ruya.Services.MessageQueue.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue.RabbitMq\Ruya.Services.MessageQueue.RabbitMq.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging.MessageQueue\Ruya.Services.ReliableMessaging.MessageQueue.csproj" />
+	</ItemGroup>
+	<!--#endif-->
+
+	<!-- Reference modules. All ship in the image; runtime activation per deployment is gated by
+	     Microsoft.FeatureManagement flags (Modules.Recipe, Modules.Nutrition, Modules.Sourcing)
+	     checked in ProgramExtensionsCustom.cs. Module projects depend on the shared DbContext
+	     (Data) and the EF-backed Models, so they're only present when EntityFramework is enabled.
+	     Each module's sibling Abstractions csproj is referenced explicitly alongside the implementation
+	     — Host composes the in-process IRecipeService / ISourcingService bindings and the cross-module
+	     HTTP clients (in consuming modules) implement the same contract from Abstractions alone.
+	     All reference modules are Sample-gated — Sample=off produces a bring-your-own-modules skeleton. -->
+	<!--#if (Sample)-->
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe\BurcinCo.BurcinApp.Modules.Recipe.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe.Abstractions\BurcinCo.BurcinApp.Modules.Recipe.Abstractions.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Nutrition\BurcinCo.BurcinApp.Modules.Nutrition.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Sourcing\BurcinCo.BurcinApp.Modules.Sourcing.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.csproj" />
+	</ItemGroup>
+	<!--#endif-->
 </Project>

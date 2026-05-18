@@ -11,10 +11,18 @@
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery.Yarp" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
+		<!-- Parity-with-Host default-services surface: feature flags, hybrid cache, resource-monitoring
+		     health checks, AppEnvironmentResponseHeaders middleware. Gateway uses the same template-default
+		     ProgramExtensions shape as Host so the "10 projects look the same" principle holds. -->
+		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Common" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.ResourceUtilization" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(Configuration)' == 'Release'">
 		<PackageReference Include="Ruya.AspNetCore.Diagnostics" />
+		<PackageReference Include="Ruya.AspNetCore.Middleware" />
 		<PackageReference Include="Ruya.Diagnostics" />
 		<PackageReference Include="Ruya.Extensions.Configuration" />
 		<PackageReference Include="Ruya.Extensions.Hosting" />
@@ -28,6 +36,7 @@
 
 	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Diagnostics\Ruya.AspNetCore.Diagnostics.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Middleware\Ruya.AspNetCore.Middleware.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Diagnostics\Ruya.Diagnostics.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Primitives\Ruya.Primitives.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Configuration\Ruya.Extensions.Configuration.csproj" />

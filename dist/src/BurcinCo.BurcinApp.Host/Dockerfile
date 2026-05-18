@@ -19,10 +19,6 @@ COPY ["Directory.Build.props", "./"]
 COPY ["Directory.Build.targets", "./"]
 COPY ["global.json", "./"]
 COPY ["nuget.config","./"]
-COPY ["src/BurcinCo.BurcinApp.Models/BurcinCo.BurcinApp.Models.csproj","src/BurcinCo.BurcinApp.Models/"]
-COPY ["src/BurcinCo.BurcinApp.Data/BurcinCo.BurcinApp.Data.csproj","src/BurcinCo.BurcinApp.Data/"]
-COPY ["src/BurcinCo.BurcinApp.Domain/BurcinCo.BurcinApp.Domain.csproj","src/BurcinCo.BurcinApp.Domain/"]
-COPY ["src/BurcinCo.BurcinApp.Migrations/BurcinCo.BurcinApp.Migrations.csproj","src/BurcinCo.BurcinApp.Migrations/"]
 COPY ["src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj","src/BurcinCo.BurcinApp.Host/"]
 RUN dotnet restore "./src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj" -p:Configuration=Release
 COPY . .

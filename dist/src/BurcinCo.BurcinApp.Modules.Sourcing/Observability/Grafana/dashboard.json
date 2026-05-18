@@ -1,0 +1,19 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Stub Grafana dashboard for Modules.Sourcing. Populate panels for: sourcing.ingredient_quote.requested/sent/response_received/failed (Counter), outbox.dispatched_total / outbox.failures_total / outbox.dispatch_duration (from Ruya.Services.ReliableMessaging), inbox dedup hit-rate, DLQ depth (from RabbitMQ exporter for {topic}.dlq queues). Drives off the meter named in BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Constants.Metrics.MeterName.",
+  "editable": true,
+  "panels": [],
+  "schemaVersion": 39,
+  "tags": ["module:sourcing", "burcin"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "title": "Modules.Sourcing — overview (stub)",
+  "uid": "burcin-modules-sourcing-overview"
+}

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<UserSecretsId>BurcinCo.BurcinApp.Modules.Recipe</UserSecretsId>
+		<Version>0.1</Version>
+	</PropertyGroup>
+
+	<!--#if (TemplateEditMode)-->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);ODataServices;</DefineConstants>
+		<ODataServices>true</ODataServices>
+	</PropertyGroup>
+	<!--#endif-->
+
+	<!-- Module ships ASP.NET Core endpoints via MapXxxApi. Use FrameworkReference instead of the Web SDK
+	     (modules are libraries that get added to Host; no launchSettings.json or wwwroot). -->
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe.Abstractions\BurcinCo.BurcinApp.Modules.Recipe.Abstractions.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
+	</ItemGroup>
+
+</Project>

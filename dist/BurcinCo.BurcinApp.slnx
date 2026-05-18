@@ -13,16 +13,44 @@
 		<File Path="nuget.config" />
 	</Folder>
 	<Folder Name="/src/">
+		<!--#if (EntityFrameworkScaffold) -->
+		<!-- Shared persistence: entities, DbContext, single migrations project. -->
 		<Project Path="src/BurcinCo.BurcinApp.Models/BurcinCo.BurcinApp.Models.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.Data/BurcinCo.BurcinApp.Data.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.Migrations/BurcinCo.BurcinApp.Migrations.csproj" />
-		<Project Path="src/BurcinCo.BurcinApp.Domain/BurcinCo.BurcinApp.Domain.csproj" />
+		<!--#endif -->
+
+		<!--#if (Sample) -->
+		<!-- Reference modules. Each module is a pair of csprojs: the implementation +
+		     a sibling `*.Abstractions` csproj holding the public cross-module contract (interfaces,
+		     requests, responses, events). Modules that consume another module ProjectReference ONLY
+		     its sibling Abstractions csproj, never the implementation — the compiler enforces the
+		     boundary. Folder hierarchy inside the implementation:
+		       Modules.Recipe/Catalog/{Recipe,Chef,Category}/...
+		       Modules.Nutrition/Tracking/NutritionFact/{...,Clients/RecipeClient.cs}
+		     Host adds them as ProjectReferences. Runtime activation per deployment is gated by
+		     Microsoft.FeatureManagement flags (Modules.Recipe, Modules.Nutrition, Modules.Sourcing).
+		     All reference modules are Sample-gated — Sample=off produces a bring-your-own-modules
+		     skeleton with EF infrastructure (Models/Data/Migrations) but no demo modules. -->
+		<Project Path="src/BurcinCo.BurcinApp.Modules.Recipe/BurcinCo.BurcinApp.Modules.Recipe.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Modules.Recipe.Abstractions/BurcinCo.BurcinApp.Modules.Recipe.Abstractions.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Modules.Nutrition/BurcinCo.BurcinApp.Modules.Nutrition.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Modules.Sourcing/BurcinCo.BurcinApp.Modules.Sourcing.csproj" />
+		<Project Path="src/BurcinCo.BurcinApp.Modules.Sourcing.Abstractions/BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.csproj" />
+		<!--#endif -->
+
 		<Project Path="src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj" />
 	</Folder>
 	<Folder Name="/tests/">
-		<Project Path="tests/BurcinCo.BurcinApp.AppHost.Tests/BurcinCo.BurcinApp.AppHost.Tests.csproj" />
-		<Project Path="tests/BurcinCo.BurcinApp.Domain.Tests/BurcinCo.BurcinApp.Domain.Tests.csproj" />
+		<!--#if (Sample) -->
+		<!-- All test projects are Sample-gated. The integration tests exercise the demo modules;
+		     AppHost.E2E.Tests exercises the demo's HTTP surface. Sample=off → bring your own tests. -->
+		<Project Path="tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/BurcinCo.BurcinApp.AppHost.E2E.Tests.csproj" />
+		<Project Path="tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.csproj" />
+		<Project Path="tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests.csproj" />
+		<Project Path="tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.csproj" />
+		<!--#endif -->
 	</Folder>
 </Solution>

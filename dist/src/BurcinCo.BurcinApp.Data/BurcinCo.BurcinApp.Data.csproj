@@ -4,17 +4,49 @@
 		<TargetFramework>net10.0</TargetFramework>
 	</PropertyGroup>
 
+	<!--#if (TemplateEditMode)-->
+	<!-- Template-edit-mode only: defines the conditional symbols so the dist source compiles
+	     in the IDE while authoring the template. Stripped at `dotnet new` generation time. -->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);ODataServices;Sample;</DefineConstants>
+		<ODataServices>true</ODataServices>
+		<Sample>true</Sample>
+	</PropertyGroup>
+	<!--#endif-->
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
-		<!--#if (OData)-->
+		<!--#if (ODataServices)-->
 		<PackageReference Include="Microsoft.OData.ModelBuilder" />
 		<PackageReference Include="Microsoft.OData.Edm" />
 		<!--#endif-->
 	</ItemGroup>
+
+	<!--#if (Sample)-->
+	<!-- Reliable-messaging persistence (Outbox/Inbox tables + SaveChangesInterceptor) is owned by Data when
+	     the Sample flag is on. Sourcing demonstrates *using* IOutboxPublisher; the schema and EF wiring
+	     belong to the persistence layer so any module can use reliable-messaging without referencing Sourcing.
+	     The IDbContextConfigurer<BurcinDatabaseDbContext> seam in StartupExtensions is preserved for genuine
+	     future runtime opt-ins, but no longer carries schema. -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Ruya.Services.ReliableMessaging" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging.EntityFrameworkCore" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
+	</PropertyGroup>
+	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging.EntityFrameworkCore\Ruya.Services.ReliableMessaging.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+	<!--#endif-->
 
 	<ItemGroup>
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+	</PropertyGroup>
+
+	<!-- Module's public cross-module contract. Dep-free by design — consumers (sibling modules, the Host,
+	     HTTP clients in other modules' Clients/ folders) reference only this csproj, never the
+	     Modules.Recipe implementation csproj. Anything that needs EF, Microsoft.Extensions, or third-party
+	     packages belongs in the implementation csproj, not here. -->
+
+</Project>

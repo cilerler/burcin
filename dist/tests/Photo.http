@@ -1,0 +1,44 @@
+# Recipe photo signed-URL flow (minimal API).
+#
+# Two-step demo:
+#   1. Client GETs /api/recipes/{id}/photo-url, gets back a signed URL + expiresAt.
+#   2. Client GETs that URL — server validates the token and streams the PNG bytes.
+#
+# Why minimal API and not OData: this isn't entity CRUD. The signed-URL issuer is verb-shaped
+# ("issue a URL for this recipe") and the download endpoint is keyed by an opaque token,
+# not by an entity-set key. Different shapes, both fine without OData's machinery.
+#
+# Token wire-format: {recipeId}.{expiryUnixSeconds}.{hmacBase64Url}
+# The HMAC is computed server-side from a secret in RecipePhotoSettings, so tokens issued by
+# one process / cluster only validate against the same secret.
+@host = 127.0.01:443
+
+###
+# @name IssueSignedUrl (step 1 of 2)
+GET https://{{host}}/api/recipes/1/photo-url HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+# @name DownloadPhoto (step 2 of 2)
+# Replace {token} with the value from the IssueSignedUrl response. The response is a 1x1
+# transparent PNG placeholder; production implementations would stream from blob storage.
+GET https://{{host}}/api/photos/{token} HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+# @name DownloadWithBadToken (expect 404)
+# Demonstrates token validation: malformed / expired / wrong-signature tokens all return 404
+# (we don't reveal which check failed — keeps probing harder for would-be attackers).
+GET https://{{host}}/api/photos/this-is-not-a-valid-token HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+# @name IssueSignedUrlForMissingRecipe (expect 404)
+# Verifies the recipe exists before issuing a URL — otherwise a client could enumerate
+# valid recipe ids by looking at the issuer's response code.
+GET https://{{host}}/api/recipes/99999999/photo-url HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache

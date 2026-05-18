@@ -110,8 +110,8 @@ internal static class ProgramExtensions
 		builder.Services.AddHealthChecks()
 						.AddResourceUtilizationHealthCheck()
 						.AddApplicationLifecycleHealthCheck()
-			.AddCheck<StartupHealthCheck>("Startup", tags: ["startup"])
-#if (EntityFramework)
+						.AddCheck<StartupHealthCheck>("Startup", tags: ["startup"])
+#if (EntityFrameworkScaffold)
 			.AddSqlServer(
 				connectionString: builder.Configuration["ConnectionStrings:MsSqlConnection"]!,
 				name: "Microsoft SQL",

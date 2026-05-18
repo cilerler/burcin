@@ -1,9 +1,16 @@
-@host = localhost:44302
-#--if (OData)
+# Composite-key M:M join entity. Slash-form URL puts both keys as path segments:
+#   /odata/CategoryCodeGroupMapping/{codeId}/{groupId}
+# This shape is wired explicitly via attribute routing on the controller; the canonical OData paren
+# form `/odata/CategoryCodeGroupMapping(CategoryCodeId=1,CategoryGroupId=2)` also works as alternate
+# (registered via convention from the EDM HasKey declaration).
+#
+# No PUT or PATCH on this entity: composite-key columns are immutable (changing them is a different
+# row — delete-then-create), audit columns are DB-managed, and there are no other mutable user
+# fields. Also no SoftDelete column: the table has a cascading FK so its lifecycle is parent-driven,
+# which means DELETE is unconditionally hard (cascade from parent removes children — no soft-delete
+# trigger here, unlike Chef/CategoryCode/CategoryGroup).
+@host = 127.0.01:443
 @baseUrl = https://{{host}}/odata
-#--else
-@baseUrl = https://{{host}}/api
-#--endif
 @entitySet = CategoryCodeGroupMapping
 @finalUrl = {{baseUrl}}/{{entitySet}}
 
@@ -32,39 +39,14 @@ Host: {{host}}
 Cache-Control: no-cache
 
 ###
-# @name ReadRecordById
-GET {{finalUrl}}(1) HTTP/1.1
+# @name ReadByCompositeKey
+GET {{finalUrl}}/1/1 HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
-
-# ====================================================================== Can not update SoftDelete record after the value set to `true`
-
-###
-# @name UpdateRecord
-PATCH {{finalUrl}}(1) HTTP/1.1
-Host: {{host}}
-Content-Type: application/json; charset=utf-8
-Cache-Control: no-cache
-
-{
-	"CategoryCodeId": 4
-}
-
-###
-# @name FullyUpdateRecord					// should throw an error (expected)
-PUT {{finalUrl}}(2) HTTP/1.1
-Host: {{host}}
-Content-Type: application/json; charset=utf-8
-Cache-Control: no-cache
-
-{
-	"Id": 2,
-	"CategoryCodeId": 4,
-	"CategoryGroupId": 2
-}
 
 ###
 # @name DeleteRecord
-DELETE {{finalUrl}}(3) HTTP/1.1
+# DELETE honors If-Match — sending a stale ETag returns 412 Precondition Failed.
+DELETE {{finalUrl}}/1/1 HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache

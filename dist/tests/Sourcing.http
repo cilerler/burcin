@@ -1,0 +1,31 @@
+# Sourcing is the only module that exposes minimal-API endpoints (not OData). RequestQuote is a
+# command, not entity CRUD — it kicks off an async outbox-→-broker-→-supplier flow that ultimately
+# fills in an IngredientQuote row. POST returns 202 Accepted with a Location header pointing to
+# /api/sourcing/quotes/{id}; poll that to see the quote state transition (Pending → Received).
+@host = 127.0.01:443
+@baseUrl = https://{{host}}/api/sourcing/quotes
+
+###
+# @name RequestQuote
+# SupplierKey must match an entry under
+#   Modules:Sourcing:Procurement:IngredientSupply:Clients:Suppliers:<key>:Url
+# in appsettings (Development includes "test-supplier" pointing at the local stub).
+POST {{baseUrl}}/ HTTP/1.1
+Host: {{host}}
+Content-Type: application/json; charset=utf-8
+Cache-Control: no-cache
+
+{
+	"SupplierKey": "test-supplier",
+	"RecipeId": 1,
+	"Ingredients": [
+		{ "Name": "spaghetti", "Quantity": 400, "Unit": "g" },
+		{ "Name": "pancetta",  "Quantity": 150, "Unit": "g" }
+	]
+}
+
+###
+# @name GetQuoteById
+GET {{baseUrl}}/1 HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache

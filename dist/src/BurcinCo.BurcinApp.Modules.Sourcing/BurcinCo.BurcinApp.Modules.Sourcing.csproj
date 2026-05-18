@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<UserSecretsId>BurcinCo.BurcinApp.Modules.Sourcing</UserSecretsId>
+		<Version>0.1</Version>
+	</PropertyGroup>
+
+	<!-- Module ships ASP.NET Core endpoints + background workers. Library, not entry point. -->
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+		<PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
+	</ItemGroup>
+
+	<!-- Reliable-messaging USE site. Sourcing demonstrates *consuming* the pattern: it injects
+	     IOutboxPublisher (from Ruya.Services.ReliableMessaging), publishes IngredientQuoteRequestedEvent,
+	     and subscribes via SubscribeWithInbox (from Ruya.Services.ReliableMessaging.MessageQueue).
+	     The Outbox/Inbox schema + EF stores are owned by Data — not duplicated here. -->
+	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+		<PackageReference Include="Ruya.Services.MessageQueue" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging.MessageQueue" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
+	</PropertyGroup>
+	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
+
+	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue\Ruya.Services.MessageQueue.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging.MessageQueue\Ruya.Services.ReliableMessaging.MessageQueue.csproj" />
+	</ItemGroup>
+
+</Project>

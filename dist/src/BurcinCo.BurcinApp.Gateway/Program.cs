@@ -1,12 +1,8 @@
 using System;
 using System.Threading.Tasks;
-
-using BurcinCo.BurcinApp.Gateway.Extensions;
-
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-
 using Ruya.Primitives;
 
 namespace BurcinCo.BurcinApp.Gateway;
@@ -24,7 +20,7 @@ internal static partial class Program
 		await Startup.ValidateAndLogStartupInfoAsync();
 
 		// Remove orchestrator-injected partial Console config that overrides
-		// appsettings Console:LogLevel section (Aspire/DCP injects LOGGING__CONSOLE__FORMATTERNAME).
+		// appsettings Console:LogLevel section (Aspire/DCP injects LOGGING__CONSOLE__FORMATTERNAME)
 		Environment.SetEnvironmentVariable("LOGGING__CONSOLE__FORMATTERNAME", null);
 
 		var builder = WebApplication.CreateBuilder(args);
@@ -41,7 +37,7 @@ internal static partial class Program
 
 		using (_beginInstanceScope(app.Logger, Guid.NewGuid().ToString()))
 		{
-			LogGatewayStartup(app.Logger, appEnvironment.EnvironmentName, Startup.EnvironmentName);
+			LogApplicationStartup(app.Logger, appEnvironment.EnvironmentName, Startup.EnvironmentName);
 			await app.RunAsync();
 		}
 	}
@@ -49,6 +45,6 @@ internal static partial class Program
 	[LoggerMessage(
 		EventId = 1000,
 		Level = LogLevel.Information,
-		Message = "Gateway environment: {AppEnvironment} | Startup environment: {StartupEnvironment}")]
-	private static partial void LogGatewayStartup(ILogger logger, string appEnvironment, string startupEnvironment);
+		Message = "Application environment: {AppEnvironment} | Startup environment: {StartupEnvironment}")]
+	private static partial void LogApplicationStartup(ILogger logger, string appEnvironment, string startupEnvironment);
 }

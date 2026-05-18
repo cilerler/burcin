@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+
+		<IsPackable>false</IsPackable>
+
+		<IsTestProject>true</IsTestProject>
+		<OutputType>Exe</OutputType>
+		<EnableMSTestRunner>true</EnableMSTestRunner>
+
+		<TestingExtensionsProfile>AllMicrosoft</TestingExtensionsProfile>
+	</PropertyGroup>
+
+	<!--#if (TemplateEditMode)-->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Sample;</DefineConstants>
+		<Sample>true</Sample>
+	</PropertyGroup>
+	<!--#endif-->
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+		<PackageReference Include="MSTest" />
+		<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+		<PackageReference Include="Moq" />	
+		<PackageReference Include="Aspire.Hosting.Testing" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference
+			Include="..\..\src\BurcinCo.BurcinApp.AppHost\BurcinCo.BurcinApp.AppHost.csproj" />
+	</ItemGroup>
+
+</Project>

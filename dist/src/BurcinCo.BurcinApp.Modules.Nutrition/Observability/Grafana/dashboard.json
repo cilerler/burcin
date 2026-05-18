@@ -1,0 +1,12 @@
+{
+  "annotations": { "list": [] },
+  "description": "Stub Grafana dashboard for Modules.Nutrition. Populate panels for: nutrition.fact.created/updated/deleted, nutrition.recipe_snapshot.applied (tags: outcome), nutrition.recipe_snapshot.duplicate_skipped, outbox.* / inbox.* per-context. Drives off the meter named in Constants.Metrics.MeterName.",
+  "editable": true,
+  "panels": [],
+  "schemaVersion": 39,
+  "tags": ["module:nutrition", "burcin"],
+  "templating": { "list": [] },
+  "time": { "from": "now-1h", "to": "now" },
+  "title": "Modules.Nutrition — overview (stub)",
+  "uid": "burcin-modules-nutrition-overview"
+}

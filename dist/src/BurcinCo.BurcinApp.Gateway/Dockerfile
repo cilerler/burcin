@@ -7,6 +7,10 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 ARG VERSION
+#--if (GitHubTemplates)
+RUN --mount=type=secret,id=GITHUB_PAT \
+    dotnet nuget add source https://nuget.pkg.github.com/burcinco/index.json -n "github" -u "docker" -p "$(cat /run/secrets/GITHUB_PAT)" --store-password-in-clear-text
+#--endif
 WORKDIR /build
 COPY ["Directory.Packages.props", "./"]
 COPY ["Directory.Build.props", "./"]

@@ -1,0 +1,19 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Stub Grafana dashboard for Modules.Recipe. Populate panels for: recipe.recipe.created/updated/deleted, recipe.chef.created/updated/deleted, outbox.* (pending count, dispatched, failures), inbox.* (received, processed). Drives off the meter named in Constants.Metrics.MeterName.",
+  "editable": true,
+  "panels": [],
+  "schemaVersion": 39,
+  "tags": ["module:recipe", "burcin"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "title": "Modules.Recipe — overview (stub)",
+  "uid": "burcin-modules-recipe-overview"
+}

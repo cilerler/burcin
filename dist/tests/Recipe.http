@@ -1,9 +1,5 @@
-@host = localhost:44302
-#--if (OData)
+@host = 127.0.01:443
 @baseUrl = https://{{host}}/odata
-#--else
-@baseUrl = https://{{host}}/api
-#--endif
 @entitySet = Recipe
 @finalUrl = {{baseUrl}}/{{entitySet}}
 
@@ -21,9 +17,12 @@ Content-Type: application/json; charset=utf-8
 Cache-Control: no-cache
 
 {
-	"ChefId": 2,
+	"ChefId": 1,
 	"Name": "Sourdough Starter",
-	"Url": "https://www.kingarthurflour.com/recipes/sourdough-starter-recipe"
+	"Url": "https://www.kingarthurflour.com/recipes/sourdough-starter-recipe",
+	"Yield": 4,
+	"GramPerYield": 350,
+	"CategoryCode": null
 }
 
 ###
@@ -34,15 +33,21 @@ Cache-Control: no-cache
 
 ###
 # @name ReadRecordById
-GET {{finalUrl}}(1) HTTP/1.1
+GET {{finalUrl}}/1 HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
-# ====================================================================== Can not update SoftDelete record after the value set to `true`
+###
+# @name ReadWithExpandChef
+GET {{finalUrl}}/1?$expand=Chef HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
 
 ###
-# @name UpdateRecord
-PATCH {{finalUrl}}(1) HTTP/1.1
+# @name UpdateRecord (partial — only Url)
+# Optional: send `If-Match: <etag>` to assert the row hasn't changed since you last read it.
+# Server responds 412 Precondition Failed if the etag doesn't match.
+PATCH {{finalUrl}}/1 HTTP/1.1
 Host: {{host}}
 Content-Type: application/json; charset=utf-8
 Cache-Control: no-cache
@@ -53,20 +58,31 @@ Cache-Control: no-cache
 
 ###
 # @name FullyUpdateRecord
-PUT {{finalUrl}}(2) HTTP/1.1
+PUT {{finalUrl}}/2 HTTP/1.1
 Host: {{host}}
 Content-Type: application/json; charset=utf-8
 Cache-Control: no-cache
 
 {
 	"Id": 2,
-	"ChefId": 2,
+	"ChefId": 1,
 	"Name": "How to feed a sourdough starter",
-	"Url": "https://www.youtube.com/watch?v=wvbxPWDE9vg"
+	"Url": "https://www.youtube.com/watch?v=wvbxPWDE9vg",
+	"Yield": 1,
+	"GramPerYield": 100,
+	"CategoryCode": null
 }
 
 ###
 # @name DeleteRecord
-DELETE {{finalUrl}}(3) HTTP/1.1
+DELETE {{finalUrl}}/3 HTTP/1.1
+Host: {{host}}
+Cache-Control: no-cache
+
+###
+# @name GetSummary (entity-bound OData function)
+# Returns a derived RecipeSummary complex type joining Recipe + Chef + CategoryCode in one call.
+# Cleaner than $expand for client-rendered "card" views — single shape, computed fields.
+GET {{finalUrl}}/1/GetSummary HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
