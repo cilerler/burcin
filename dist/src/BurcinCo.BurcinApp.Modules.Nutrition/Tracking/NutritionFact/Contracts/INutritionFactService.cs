@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using NutritionFactEntity = BurcinCo.BurcinApp.Models.Zignec.NutritionFact;
+using NutritionFactEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.NutritionFact;
 
 namespace BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Contracts;
 

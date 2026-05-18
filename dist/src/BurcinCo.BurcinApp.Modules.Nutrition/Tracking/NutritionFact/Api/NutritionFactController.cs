@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
-using NutritionFactEntity = BurcinCo.BurcinApp.Models.Zignec.NutritionFact;
+using NutritionFactEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.NutritionFact;
 
 namespace BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Api;
 

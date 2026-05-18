@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ChefEntity = BurcinCo.BurcinApp.Models.Zignec.Chef;
+using ChefEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.Chef;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef.Contracts;
 

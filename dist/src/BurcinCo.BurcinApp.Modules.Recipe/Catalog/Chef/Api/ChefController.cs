@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
-using ChefEntity = BurcinCo.BurcinApp.Models.Zignec.Chef;
+using ChefEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.Chef;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef.Api;
 

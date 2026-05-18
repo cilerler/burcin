@@ -8,13 +8,33 @@ param(
 
 Push-Location $PSScriptRoot
 try {
+	# Load secrets/personal values from .env (gitignored). See .env.example for the schema.
+	$envFile = Join-Path $PSScriptRoot ".env"
+	if (-not (Test-Path $envFile)) {
+		throw "Missing tests/.env. Copy tests/.env.example to tests/.env and fill in your values."
+	}
+	$envValues = @{}
+	foreach ($line in Get-Content $envFile) {
+		if ($line -match '^\s*#' -or $line -match '^\s*$') { continue }
+		if ($line -match '^\s*([A-Z_][A-Z0-9_]*)\s*=\s*(.*?)\s*$') {
+			$value = $matches[2]
+			if ($value -match '^"(.*)"$' -or $value -match "^'(.*)'$") { $value = $matches[1] }
+			$envValues[$matches[1]] = $value
+		}
+	}
+	$required = @('ORGANIZATION_LEGAL_NAME', 'ORGANIZATION_NAME', 'REPOSITORY_NAME', 'PROJECT_NAME', 'AUTHORS', 'DATABASE_NAME')
+	$missing = $required | Where-Object { -not $envValues.ContainsKey($_) -or [string]::IsNullOrWhiteSpace($envValues[$_]) }
+	if ($missing) {
+		throw "Missing or empty required key(s) in tests/.env"
+	}
+
 	Set-Location ".\..";
-	$organizationLegalName = "OneDeveloperWay, Inc.";
-	$organizationName = "OneDeveloperWay";
-	$repositoryName = "zignec"
-	$projectName = "Zignec";
-	$authors = "Cengiz Ilerler";
-	$databaseName = "Zignec";
+	$organizationLegalName = $envValues['ORGANIZATION_LEGAL_NAME']
+	$organizationName = $envValues['ORGANIZATION_NAME']
+	$repositoryName = $envValues['REPOSITORY_NAME']
+	$projectName = $envValues['PROJECT_NAME']
+	$authors = $envValues['AUTHORS']
+	$databaseName = $envValues['DATABASE_NAME']
 	$folderPath = ".\tests\TestResults.ignore";
 	if ($Versioned) {
 		$datetime = $(get-date -Format "yyyyMMddHHmmss");
@@ -54,7 +74,7 @@ try {
 	--RepositoryUrl "https://github.com/$organizationName/$repositoryName" `
 	--SkipRestore;
 
-	Remove-Item -Recurse -Force ".\zignec\nuget.config";
+	Remove-Item -Recurse -Force ".\$repositoryName\nuget.config";
 }
 finally {
 	dotnet new uninstall Burcin.Templates.CSharp; # .\dist;

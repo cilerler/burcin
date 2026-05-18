@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using CategoryCodeEntity = BurcinCo.BurcinApp.Models.Zignec.CategoryCode;
-using CategoryGroupEntity = BurcinCo.BurcinApp.Models.Zignec.CategoryGroup;
-using CategoryCodeGroupMappingEntity = BurcinCo.BurcinApp.Models.Zignec.CategoryCodeGroupMapping;
+using CategoryCodeEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.CategoryCode;
+using CategoryGroupEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.CategoryGroup;
+using CategoryCodeGroupMappingEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.CategoryCodeGroupMapping;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category.Contracts;
 

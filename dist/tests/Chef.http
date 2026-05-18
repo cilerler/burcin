@@ -19,8 +19,8 @@ Content-Type: application/json; charset=utf-8
 Cache-Control: no-cache
 
 {
-	"Name": "Cengiz Ilerler",
-	"Url": "https://cengiz.dev/"
+	"Name": "Test Chef",
+	"Url": "https://example.com/"
 }
 
 ###
@@ -101,7 +101,7 @@ Cache-Control: no-cache
 
 ###
 # @name FilterWithAnd
-GET {{finalUrl}}?$count=true&$filter=Name eq 'Cengiz Ilerler' and Url eq 'https://cengiz.dev' HTTP/1.1
+GET {{finalUrl}}?$count=true&$filter=Name eq 'Test Chef' and Url eq 'https://example.com' HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 
@@ -119,7 +119,7 @@ Cache-Control: no-cache
 
 ###
 # @name FilterWithContains
-GET {{finalUrl}}?$top=1&$filter=Name eq 'Cengiz Ilerler' and contains(Url,'http') HTTP/1.1
+GET {{finalUrl}}?$top=1&$filter=Name eq 'Test Chef' and contains(Url,'http') HTTP/1.1
 Host: {{host}}
 Cache-Control: no-cache
 

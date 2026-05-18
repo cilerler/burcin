@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
-using CategoryCodeGroupMappingEntity = BurcinCo.BurcinApp.Models.Zignec.CategoryCodeGroupMapping;
+using CategoryCodeGroupMappingEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.CategoryCodeGroupMapping;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category.Api;
 

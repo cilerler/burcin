@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using Microsoft.EntityFrameworkCore;
-using CategoryCodeEntity = BurcinCo.BurcinApp.Models.Zignec.CategoryCode;
+using CategoryCodeEntity = BurcinCo.BurcinApp.Models.BurcinDatabase.CategoryCode;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category.Api;
 

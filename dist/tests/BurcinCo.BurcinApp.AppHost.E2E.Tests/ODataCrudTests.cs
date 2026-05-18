@@ -266,7 +266,7 @@ public sealed class ODataCrudTests
 		appHost.Services.AddLogging(logging =>
 		{
 			logging.SetMinimumLevel(LogLevel.Warning); // Less noisy than the smoke-test in WebTests.
-			logging.AddFilter("OneDeveloperWay.", LogLevel.Information);
+			logging.AddFilter("BurcinCo.", LogLevel.Information);
 		});
 
 		var app = await appHost.BuildAsync().WaitAsync(DefaultTimeout);
