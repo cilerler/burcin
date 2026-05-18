@@ -150,7 +150,7 @@ jobs:
 
       - name: Create tag
         if: steps.extract_metadata_environment.outputs.isProduction == false
-        uses: actions/github-script@v6
+        uses: actions/github-script@v9
         with:
           script: |
             github.rest.git.createRef({
