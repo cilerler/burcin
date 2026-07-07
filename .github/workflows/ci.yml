@@ -163,7 +163,7 @@ jobs:
       - name: Create Release
         if: steps.extract_metadata_environment.outputs.isProduction == true
         id: create_release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         with:
