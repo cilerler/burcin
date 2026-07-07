@@ -130,15 +130,14 @@ jobs:
           Add-Content $env:GITHUB_OUTPUT "isDevelopment=$isDevelopment"
           Add-Content $env:GITHUB_ENV "version=$version"
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+      - name: Setup NuGet CLI
+        uses: NuGet/setup-nuget@v2
         with:
-          dotnet-version: '10.0.x'
+          nuget-version: '6.x'
 
       - name: Add PackageManager
         run: |
             dotnet nuget add source https://nuget.pkg.github.com/cilerler/index.json -n github -u ${{github.actor}} -p ${{secrets.PAT}} --store-password-in-clear-text
-
 
       - name: Pack
         run: nuget pack $projectFile -NonInteractive -OutputDirectory ${{env.packageOutputPath}} -Verbosity Detailed -version $version -NoDefaultExcludes
