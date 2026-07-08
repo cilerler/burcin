@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
 	<metadata>
 		<id>Burcin.Templates.CSharp</id>
-		<version>10.0.1</version>
+		<version>$version$</version>
 		<description>
 			Boilerplate for .NET 10 Web/Console Application
 		</description>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Packaging-only helper. Packs burcin.nuspec via `dotnet pack` so the build
+       needs no Mono/nuget.exe (both removed from ubuntu-24.04 and absent from the
+       act runner images). See NuGet/Home#4254. This project ships nothing itself:
+       IncludeBuildOutput=false keeps its (empty) assembly out of the package, and
+       NoDefaultExcludes=true preserves the template's dotfiles (.template.config,
+       .github, .vscode, .editorconfig, .gitignore, ...). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NuspecFile>burcin.nuspec</NuspecFile>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+</Project>
