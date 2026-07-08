@@ -143,7 +143,7 @@ jobs:
         run: dotnet pack $projectFile --configuration ${{env.buildConfiguration}} --output ${{env.packageOutputPath}} -p:NuspecProperties="version=$version"
 
       - name: Publish artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: ${{env.packageOutputPath}}/*.nupkg
@@ -186,7 +186,7 @@ jobs:
         run: dotnet nuget push '${{env.packageOutputPath}}/*.nupkg' --skip-duplicate --source "nuget.org" --api-key ${{secrets.NUGET_API_KEY}}
 
       - name: Publish artifacts (output)
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: output
