@@ -173,7 +173,7 @@ internal static class ProgramExtensions
 
 		app.MapPrometheusScrapingEndpoint();
 
-		// Health check endpoints (live/ready/startup triad per melis observability skill).
+		// Health check endpoints (live/ready/startup triad per lillian observability skill).
 		var liveOptions = new HealthCheckOptions { Predicate = _ => false };
 		var readyOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("ready") };
 		var startupOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("startup") };
