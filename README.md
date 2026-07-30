@@ -55,16 +55,16 @@ dotnet new burcin --help
 cd "<PATH>"; #e.g. C:\Users\<USERNAME>\Source\local\<MYPROJECT>
 
 # Full Modular Polylith on .NET 10 (the canonical example):
-dotnet new burcin --name "MyProject" `
-    --OrganizationLegalName "MyOrganization, Inc." --OrganizationName "MyOrganization" --ProjectName "MyApp" `
-    --DatabaseName "MyAppDb" --Authors "Your Name" `
+dotnet new burcin --name "MyFolder" `
+    --OrganizationLegalName "MyOrganization, Inc." --OrganizationName "MyOrganization" --ProjectName "MyProject" `
+    --DatabaseName "MyProjectDb" --Authors "Your Name" `
     --RepositoryUrl "https://github.com/<changeme>/myproject" `
     --EntityFramework --OData --Cache "All" `
     --DocFx --GitHubTemplates --NugetSourceGitHub --NugetSourceAzureDevOps `
     --SkipRestore;
 
 # Minimal scaffold (no EF / no modules / no OData) — useful for stateless services:
-dotnet new burcin --name "MyService" `
+dotnet new burcin --name "MyFolder" `
     --OrganizationLegalName "MyOrganization, Inc." --OrganizationName "MyOrganization" --ProjectName "MyService" `
     --DatabaseName "MyServiceDb" --Authors "Your Name" `
     --SkipRestore;
