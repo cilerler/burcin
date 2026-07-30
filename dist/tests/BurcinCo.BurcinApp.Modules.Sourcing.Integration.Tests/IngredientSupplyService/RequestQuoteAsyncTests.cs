@@ -14,8 +14,7 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.IngredientSupply
 /// <summary>
 /// Producer side of the Sourcing flow: <c>RequestQuoteAsync</c> must persist the IngredientQuote row
 /// and the Outbox event in the same transaction, so a partial failure cannot leave one without the other.
-/// This is the regression net for the Burcin bug we hit during the Modular Polylith arc — the missing
-/// SaveChanges interceptor wiring meant Outbox rows never reached the table.
+/// Guards the SaveChanges interceptor wiring: without it, Outbox rows never reach the table.
 /// </summary>
 [TestClass]
 [TestCategory("Integration")]

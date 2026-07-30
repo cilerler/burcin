@@ -57,7 +57,7 @@ The Host does not migrate at startup — migrations are applied via the EF CLI:
 
 ```pwsh
 $cs = "Server=127.0.0.1,1433;Database=BurcinApp;User Id=sa;Password=PasswordAdmin1!;TrustServerCertificate=true;Encrypt=true"
-dotnet ef migrations add InitialBurcin `
+dotnet ef migrations add InitialBurcinApp `
     --context BurcinDatabaseDbContext `
     --project src/BurcinCo.BurcinApp.Migrations `
     --startup-project src/BurcinCo.BurcinApp.Host `
@@ -91,20 +91,23 @@ modules running in their own pods are reached through that HTTP path.
 ```pwsh
 dotnet build BurcinCo.BurcinApp.slnx
 # Tests run as native MTP executables (not via VSTest); each test project's exe is in artifacts/bin.
-.\artifacts\bin\BurcinCo.BurcinApp.Modules.Recipe.Tests\debug\BurcinCo.BurcinApp.Modules.Recipe.Tests.exe
-.\artifacts\bin\BurcinCo.BurcinApp.Modules.Nutrition.Tests\debug\BurcinCo.BurcinApp.Modules.Nutrition.Tests.exe
-.\artifacts\bin\BurcinCo.BurcinApp.Modules.Sourcing.Tests\debug\BurcinCo.BurcinApp.Modules.Sourcing.Tests.exe
+.\artifacts\bin\BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests\debug\BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.exe
+.\artifacts\bin\BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests\debug\BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests.exe
+.\artifacts\bin\BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests\debug\BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.exe
+.\artifacts\bin\BurcinCo.BurcinApp.AppHost.E2E.Tests\debug\BurcinCo.BurcinApp.AppHost.E2E.Tests.exe
 ```
 
-Test projects use **MSTest 4** with the `Microsoft.Testing.Platform` runner and **Testcontainers**
-for ephemeral MsSql + RabbitMQ instances. Each module's test project is self-contained — no shared
-fixture project — so module deletion takes its tests with it.
+Test projects use **MSTest 4** with the `Microsoft.Testing.Platform` runner. The module suites use
+**Testcontainers** for ephemeral MsSql + RabbitMQ instances; the E2E suite uses
+`Aspire.Hosting.Testing` to spin up the whole distributed app. Each module's test project is
+self-contained — no shared fixture project — so module deletion takes its tests with it.
 
-| Project | Coverage |
-|---|---|
-| `BurcinCo.BurcinApp.Modules.Recipe.Tests` | Recipe CRUD round-trip, FK-to-Chef, view projection. |
-| `BurcinCo.BurcinApp.Modules.Nutrition.Tests` | Cross-module call: Recipe-not-found, Recipe-found-in-process, Recipe-found-over-HTTP via stubbed `RecipeClient`. |
-| `BurcinCo.BurcinApp.Modules.Sourcing.Tests` | Producer atomic write, Outbox→broker→supplier round-trip, Inbox dedup, poison message → DLQ, case-insensitive deserialize, Sourcing-OFF deployment regression. |
+| Project | Flavor | Coverage |
+|---|---|---|
+| `BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests` | Integration | Recipe CRUD round-trip, FK-to-Chef, view projection. |
+| `BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests` | Integration | Cross-module call: Recipe-not-found, Recipe-found-in-process, Recipe-found-over-HTTP via stubbed `RecipeClient`. |
+| `BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests` | Integration | Producer atomic write, Outbox→broker→supplier round-trip, Inbox dedup, poison message → DLQ, case-insensitive deserialize, Sourcing-OFF deployment regression. |
+| `BurcinCo.BurcinApp.AppHost.E2E.Tests` | E2E | Full Aspire spin-up over HTTP: OData CRUD + PATCH semantics, stale-ETag 412, non-DB entity set parity, bound function `Recipe.GetSummary`, signed-URL photo flow, Sourcing `RequestQuote` 202, health endpoint. |
 
 ## Adding a new module
 

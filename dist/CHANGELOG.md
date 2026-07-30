@@ -84,6 +84,5 @@ Added   > Changed > Deprecated > Removed
 
 
 
-[Unreleased]: https://github.com/cilerler/burcin/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/cilerler/burcin/compare/v0.0.1...v1.0.0
-[1.0.0]: https://github.com/cilerler/burcin/compare/v0.0.1...v1.0.0
+[Unreleased]: (repositoryUrl)/compare/v1.0.0...HEAD
+[1.0.0]: (repositoryUrl)/compare/v0.0.1...v1.0.0

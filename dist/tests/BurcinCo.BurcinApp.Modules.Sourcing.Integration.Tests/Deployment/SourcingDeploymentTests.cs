@@ -10,13 +10,10 @@ using BurcinCo.BurcinApp.Data;
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.Deployment;
 
 /// <summary>
-/// Regression net for Burcin bug #5: <c>AddBurcinDatabaseDbContext</c> conditionally attaches
-/// the <c>OutboxSavingChangesInterceptor</c> only when something has registered it. If a deployment
-/// has Modules.Sourcing OFF (and no other module has wired reliable-messaging), the interceptor
-/// is absent — and the DbContext registration must not throw.
-///
-/// Before the fix, <c>GetRequiredService</c> was used, throwing at host startup. The fix uses
-/// <c>GetService</c> + null check.
+/// <c>AddBurcinDatabaseDbContext</c> attaches the <c>OutboxSavingChangesInterceptor</c> only when
+/// something has registered it. If a deployment has Modules.Sourcing OFF (and no other module has
+/// wired reliable-messaging), the interceptor is absent — and the DbContext registration must not
+/// throw. Resolution goes through <c>GetService</c> + null check, never <c>GetRequiredService</c>.
 /// </summary>
 [TestClass]
 [TestCategory("Integration")]

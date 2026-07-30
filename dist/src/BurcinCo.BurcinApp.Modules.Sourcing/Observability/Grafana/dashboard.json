@@ -6,7 +6,7 @@
   "editable": true,
   "panels": [],
   "schemaVersion": 39,
-  "tags": ["module:sourcing", "burcin"],
+  "tags": ["module:sourcing", "burcinco"],
   "templating": {
     "list": []
   },
@@ -15,5 +15,5 @@
     "to": "now"
   },
   "title": "Modules.Sourcing — overview (stub)",
-  "uid": "burcin-modules-sourcing-overview"
+  "uid": "burcinco-burcinapp-modules-sourcing-overview"
 }

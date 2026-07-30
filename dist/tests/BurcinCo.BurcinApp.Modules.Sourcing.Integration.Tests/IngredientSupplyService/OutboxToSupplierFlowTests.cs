@@ -17,12 +17,12 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.IngredientSupply
 /// <summary>
 /// End-to-end producer flow: <c>RequestQuoteAsync</c> writes an Outbox row, the OutboxProcessor
 /// drains it to RabbitMQ, the <c>QuoteRequestDispatcher</c> worker consumes it and calls the supplier,
-/// the worker updates the <c>IngredientQuote</c> status. This is the regression net for the four Burcin
-/// bugs that broke this exact path during the Modular Polylith arc:
-///   1. Missing <c>OutboxSavingChangesInterceptor</c> wiring (Outbox rows never reached the table).
+/// the worker updates the <c>IngredientQuote</c> status. Four ways this path is known to break, all
+/// covered here:
+///   1. Missing <c>OutboxSavingChangesInterceptor</c> wiring (Outbox rows never reach the table).
 ///   2. Gateway publishing to a fixed exchange while Ruya creates exchange-per-topic.
 ///   3. Gateway publishing raw bodies while Ruya expects MessageEnvelope.
-///   4. Gateway producing PascalCase while Ruya was strict camelCase on read.
+///   4. Gateway producing PascalCase while Ruya is strict camelCase on read.
 /// If any of those regress here, this test goes red.
 /// </summary>
 [TestClass]

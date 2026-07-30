@@ -11,7 +11,7 @@ try {
 	# mssql container has it at /opt/mssql-tools18/bin/sqlcmd. `-b` makes sqlcmd return non-zero on
 	# SQL errors so PowerShell catches them.
 	$triggersSqlPath = Join-Path $PSScriptRoot "triggers.sql";
-	$containerTmpPath = "/tmp/burcin-triggers.sql";
+	$containerTmpPath = "/tmp/burcinapp-triggers.sql";
 	# `BurcinDatabase` is template-substituted to the user's --DatabaseName at generation time.
 	$databaseName = "BurcinDatabase";
 	docker cp $triggersSqlPath "mssql:$containerTmpPath";

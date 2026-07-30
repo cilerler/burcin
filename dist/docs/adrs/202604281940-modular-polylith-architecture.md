@@ -1,4 +1,4 @@
-# ADR: Modular Polylith architecture for Burcin
+# ADR: Modular Polylith architecture for BurcinCo.BurcinApp
 
 - **Status:** Accepted
 - **Date:** 2026-04-28
@@ -6,7 +6,7 @@
 
 ## Context
 
-Burcin is a .NET 10 project template (Aspire-orchestrated, single deployable image, Yarp-fronted) that ships an opinionated shape for new line-of-business apps. The runtime topology we want is **one Docker image deployed to many independent k8s Deployments**, with each Deployment activating only its assigned module via `Microsoft.FeatureManagement` flags. This is neither a classical modular monolith (one process) nor classical microservices (separate codebases + databases) — and the gap between those two off-the-shelf patterns is exactly what this ADR fills.
+BurcinCo.BurcinApp is a .NET 10 line-of-business application (Aspire-orchestrated, single deployable image, Yarp-fronted) built on an opinionated project template. The runtime topology we want is **one Docker image deployed to many independent k8s Deployments**, with each Deployment activating only its assigned module via `Microsoft.FeatureManagement` flags. This is neither a classical modular monolith (one process) nor classical microservices (separate codebases + databases) — and the gap between those two off-the-shelf patterns is exactly what this ADR fills.
 
 Three forces shape the architecture:
 

@@ -4,9 +4,9 @@
   "editable": true,
   "panels": [],
   "schemaVersion": 39,
-  "tags": ["module:nutrition", "burcin"],
+  "tags": ["module:nutrition", "burcinco"],
   "templating": { "list": [] },
   "time": { "from": "now-1h", "to": "now" },
   "title": "Modules.Nutrition — overview (stub)",
-  "uid": "burcin-modules-nutrition-overview"
+  "uid": "burcinco-burcinapp-modules-nutrition-overview"
 }

@@ -6,7 +6,7 @@
   "editable": true,
   "panels": [],
   "schemaVersion": 39,
-  "tags": ["module:recipe", "burcin"],
+  "tags": ["module:recipe", "burcinco"],
   "templating": {
     "list": []
   },
@@ -15,5 +15,5 @@
     "to": "now"
   },
   "title": "Modules.Recipe — overview (stub)",
-  "uid": "burcin-modules-recipe-overview"
+  "uid": "burcinco-burcinapp-modules-recipe-overview"
 }
