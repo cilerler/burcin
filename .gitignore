@@ -459,16 +459,20 @@ Directory.Build.local.props
 # =========================
 # AI Files
 # =========================
-.copilotignore
-.github/copilot-instructions.md
-.github/agents/
-.github/instructions/
-.github/prompts/
-.github/skills/
-AGENTS.md
+CLAUDE.local.md
 CLAUDE.md
+AGENTS.md
 GEMINI.md
+.mcp.json
+.github/agents
+.github/instructions
+.github/prompts
+.github/skills
+.copilotignore
+.claudeignore
+.aiexclude
 .geminiignore
 .claude/
+.agents/
 .agent/
-.mcp.json
+.ai/
