@@ -4,7 +4,21 @@ A **Modular Polylith** built on .NET 10 — a single Docker image, multiple Kube
 runtime activation per module via `Microsoft.FeatureManagement` flags. The same image runs every
 module in dev (one process), and runs ONE module per pod in production.
 
-> Architecture rationale: [docs/adrs/202604281940-modular-polylith-architecture.md](docs/adrs/202604281940-modular-polylith-architecture.md).
+> Architecture rationale: [docs/adrs/](docs/adrs/) — start with the modular-polylith record.
+
+> [!IMPORTANT]
+> **First task in a new project: rewrite the modular-polylith ADR for _this_ app.**
+> Its filename and `Date:` are stamped at generation time, but its **body still describes the
+> template's reference modules**. Until you rewrite it, the ADR claims architectural decisions
+> about modules that do not exist here, and every future reader — including your own tooling —
+> will treat it as fact.
+>
+> Replace the module roster and every rule that names a module with this app's real modules and
+> components. Leave the folder shape below `{Component}/` to the `solution-structure` skill
+> rather than restating it; that is the split that keeps the ADR and the skill from drifting
+> apart. Keep the rules that are genuinely architectural — the module-pair boundary, feature-flag
+> activation, the Gateway webhook edge, the outbox seam — they describe this template's shape and
+> apply to every project generated from it.
 
 ## What's in the box
 

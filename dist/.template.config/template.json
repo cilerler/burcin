@@ -214,6 +214,27 @@
 				"format": "D"
 			}
 		},
+		"AdrStampSource": {
+			"type": "generated",
+			"generator": "now",
+			"parameters": {
+				"format": "yyyyMMddHHmm"
+			}
+		},
+		"AdrStamp": {
+			"type": "derived",
+			"valueSource": "AdrStampSource",
+			"valueTransform": "identity",
+			"fileRename": "000000000000"
+		},
+		"AdrDate": {
+			"type": "generated",
+			"generator": "now",
+			"replaces": "0000-00-00",
+			"parameters": {
+				"format": "yyyy-MM-dd"
+			}
+		},
 		"TemplateEditMode": {
 			"type": "generated",
 			"generator": "constant",

@@ -1,7 +1,7 @@
 # ADR: Modular Polylith architecture for BurcinCo.BurcinApp
 
 - **Status:** Accepted
-- **Date:** 2026-04-28
+- **Date:** 0000-00-00
 - **Authors:** Cengiz Ilerler
 
 ## Context
