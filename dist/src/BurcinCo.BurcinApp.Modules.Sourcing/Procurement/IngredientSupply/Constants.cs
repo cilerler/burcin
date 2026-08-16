@@ -4,9 +4,9 @@ internal static class Constants
 {
 	public const string ServiceName = "IngredientSupply";
 
-	public const string RouteGroup = "/api/sourcing/quotes";
+	public const string RouteGroup = "/api/v1/ingredient-supply";
 
-	public const string OpenApiTag = "Sourcing";
+	public const string OpenApiTag = ServiceName;
 
 	/// <summary>
 	/// Inbox consumer name for the response subscriber. Stable, hand-coded so renames don't
@@ -18,20 +18,34 @@ internal static class Constants
 	{
 		public const string MeterName = "BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply";
 
-		public const string QuoteRequested = "sourcing.ingredient_quote.requested";
-		public const string QuoteSent = "sourcing.ingredient_quote.sent";
-		public const string QuoteResponseReceived = "sourcing.ingredient_quote.response_received";
-		public const string QuoteFailed = "sourcing.ingredient_quote.failed";
-	}
-
-	public static class Activities
-	{
-		public const string ActivitySourceName = "BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply";
+		public const string QuoteRequested = "app_ingredient_supply_quote_requested_total";
+		public const string QuoteSent = "app_ingredient_supply_quote_sent_total";
+		public const string QuoteResponseReceived = "app_ingredient_supply_quote_response_received_total";
+		public const string QuoteFailed = "app_ingredient_supply_quote_failed_total";
 	}
 
 	public static class Tags
 	{
+		public const string InternalServiceName = "app.service.name";
 		public const string QuoteId = "quote.id";
 		public const string SupplierKey = "supplier.key";
+		public const string HasRecipe = "quote.has_recipe";
+		public const string Accepted = "quote.accepted";
+		public const string FailureStage = "failure.stage";
+	}
+
+	public static class FailureStages
+	{
+		public const string SupplierResponse = "supplier_response";
+	}
+
+	public static class HttpClients
+	{
+		public const string SupplierWebhook = "IngredientSupply.SupplierWebhook";
+	}
+
+	public static class ResiliencePipelines
+	{
+		public const string SupplierWebhook = "IngredientSupply.SupplierWebhook";
 	}
 }

@@ -5,12 +5,13 @@
 		<File Path=".gitattributes" />
 		<File Path=".gitignore" />
 		<File Path="Directory.Build.props" />
+		<File Path="Directory.Build.local.props.example" />
 		<File Path="Directory.Build.targets" />
 		<File Path="Directory.Packages.props" />
 		<File Path="global.json" />
 		<File Path="LICENSE" />
 		<File Path="README.md" />
-		<File Path="nuget.config" />
+		<File Path="nuget.config.example" />
 	</Folder>
 	<Folder Name="/src/">
 		<!--#if (EntityFrameworkScaffold) -->
@@ -44,10 +45,12 @@
 		<Project Path="src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj" />
 	</Folder>
 	<Folder Name="/tests/">
-		<!--#if (Sample) -->
-		<!-- All test projects are Sample-gated. The integration tests exercise the demo modules;
-		     AppHost.E2E.Tests exercises the demo's HTTP surface. Sample=off → bring your own tests. -->
+		<!-- Runner-owned process and public-boundary coverage is generated for every application. -->
+		<Project Path="tests/BurcinCo.BurcinApp.Host.Integration.Tests/BurcinCo.BurcinApp.Host.Integration.Tests.csproj" />
+		<Project Path="tests/BurcinCo.BurcinApp.Gateway.Integration.Tests/BurcinCo.BurcinApp.Gateway.Integration.Tests.csproj" />
 		<Project Path="tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/BurcinCo.BurcinApp.AppHost.E2E.Tests.csproj" />
+		<!--#if (Sample) -->
+		<!-- Sample-gated suites exercise the reference modules. -->
 		<Project Path="tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.csproj" />
 		<Project Path="tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests.csproj" />
 		<Project Path="tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.csproj" />

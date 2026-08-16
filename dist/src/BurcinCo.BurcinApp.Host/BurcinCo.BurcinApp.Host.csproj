@@ -21,7 +21,9 @@
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" />
 
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.OpenApi" />
 		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.Caching.SqlServer" Condition="'$(CacheSqlServer)' == 'true'" />
 		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Condition="'$(CacheRedis)' == 'true'" />
@@ -30,7 +32,7 @@
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.ResourceUtilization" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
 		<PackageReference Include="Microsoft.FeatureManagement.AspNetCore" />
-		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(ODataServices)' == 'true'" />
 		<PackageReference Include="Scalar.AspNetCore" />
 		<PackageReference Include="morelinq" />
 		<PackageReference Include="CsvHelper" />
@@ -54,53 +56,35 @@
 		<PackageReference Include="DocFx.Plugins.PlantUml" />
 	</ItemGroup>
 	<!--#endif-->
-	<!--#if (EntityFrameworkScaffold)-->
-	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore" />
-	</ItemGroup>
-	<!--#endif-->
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
 		<PackageReference Include="Ruya.AspNetCore.Diagnostics" />
 		<PackageReference Include="Ruya.AspNetCore.Middleware" />
 		<PackageReference Include="Ruya.Diagnostics" />
-		<PackageReference Include="Ruya.EntityFrameworkCore.SqlServer" />
+		<PackageReference Include="Ruya.EntityFrameworkCore.SqlServer" Condition="'$(EntityFrameworkScaffold)' == 'true'" />
 		<PackageReference Include="Ruya.Extensions.Configuration" />
 		<PackageReference Include="Ruya.Extensions.Hosting" />
 		<PackageReference Include="Ruya.OpenTelemetry" />
-		<PackageReference Include="Ruya.Services.DistributedLock" />
+		<PackageReference Include="Ruya.Primitives" />
+		<PackageReference Include="Ruya.Services.DistributedLock" Condition="'$(CacheRedis)' == 'true'" />
 		<PackageReference Include="Ruya.Services.DistributedLock.Redis" Condition="'$(CacheRedis)' == 'true'" />
 	</ItemGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
-	</PropertyGroup>
-	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
-
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' == 'true'">
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Diagnostics\Ruya.AspNetCore.Diagnostics.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Middleware\Ruya.AspNetCore.Middleware.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Diagnostics\Ruya.Diagnostics.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Primitives\Ruya.Primitives.csproj" />
-		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.EntityFrameworkCore.SqlServer\Ruya.EntityFrameworkCore.SqlServer.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.EntityFrameworkCore.SqlServer\Ruya.EntityFrameworkCore.SqlServer.csproj" Condition="'$(EntityFrameworkScaffold)' == 'true'" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Configuration\Ruya.Extensions.Configuration.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Hosting\Ruya.Extensions.Hosting.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.OpenTelemetry\Ruya.OpenTelemetry.csproj" />
-		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock.Redis\Ruya.Services.DistributedLock.Redis.csproj" />
-		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock\Ruya.Services.DistributedLock.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock.Redis\Ruya.Services.DistributedLock.Redis.csproj" Condition="'$(CacheRedis)' == 'true'" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.DistributedLock\Ruya.Services.DistributedLock.csproj" Condition="'$(CacheRedis)' == 'true'" />
 	</ItemGroup>
 
 	<!--#if (EntityFrameworkScaffold)-->
 	<ItemGroup>
-		<ProjectReference Include="..\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
-		<ProjectReference Include="..\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj">
-			<PrivateAssets>All</PrivateAssets>
-		</ProjectReference>
 	</ItemGroup>
 	<!--#endif-->
 
@@ -108,14 +92,14 @@
 	<!-- Broker side of the reliable-messaging stack. Persistence side (EF stores, interceptor, model)
 	     lives in Data. Host owns: the broker provider (RabbitMQ), the outbound dispatcher that drains
 	     Outbox rows to the broker, and the AddReliableMessaging() composition root that Data builds onto. -->
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
 		<PackageReference Include="Ruya.Services.MessageQueue" />
 		<PackageReference Include="Ruya.Services.MessageQueue.RabbitMq" />
 		<PackageReference Include="Ruya.Services.ReliableMessaging" />
 		<PackageReference Include="Ruya.Services.ReliableMessaging.MessageQueue" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' == 'true'">
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue\Ruya.Services.MessageQueue.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue.RabbitMq\Ruya.Services.MessageQueue.RabbitMq.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
@@ -127,17 +111,15 @@
 	     Microsoft.FeatureManagement flags (Modules.Recipe, Modules.Nutrition, Modules.Sourcing)
 	     checked in ProgramExtensionsCustom.cs. Module projects depend on the shared DbContext
 	     (Data) and the EF-backed Models, so they're only present when EntityFramework is enabled.
-	     Each module's sibling Abstractions csproj is referenced explicitly alongside the implementation
-	     — Host composes the in-process IRecipeService / ISourcingService bindings and the cross-module
-	     HTTP clients (in consuming modules) implement the same contract from Abstractions alone.
+	     Each module implementation references its own sibling Abstractions project. Host does not consume
+	     those contracts directly; it references only implementation projects and calls their composition
+	     wrappers (including Sourcing's broker-contract metadata registration).
 	     All reference modules are Sample-gated — Sample=off produces a bring-your-own-modules skeleton. -->
 	<!--#if (Sample)-->
 	<ItemGroup>
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe\BurcinCo.BurcinApp.Modules.Recipe.csproj" />
-		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Recipe.Abstractions\BurcinCo.BurcinApp.Modules.Recipe.Abstractions.csproj" />
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Nutrition\BurcinCo.BurcinApp.Modules.Nutrition.csproj" />
 		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Sourcing\BurcinCo.BurcinApp.Modules.Sourcing.csproj" />
-		<ProjectReference Include="..\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions\BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.csproj" />
 	</ItemGroup>
 	<!--#endif-->
 </Project>

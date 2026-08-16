@@ -1,2 +1,4 @@
-# PLACEHOLDER
-TODO: Add .NET projects to the *src* folder and run `docfx` to generate **REAL** *API Documentation*!
+# API reference
+
+DocFX generates this reference from the projects under `src/`. Run `docfx docs/docfx/docfx.json`
+after restoring the solution to refresh the namespace and type pages.

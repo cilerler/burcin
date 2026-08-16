@@ -1,32 +1,34 @@
 using System;
 using BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Extensions;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Procurement.Extensions;
 
 public static class StartupExtensions
 {
-	public static IServiceCollection AddProcurementComponent(
-		this IServiceCollection services,
-		IConfiguration configuration)
+	public static IServiceCollection AddProcurementComponent(this IServiceCollection services)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
-		services.AddIngredientSupplyService(configuration);
+		services.AddIngredientSupply();
 
 		return services;
 	}
 
-	public static IEndpointRouteBuilder MapProcurementComponent(this IEndpointRouteBuilder endpoints)
+	public static WebApplication MapProcurementComponent(
+		this WebApplication app,
+		bool enabled)
 	{
-		ArgumentNullException.ThrowIfNull(endpoints);
+		ArgumentNullException.ThrowIfNull(app);
 
-		endpoints.MapIngredientSupplyApi();
+		if (!enabled)
+		{
+			return app;
+		}
 
-		return endpoints;
+		app.MapIngredientSupply(enabled);
+
+		return app;
 	}
 }

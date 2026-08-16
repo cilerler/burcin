@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using BurcinCo.BurcinApp.Host.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ruya.Primitives;
 
@@ -28,10 +30,20 @@ internal static partial class Program
 		//builder.Environment.EnvironmentName = Startup.EnvironmentName;
 
 		builder.AddDefaultServices();
-		builder.AddCustomServices();
+
+		// Capture graph-changing configuration once, before the service provider exists. The same
+		// instance drives registration, controller discovery, and endpoint mapping for this process.
+		var capabilities = builder.Configuration
+			.GetRequiredSection(CapabilitySelection.ConfigurationSectionName)
+			.Get<CapabilitySelection>()
+			?? throw new InvalidOperationException(
+				$"{CapabilitySelection.ConfigurationSectionName} configuration is required.");
+
+		builder.AddCustomServices(capabilities);
 
 		var app = builder.Build();
 
+		app.ConfigureCustomEarlyPipeline();
 		app.ConfigureDefaultPipeline();
 		app.ConfigureCustomPipeline();
 

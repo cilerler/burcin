@@ -48,7 +48,10 @@
 		<PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="10.*" />
+		<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.*" />
+		<!-- Security pin for the transitive Microsoft.AspNetCore.OpenApi dependency. -->
+		<PackageVersion Include="Microsoft.OpenApi" Version="2.11.0" />
 		<PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.Caching.Hybrid" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.*" />
@@ -58,7 +61,7 @@
 		<!-- <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="10.*" /> -->
 		<PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.*" />
-		<!-- <PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.*" /> -->
+		<PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.*" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.*" />
@@ -154,6 +157,8 @@
 		<PackageVersion Include="Scalar.AspNetCore" Version="2.13.13" />
 		<PackageVersion Include="CsvHelper" Version="33.1.0" />
 		<PackageVersion Include="morelinq" Version="4.4.0" />
+		<!-- Security pin for the transitive StreamJsonRpc dependency used by Aspire tooling. -->
+		<PackageVersion Include="MessagePack" Version="2.5.302" />
 	</ItemGroup>
 
 	<!-- Kiota -->
@@ -201,10 +206,12 @@
 		<PackageVersion Include="Ruya.AspNetCore.Diagnostics" Version="8.*" />
 		<PackageVersion Include="Ruya.AspNetCore.Middleware" Version="8.*" />
 		<PackageVersion Include="Ruya.Diagnostics" Version="8.*" />
+		<PackageVersion Include="Ruya.Extensions.DependencyInjection" Version="8.*" />
 		<PackageVersion Include="Ruya.EntityFrameworkCore.SqlServer" Version="8.*" />
 		<PackageVersion Include="Ruya.Extensions.Configuration" Version="8.*" />
 		<PackageVersion Include="Ruya.Extensions.Hosting" Version="8.*" />
 		<PackageVersion Include="Ruya.OpenTelemetry" Version="8.*" />
+		<PackageVersion Include="Ruya.Primitives" Version="8.*" />
 		<PackageVersion Include="Ruya.Services.DistributedLock.Redis" Version="8.*" />
 		<PackageVersion Include="Ruya.Services.DistributedLock" Version="8.*" />
 		<PackageVersion Include="Ruya.Services.CloudStorage.Google" Version="8.*" />
@@ -213,6 +220,7 @@
 		<PackageVersion Include="Ruya.Services.ReliableMessaging" Version="8.*" />
 		<PackageVersion Include="Ruya.Services.ReliableMessaging.EntityFrameworkCore" Version="8.*" />
 		<PackageVersion Include="Ruya.Services.ReliableMessaging.MessageQueue" Version="8.*" />
+		<PackageVersion Include="Ruya.Testing.Primitives" Version="8.*" />
 	</ItemGroup>
 
 </Project>

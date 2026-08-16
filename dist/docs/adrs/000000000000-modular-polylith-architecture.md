@@ -22,51 +22,49 @@ Adopt the **Modular Polylith**. Specifics:
 
 ### Project layout
 
-```
+The tree below intentionally stops at project boundaries; it is not a shortened service layout or a second
+structural convention. Module, component, and service folders use the repository's complete canonical
+structure. Capability folders are created only when they contain selected behavior, but every generated
+artifact uses the one full canonical form.
+
+```text
 src/
-├─ <Org>.<App>.SharedKernel/                     # cross-cutting primitives (when used)
-├─ <Org>.<App>.Models/                           # DB-first entity classes (Models/BurcinDatabase + BurcinDatabaseExtend) + Abstractions/ marker interfaces + BurcinDatabaseConstants/ enums
-├─ <Org>.<App>.Data/                             # SHARED BurcinDatabaseDbContext (one for the whole app)
-├─ <Org>.<App>.Migrations/                       # SINGLE migrations csproj; manually-run via tools/EntityFramework/migrate.ps1
-├─ <Org>.<App>.Modules.<Module>.Abstractions/    # SIBLING csproj — module's PUBLIC cross-module contract (Interfaces, Events, Models, Requests, Responses). Dep-free; consumers reference ONLY this csproj, never the implementation.
-│   ├─ Interfaces/I<Module>Service.cs
-│   ├─ Events/, Models/, Requests/, Responses/
-├─ <Org>.<App>.Modules.<Module>/                 # implementation csproj, follows app→module→component→service convention. ProjectReferences its own .Abstractions sibling.
-│   ├─ Constants.cs                              # module-wide identifiers + FeatureFlag string
-│   ├─ Extensions/StartupExtensions.cs           # Add<Module>Module + Map<Module>Module
-│   └─ <Component>/                              # always at least one (per dotnet-service-generator skill)
-│       ├─ Constants.cs, Extensions/StartupExtensions.cs
-│       └─ <Service>/                            # one folder per service
-│           ├─ Constants.cs                      # service-wide Metrics/Activities/Tags
-│           ├─ Configuration/<Service>Settings.cs
-│           ├─ Contracts/I<Service>.cs           # internal DI interface (default internal)
-│           ├─ Extensions/StartupExtensions.cs   # Add<Service> + Map<Service>Api
-│           ├─ Api/<Service>Api.cs               # MapGroup + per-verb handlers
-│           ├─ Clients/                          # external API wrappers (incl. sibling modules treated as external)
-│           ├─ Workers/                          # BackgroundService background work (Outbox dispatch, Inbox subscribe)
-│           ├─ Handlers/                         # Inbox-deduped event handlers
-│           └─ <Service>Service.cs               # the implementation
-├─ <Org>.<App>.Host/                             # composition root; refs every module
-├─ <Org>.<App>.Gateway/                          # YARP edge + webhook→broker translator
-└─ <Org>.<App>.AppHost/                          # Aspire orchestrator
+├─ BurcinCo.BurcinApp.Abstractions/                         # app-wide cross-project contracts, when needed
+├─ BurcinCo.BurcinApp.Domain/                               # app-wide domain types and rules, when needed
+├─ BurcinCo.BurcinApp.Extensions/                           # reusable technical helpers, when needed
+├─ BurcinCo.BurcinApp.Models/                               # DB-first persistence entities and partial extensions
+├─ BurcinCo.BurcinApp.Data/                                 # shared BurcinDatabaseDbContext and persistence infrastructure
+├─ BurcinCo.BurcinApp.Migrations/                           # EF design-time factory/config and migrations
+├─ BurcinCo.BurcinApp.Modules.{ModuleName}.Abstractions/    # producer-owned cross-module contracts, when needed
+├─ BurcinCo.BurcinApp.Modules.{ModuleName}/                 # module implementation; components and services are folders
+├─ BurcinCo.BurcinApp.Services.{ServiceName}.Abstractions/  # standalone-service contracts, when another project consumes them
+├─ BurcinCo.BurcinApp.Host/                                 # application composition/app-runner wrapper only
+├─ BurcinCo.BurcinApp.Gateway/                              # YARP edge and process-specific edge adapters
+│  └─ Webhook/                                              # process-intrinsic webhook-to-broker edge adapter
+└─ BurcinCo.BurcinApp.AppHost/                              # Aspire orchestration declarations only
 ```
 
-Reference modules in this template: `Modules.Recipe` (domain — Catalog component, Recipe/Chef/Category services), `Modules.Nutrition` (consumer — Tracking component, NutritionFact service), `Modules.Sourcing` (external integration demo — Procurement component, IngredientSupply service with both producer-via-Outbox and consumer-via-Inbox flows).
+`BurcinCo.BurcinApp.Models`, `.Data`, and `.Migrations` are the application's DB-first persistence projects.
+They do not replace the repository's responsibility boundaries: cross-project application contracts belong in
+`.Abstractions`, app-wide domain types and rules belong in `.Domain`, and reusable technical helpers belong in
+`.Extensions`. Host, Gateway, and AppHost never become owners of those artifacts.
+
+Reference modules in this template: `Modules.Recipe` (domain — Catalog component, Recipe/Chef/Category/Tag/RecipePhoto services), `Modules.Nutrition` (consumer — Tracking component, NutritionFact service), `Modules.Sourcing` (external integration demo — Procurement component, IngredientSupply service with both producer-via-Outbox and consumer-via-Inbox flows).
 
 ### Key rules
 
-1. **Single shared `BurcinDatabaseDbContext`.** All modules read/write through the same context, registered in `<Org>.<App>.Data`. Entities live in `Models/BurcinDatabase/`. DB-first scaffolding becomes `dotnet ef dbcontext scaffold` — one command, regenerates every entity, all in one project.
+1. **Single shared `BurcinDatabaseDbContext`.** All modules read/write through the same context, registered in `BurcinCo.BurcinApp.Data`. Entities live in `Models/BurcinDatabase/`. DB-first scaffolding becomes `dotnet ef dbcontext scaffold` — one command, regenerates every entity, all in one project.
 
-   **Module = pair of csprojs.** Each module ships as two assemblies:
-   - `Modules.<X>.Abstractions.csproj` — dep-free public contract (`Interfaces/`, `Events/`, `Models/`, `Requests/`, `Responses/`). The only surface other modules see.
-   - `Modules.<X>.csproj` — implementation (components, services, controllers, workers, internal types). ProjectReferences its own `.Abstractions` sibling so it can implement the contract.
+   **A module has one implementation project and a sibling contract project when cross-module contracts exist.**
+   - `BurcinCo.BurcinApp.Modules.{ModuleName}.Abstractions.csproj` — implementation-free producer-owned contracts under `Interfaces/`, `Events/`, `Models/`, `Requests/`, `Responses/`, and contract-owned serialization metadata when required.
+   - `BurcinCo.BurcinApp.Modules.{ModuleName}.csproj` — implementation containing components, services, controllers, root subscribers, and internal types. It directly references its own `.Abstractions` sibling when that project exists.
 
-   A consuming module's csproj ProjectReferences ONLY the producing module's `.Abstractions`, never the implementation. The compiler physically blocks reach-in. When a `Modules.<X>.Abstractions` is empty (no public surface yet), the csproj doesn't need to exist — create it the moment a public type is first needed. The pattern only pays its keep when there's a contract to enforce.
-2. **Single migrations project.** `<Org>.<App>.Migrations.csproj` is the migration target for all schema changes, applied manually via `tools/EntityFramework/migrate.ps1`.
+   A consuming module directly references the producing module's `.Abstractions` project, never its implementation. Every contract project also directly references any broader abstractions assembly whose types appear in its signatures; no project relies on another project's transitive reference to close compilation. Do not create an abstractions project merely because a CLR type is `public`: create it when a real cross-module contract requires that boundary.
+2. **Single migrations project.** `BurcinCo.BurcinApp.Migrations.csproj` owns the EF design-time factory and migration-only configuration, is the migration target/startup project for schema changes, and is applied manually via `tools/EntityFramework/migrate.ps1`. Host remains runtime composition-only.
 3. **Module write boundary enforced at the SQL-permission level (production).** In production, each module deploys with its own SQL login (`recipe_user`, `nutrition_user`, …) granted broad SELECT but narrow INSERT/UPDATE/DELETE — its own schema only. Cross-module writes that violate this throw at the database. In the template default the connection uses one privileged user; permission split is a deployment hardening step.
-4. **Module-only writes by convention in code.** Even with shared DbContext, `Modules.X` services never write to `Modules.Y`'s tables. Cross-module writes go through `IY<Service>` (Y's public contract). The DI binding picks one of:
-   - `Modules.Y.<Component>.<Service>.<Service>Service` when Y is active in this deployment (in-process method call), or
-   - `Modules.X.<Component>.<Service>.Clients.YClient` when Y is in a separate deployment (HTTP call against Y's `/api/...` endpoints).
+4. **Module-only writes by convention in code.** Even with shared DbContext, `Modules.{ModuleName}` services never write to `Modules.{OtherModuleName}`'s tables. Cross-module writes go through the producer-owned `I{OtherServiceName}` contract from `BurcinCo.BurcinApp.Modules.{OtherModuleName}.Abstractions`. The DI binding picks one of:
+   - `BurcinCo.BurcinApp.Modules.{OtherModuleName}.{OtherComponentName}.{OtherServiceName}.{OtherServiceName}Service` when the producer module is active in this deployment (in-process method call), or
+   - `BurcinCo.BurcinApp.Modules.{ModuleName}.{ComponentName}.{ServiceName}.Clients.{OtherServiceName}Client` when the producer module is in a separate deployment (HTTP call against its `/api/...` endpoints).
    The consuming code is identical in both cases.
 5. **Cross-module reads via direct EF queries.** Reads JOIN across schemas freely (DB allows it). When eventually consistent reads are acceptable AND a specific read path measurably needs decoupling, swap to a local snapshot fed by events. Not the default.
 6. **One Docker image, multiple k8s Deployments via feature flags.** The same image powers every deployment. Each Deployment overrides `appsettings`'s `FeatureManagement` section to enable only its assigned modules:
@@ -77,10 +75,10 @@ Reference modules in this template: `Modules.Recipe` (domain — Catalog compone
      "Modules.Sourcing":  false
    }
    ```
-   Host's `ProgramExtensionsCustom` wraps each `Add<Module>Module` and `Map<Module>Module` call in an `if (fm.GetValue<bool>("Modules.<X>"))`. Inactive modules don't register DI, don't map endpoints, don't run background workers.
-7. **Sibling modules are external (per Conventions-Naming-Standards.md).** When `Modules.Y` is in a different Deployment, `Modules.X` calls it via HTTP through `Modules.X/<Component>/<Service>/Clients/YClient.cs`. The client implements `IYService` from `Modules.Y.Abstractions.csproj` over HTTP. Since `Modules.X` only ProjectReferences `Modules.Y.Abstractions` (never `Modules.Y` itself), the client physically cannot reach into Y's implementation — the in-process-vs-HTTP swap is purely an `IYService` binding choice in DI. Convention-located in the consuming module's `Clients/` folder (which is documented as "wraps external HTTP APIs"; sibling modules count as external).
-8. **Inbound webhooks: External → Gateway → broker → Inbox-deduped handler.** External callers POST to `/webhooks/{path}`. Gateway authenticates via `WebhookSecretAuthFilter`, wraps the body in a `MessageEnvelope` (CamelCase, matches `Ruya.Services.MessageQueue`'s serializer), and publishes to the per-topic exchange `webhooks.{path-with-dots}`. The owning module's `BackgroundService` subscribes via `IMessageQueue.SubscribeWithInboxAsync<TMessage, TContext>(...)`, dedups via the Inbox table, and invokes the scoped `<Event>Handler`.
-9. **Outbox for outbound events.** A module's service writes business state + outbox event in one transaction. `OutboxProcessor` polls and dispatches via `MessageQueueOutboundDispatcher` to RabbitMQ. A worker (or in our `Modules.Sourcing` reference, `QuoteRequestDispatcher`) consumes from the broker and acts (HTTP to external supplier, side-effect, etc.).
+   Host captures these keys once into an immutable `CapabilitySelection` before building the service provider. The same snapshot gates every `Add{ModuleName}Module` and `Map{ModuleName}Module` call. Inactive modules don't register DI, don't map endpoints, and don't run root subscribers; configuration reload cannot split the registration and mapping decisions within a process. Registration and mapping follow the same Host → Module → Component → Service cascade. An API-exposed service maps through the public `Map{ServiceName}(enabled)` wrapper, which verifies registration before calling its internal low-level `Map{ServiceName}Api()` mapper; no mapper re-reads live configuration.
+7. **Sibling modules are external dependencies.** When `Modules.{OtherModuleName}` is in a different Deployment, the consuming service calls it through `Clients/{OtherServiceName}Client.cs`. That client implements `I{OtherServiceName}` from the producer module's `.Abstractions` project over HTTP. Because the consumer directly references only the producer's contract project—never its implementation—the in-process-versus-HTTP choice remains a DI binding decision and implementation reach-in is physically blocked.
+8. **Inbound webhooks: External → Gateway Webhook edge adapter → broker → Inbox-deduplicated business service.** External callers POST to `/webhooks/{path}`. The Gateway-owned `Webhook` adapter authenticates and validates the request, applies the body limit, translates the envelope, and hands it to the broker; it contains no application/domain decisions. It wraps the body in the stable lower-camel `MessageEnvelope` shape and publishes to the per-topic exchange `webhooks.{path-with-dots}`. A root `{EventName}Subscriber` `BackgroundService` owns the queue and subscription lifetime and subscribes via `IMessageQueue.SubscribeWithInboxAndPostCommitAsync<TMessage, TContext>(...)`. The Inbox table deduplicates delivery; the thin subscriber adapter resolves the scoped `{ServiceName}Service` and delegates the payload. Business state mutates inside the atomic callback; committed-work logs and counters run only from the post-commit observer.
+9. **Outbox for outbound events.** A module's service writes business state + outbox event in one transaction. Every envelope stamps the service's configured non-default dispatcher/provider name, and `OutboxProcessor` dispatches via `MessageQueueOutboundDispatcher` to RabbitMQ. A root subscriber (in the `Modules.Sourcing` reference, `IngredientQuoteRequestedEventSubscriber`) owns the subscription lifetime and thinly delegates the side effect to its scoped business service.
 10. **Dead-letter exchange wired by default.** Every subscribed topic gets a paired `{topic}.dlx` exchange + `{topic}.dlq` queue auto-declared, with `x-dead-letter-exchange` set on the consumer queue. Poison messages (deserialization failures, unhandled exceptions) are rejected without requeue and routed to the DLQ for inspection. The full original body is preserved as the audit trail.
 
 ### Outbox/Inbox configuration
@@ -89,9 +87,26 @@ The Outbox/Inbox tables live on the shared DbContext (`dbo.Outbox`, `dbo.Inbox`)
 
 **Ownership: Data, gated by the `Sample` template flag.** Outbox/Inbox is persistence infrastructure (the schema mutates the database; the SaveChanges interceptor mutates the database; the EF stores read/write the database) and so belongs to the Data project, not to any module. When the template is generated with `--Sample`, Data takes a `PackageReference` to `Ruya.Services.ReliableMessaging.EntityFrameworkCore`, registers Outbox/Inbox entity configurations in `BurcinDatabaseDbContext.OnModelCreatingPostActions`, and exposes `AddBurcinDatabaseReliableMessaging(this IReliableMessagingBuilder builder)` — an extension method that wires the EF stores + interceptor configurer + outbox health check onto Host's single `AddReliableMessaging()` call. When the template is generated without `--Sample`, Data is Ruya-free, the Sourcing reference module isn't generated, and the migration doesn't include Outbox/Inbox tables.
 
-**The `Modules.Sourcing` reference module is now purely a *consumer*** of reliable-messaging: it injects `IOutboxPublisher<BurcinDatabaseDbContext>` from Ruya, publishes events, and subscribes via `SubscribeWithInbox`. Sourcing has zero knowledge of how Outbox/Inbox is wired into the DbContext. The layering consequence: any *other* module that wants to publish reliable events (a future `Modules.Recipe` feature, say) imports the same Ruya interfaces from Data's transitive surface — it never needs to reference Sourcing.
+**The `Modules.Sourcing` reference module is now purely a *consumer*** of reliable-messaging: it injects `IOutboxPublisher<BurcinDatabaseDbContext>` from Ruya, publishes events, and subscribes via `SubscribeWithInbox`. Sourcing has zero knowledge of how Outbox/Inbox is wired into the DbContext. Any other module that publishes reliable events directly references the Ruya contract packages or their local-source project equivalents that its code compiles against. Data owns the persistence integration; it is not a transitive dependency surface for consumers, and no module needs to reference Sourcing.
 
 **The runtime SaveChanges-interceptor wiring stays opt-in** via the `IDbContextConfigurer<BurcinDatabaseDbContext>` seam Data exposes. `AddBurcinDatabaseReliableMessaging` registers an `OutboxInterceptorConfigurer` that, when resolved by `AddBurcinDatabaseDbContext`'s configurer loop, adds the interceptor to options. Test fixtures that exercise outbox flows (Sourcing) call both `AddBurcinDatabaseDbContext()` and `AddReliableMessaging().AddBurcinDatabaseReliableMessaging()`; fixtures that don't (Recipe, Nutrition) call only `AddBurcinDatabaseDbContext()` — they get the Outbox/Inbox schema (so the model matches the migration) but the interceptor isn't wired, so SaveChanges doesn't try to flush anything.
+
+### Sourcing quote-response transition matrix
+
+Inbox deduplication suppresses repeated deliveries of one broker envelope ID. A supplier can still repeat the same business response under a fresh envelope ID, so `IngredientSupplyService` also enforces the persisted quote state as the business-idempotency boundary. The first response committed from `Sent` wins: a matching terminal replay is a successful no-op that preserves the first response, while an out-of-order response or a conflicting terminal outcome is permanently rejected without mutating the quote row.
+
+| Current status | Incoming response | Result | Quote-row mutation | Executable coverage |
+|---|---|---|---|---|
+| `Pending` | Accepted | Permanently reject as out of order | None | `ProcessAsync_PendingAcceptedResponse_ThrowsAndDoesNotMutate` |
+| `Pending` | Rejected | Permanently reject as out of order | None | `ProcessAsync_PendingRejectedResponse_ThrowsAndDoesNotMutate` |
+| `Sent` | Accepted | Transition to `ResponseReceived` | Store response timestamp and payload; clear `FailureReason` | `ProcessAsync_SentAcceptedResponse_TransitionsToResponseReceived` |
+| `Sent` | Rejected | Transition to `Failed` | Store response timestamp, payload, and rejection reason | `ProcessAsync_SentRejectedResponse_TransitionsToFailed` |
+| `ResponseReceived` | Accepted | Successful business no-op | Preserve the first committed terminal response | `ProcessAsync_ResponseReceivedAcceptedResponseFromFreshEnvelope_IsNoOp` |
+| `ResponseReceived` | Rejected | Permanently reject conflicting terminal outcome | None | `ProcessAsync_ResponseReceivedRejectedResponse_ThrowsAndDoesNotMutate` |
+| `Failed` | Accepted | Permanently reject conflicting terminal outcome | None | `ProcessAsync_FailedAcceptedResponse_ThrowsAndDoesNotMutate` |
+| `Failed` | Rejected | Successful business no-op | Preserve the first committed terminal failure | `ProcessAsync_FailedRejectedResponseFromFreshEnvelope_IsNoOp` |
+
+All matrix cases live in `tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests/IngredientSupplyService/ResponseStateTransitionTests.cs`. The direct service invocations intentionally bypass Inbox identity so the two replay cases model deliveries that carry distinct envelope IDs.
 
 ## Alternatives considered
 
@@ -153,5 +168,6 @@ Snapshot pattern (`RecipeSnapshot`, `UserSnapshot`, …) populated by Outbox-pub
 
 ## References
 
-- Conventions: `~/Source/github/cilerler/cilerler.github.io.wiki/Conventions-Naming-Standards.md` — Opinionated Folder Structures section
-- Skill: `~/.claude/skills/dotnet-service-generator` — drives the per-service folder shape
+- [Repository overview](../../README.md)
+- [Capability-selection snapshot](../../src/BurcinCo.BurcinApp.Host/Configuration/CapabilitySelection.cs)
+- [EF migration workflow](../../tools/EntityFramework/migrate.ps1)

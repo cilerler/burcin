@@ -11,8 +11,8 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.Fixtures;
 /// <summary>
 /// Raw AMQP publisher used by tests that need control over things Ruya's <c>IMessagePublisher</c> hides:
 /// the envelope's <c>MessageId</c> (for Inbox-dedup tests), the JSON shape (for case-insensitive tests),
-/// and frankly-invalid payloads (for poison-message DLQ tests). Mirrors how the Gateway publishes
-/// inbound webhook envelopes in production: exchange-per-topic, envelope-wrapped JSON, persistent.
+/// and frankly-invalid payloads (for poison-message DLQ tests). Mirrors how the Gateway Webhook adapter
+/// service composed by Gateway publishes inbound envelopes: exchange-per-topic, envelope-wrapped JSON, persistent.
 /// </summary>
 internal sealed class RawBrokerPublisher : IAsyncDisposable
 {
@@ -25,7 +25,12 @@ internal sealed class RawBrokerPublisher : IAsyncDisposable
 		_channel = channel;
 	}
 
-	public static async Task<RawBrokerPublisher> ConnectAsync(string host, int port, string username = "guest", string password = "guest", CancellationToken cancellationToken = default)
+	public static async Task<RawBrokerPublisher> ConnectAsync(
+		string host,
+		int port,
+		string username = SourcingTestFixture.RabbitMqUsername,
+		string password = SourcingTestFixture.RabbitMqPassword,
+		CancellationToken cancellationToken = default)
 	{
 		var factory = new ConnectionFactory
 		{
@@ -104,6 +109,13 @@ internal sealed class RawBrokerPublisher : IAsyncDisposable
 		// observe the queue created by the Sourcing subscriber — passive declare is exactly right.
 		var ok = await _channel.QueueDeclarePassiveAsync(queueName, cancellationToken).ConfigureAwait(false);
 		return ok.MessageCount;
+	}
+
+	/// <summary>Count active consumers on <paramref name="queueName"/>.</summary>
+	public async Task<uint> GetQueueConsumerCountAsync(string queueName, CancellationToken cancellationToken = default)
+	{
+		var ok = await _channel.QueueDeclarePassiveAsync(queueName, cancellationToken).ConfigureAwait(false);
+		return ok.ConsumerCount;
 	}
 
 	public async ValueTask DisposeAsync()

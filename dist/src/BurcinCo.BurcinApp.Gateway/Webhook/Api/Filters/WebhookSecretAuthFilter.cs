@@ -27,11 +27,6 @@ internal sealed class WebhookSecretAuthFilter : IEndpointFilter
 
 		var settings = _options.CurrentValue;
 
-		if (!settings.Enabled)
-		{
-			return Results.NotFound();
-		}
-
 		if (!settings.Required)
 		{
 			return await next(context).ConfigureAwait(false);
@@ -39,7 +34,6 @@ internal sealed class WebhookSecretAuthFilter : IEndpointFilter
 
 		if (string.IsNullOrEmpty(settings.Secret))
 		{
-			// Required but secret not configured — fail closed.
 			return Results.Unauthorized();
 		}
 

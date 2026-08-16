@@ -1,7 +1,6 @@
 using System;
 using BurcinCo.BurcinApp.Modules.Recipe.Catalog.Extensions;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Extensions;
@@ -19,22 +18,27 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Extensions;
 /// </summary>
 public static class StartupExtensions
 {
-	public static IServiceCollection AddRecipeModule(
-		this IServiceCollection services,
-		IConfiguration configuration)
+	public static IServiceCollection AddRecipeModule(this IServiceCollection services)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
-		services.AddCatalogComponent(configuration);
+		services.AddCatalogComponent();
 
 		return services;
 	}
 
-	public static IEndpointRouteBuilder MapRecipeModule(this IEndpointRouteBuilder endpoints)
+	public static IEndpointRouteBuilder MapRecipeModule(
+		this IEndpointRouteBuilder endpoints,
+		bool enabled)
 	{
 		ArgumentNullException.ThrowIfNull(endpoints);
-		endpoints.MapCatalogComponent();
+
+		if (!enabled)
+		{
+			return endpoints;
+		}
+
+		endpoints.MapCatalogComponent(enabled);
 		return endpoints;
 	}
 }

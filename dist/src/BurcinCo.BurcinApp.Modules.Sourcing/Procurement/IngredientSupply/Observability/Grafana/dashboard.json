@@ -1,0 +1,175 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "description": "Committed IngredientSupply business outcomes. Transport delivery, backlog, and DLQ panels must use the metric names and bounded labels documented by the selected queue implementation and broker exporter.",
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "targets": [
+        {
+          "expr": "sum(rate(app_ingredient_supply_quote_requested_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "legendFormat": "requested",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(app_ingredient_supply_quote_sent_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "legendFormat": "sent",
+          "refId": "B"
+        }
+      ],
+      "title": "Quote request and supplier-send rate",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "targets": [
+        {
+          "expr": "sum by (quote_accepted) (rate(app_ingredient_supply_quote_response_received_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "legendFormat": "accepted={{quote_accepted}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Committed supplier responses",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 3,
+      "targets": [
+        {
+          "expr": "sum by (failure_stage) (rate(app_ingredient_supply_quote_failed_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "legendFormat": "{{failure_stage}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Committed quote failures",
+      "type": "timeseries"
+    },
+    {
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "content": "## Transport telemetry capability\n\nAdd consume outcome, processing duration, queue depth/age, and DLQ panels only from the selected queue implementation and broker exporter's documented metric names. The application intentionally does not duplicate queue-owned consumer spans or delivery-outcome metrics.",
+        "mode": "markdown"
+      },
+      "title": "Message-consumer telemetry ownership",
+      "type": "text"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "generated",
+    "module:sourcing",
+    "service:ingredient-supply"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Datasource",
+        "name": "datasource",
+        "query": "prometheus",
+        "refresh": 1,
+        "type": "datasource"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(target_info, env)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Environment",
+        "name": "env",
+        "query": {
+          "query": "label_values(target_info, env)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(target_info{env=\"$env\"}, service_name)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Service",
+        "name": "service",
+        "query": {
+          "query": "label_values(target_info{env=\"$env\"}, service_name)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "title": "$(SERVICE_NAME) - IngredientSupply",
+  "uid": "$(SERVICE_NAME)-ingredient-supply"
+}

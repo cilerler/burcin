@@ -184,9 +184,11 @@ internal static class Program
 			// Note: do NOT inject ReverseProxy__Clusters__*__Destinations__*__Address here.
 			// The Gateway resolves destinations via Microsoft.Extensions.ServiceDiscovery. WithReference(host)
 			// automatically provides `services__host__http__0` in both Aspire local-dev and aspire-publish compose.
+#if (Sample)
 			.WithEnvironment(
 				"ConnectionStrings__RabbitMqManagement",
 				ReferenceExpression.Create($"http://{rabbitmqUsername}:{rabbitmqPassword}@{queue.Resource.PrimaryEndpoint.Property(EndpointProperty.Host)}:15672"))
+#endif
 			.PublishAsDockerComposeService((resource, service) =>
 			{
 				service.Name = "burcinco.burcinapp.gateway";

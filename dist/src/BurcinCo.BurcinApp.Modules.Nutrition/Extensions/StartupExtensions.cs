@@ -1,6 +1,5 @@
 using System;
 using BurcinCo.BurcinApp.Modules.Nutrition.Tracking.Extensions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Nutrition.Extensions;
@@ -18,12 +17,11 @@ public static class StartupExtensions
 {
 	public static IServiceCollection AddNutritionModule(
 		this IServiceCollection services,
-		IConfiguration configuration)
+		bool recipeIsLocal)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
-		services.AddTrackingComponent(configuration);
+		services.AddTrackingComponent(recipeIsLocal);
 
 		return services;
 	}

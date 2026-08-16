@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace BurcinCo.BurcinApp.Gateway.Webhook.Configuration;
 
-public sealed class WebhookSettings
+internal sealed class WebhookSettings : IValidatableObject
 {
 	public const string ConfigurationSectionName = "Gateway:Webhook";
 
@@ -13,13 +14,24 @@ public sealed class WebhookSettings
 	[Required]
 	public string VHost { get; init; } = null!;
 
-	// No Exchange property: the exchange name is the routing key (one topic exchange per topic),
-	// per Ruya's MessageQueue.RabbitMq convention. See WebhookService.PublishAsync for the derivation
-	// (`var exchange = routingKey = $"webhooks.{path.Replace('/', '.')}";`). A statically configured
-	// exchange would conflict with the subscriber's auto-created exchange="<topic>" pattern.
-
-	[Range(0, 32L * 1024 * 1024)] // up to 32 MB
-	public long MaxBodyBytes { get; init; } = 1_048_576; // 1 MB default
+	[Range(1, 32L * 1024 * 1024)]
+	public long MaxBodyBytes { get; init; } = 1_048_576;
 
 	public TimeSpan PublishTimeout { get; init; } = TimeSpan.FromSeconds(10);
+
+	public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+	{
+		if (string.IsNullOrWhiteSpace(VHost))
+		{
+			yield return new ValidationResult(
+				"VHost is required.",
+				[nameof(VHost)]);
+		}
+		if (PublishTimeout <= TimeSpan.Zero)
+		{
+			yield return new ValidationResult(
+				"PublishTimeout must be greater than zero.",
+				[nameof(PublishTimeout)]);
+		}
+	}
 }

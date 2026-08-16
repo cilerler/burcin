@@ -1,7 +1,6 @@
 using System;
 using BurcinCo.BurcinApp.Modules.Recipe.Abstractions.Interfaces;
 using BurcinCo.BurcinApp.Modules.Recipe.Catalog.Recipe.Configuration;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Recipe.Extensions;
@@ -12,12 +11,9 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Recipe.Extensions;
 /// </summary>
 public static class StartupExtensions
 {
-	public static IServiceCollection AddRecipeService(
-		this IServiceCollection services,
-		IConfiguration configuration)
+	public static IServiceCollection AddRecipeService(this IServiceCollection services)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
 		services.AddOptions<RecipeSettings>()
 			.BindConfiguration(RecipeSettings.ConfigurationSectionName)

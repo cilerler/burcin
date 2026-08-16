@@ -12,7 +12,7 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Interfaces;
 /// </summary>
 public interface ISourcingService
 {
-	Task<IngredientQuoteView> RequestQuoteAsync(RequestQuoteRequest request, CancellationToken cancellationToken = default);
+	Task<IngredientQuoteView> RequestQuoteAsync(RequestQuoteRequest request, CancellationToken cancellationToken);
 
-	Task<IngredientQuoteView?> GetByIdAsync(long quoteId, CancellationToken cancellationToken = default);
+	Task<IngredientQuoteView?> GetByIdAsync(long quoteId, CancellationToken cancellationToken);
 }

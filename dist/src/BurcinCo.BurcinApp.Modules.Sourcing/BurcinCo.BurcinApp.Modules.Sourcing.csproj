@@ -15,7 +15,9 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.OpenApi" />
 		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
@@ -30,20 +32,21 @@
 
 	<!-- Reliable-messaging USE site. Sourcing demonstrates *consuming* the pattern: it injects
 	     IOutboxPublisher (from Ruya.Services.ReliableMessaging), publishes IngredientQuoteRequestedEvent,
-	     and subscribes via SubscribeWithInbox (from Ruya.Services.ReliableMessaging.MessageQueue).
+	     and subscribes via SubscribeWithInboxAndPostCommit (from Ruya.Services.ReliableMessaging.MessageQueue).
 	     The Outbox/Inbox schema + EF stores are owned by Data — not duplicated here. -->
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
+		<PackageReference Include="Ruya.Diagnostics" />
+		<PackageReference Include="Ruya.Extensions.DependencyInjection" />
+		<PackageReference Include="Ruya.Primitives" />
 		<PackageReference Include="Ruya.Services.MessageQueue" />
 		<PackageReference Include="Ruya.Services.ReliableMessaging" />
 		<PackageReference Include="Ruya.Services.ReliableMessaging.MessageQueue" />
 	</ItemGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
-	</PropertyGroup>
-	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
-
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' == 'true'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Diagnostics\Ruya.Diagnostics.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.DependencyInjection\Ruya.Extensions.DependencyInjection.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Primitives\Ruya.Primitives.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.MessageQueue\Ruya.Services.MessageQueue.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging.MessageQueue\Ruya.Services.ReliableMessaging.MessageQueue.csproj" />

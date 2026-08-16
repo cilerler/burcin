@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Responses;
 
@@ -7,12 +8,12 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Responses;
 /// without exposing the entity directly.
 /// </summary>
 public record IngredientQuoteView(
-	long Id,
-	long? RecipeId,
-	string SupplierKey,
-	string Status,
-	DateTime RequestedAt,
-	DateTime? SentAt,
-	DateTime? ResponseReceivedAt,
-	string? ResponseJson,
-	string? FailureReason);
+	[property: JsonPropertyName("id")] long Id,
+	[property: JsonPropertyName("recipeId")] long? RecipeId,
+	[property: JsonPropertyName("supplierKey")] string SupplierKey,
+	[property: JsonPropertyName("status")] string Status,
+	[property: JsonPropertyName("requestedAt")] DateTimeOffset RequestedAt,
+	[property: JsonPropertyName("sentAt")] DateTimeOffset? SentAt,
+	[property: JsonPropertyName("responseReceivedAt")] DateTimeOffset? ResponseReceivedAt,
+	[property: JsonPropertyName("responseJson")] string? ResponseJson,
+	[property: JsonPropertyName("failureReason")] string? FailureReason);

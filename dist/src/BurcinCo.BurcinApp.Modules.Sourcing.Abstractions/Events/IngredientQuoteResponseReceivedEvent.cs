@@ -1,14 +1,16 @@
+using System.Text.Json.Serialization;
+
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Events;
 
 /// <summary>
-/// Inbound event shape — the payload pulled from a Gateway-published webhook on the
-/// <c>webhooks.sourcing.quote-response</c> routing key. The Gateway forwards the raw
-/// JSON body of the supplier's HTTP POST; this record matches the agreed contract with
-/// the external supplier.
+/// Inbound event shape — the payload pulled from a Gateway Webhook envelope on the
+/// <c>webhooks.sourcing.quote-response</c> routing key. The Gateway edge adapter translates
+/// the supplier's HTTP POST into the broker envelope; this record matches the agreed payload
+/// contract with the external supplier.
 /// </summary>
 public record IngredientQuoteResponseReceivedEvent(
-	long QuoteId,
-	string SupplierKey,
-	bool Accepted,
-	string? RawResponseJson,
-	string? Reason);
+	[property: JsonPropertyName("quoteId")] long QuoteId,
+	[property: JsonPropertyName("supplierKey")] string SupplierKey,
+	[property: JsonPropertyName("accepted")] bool Accepted,
+	[property: JsonPropertyName("rawResponseJson")] string? RawResponseJson,
+	[property: JsonPropertyName("reason")] string? Reason);

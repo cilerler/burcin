@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Models;
 
 /// <summary>
@@ -5,6 +7,6 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Models;
 /// Public DTO; safe to expose at HTTP, broker, and cross-module boundaries.
 /// </summary>
 public record IngredientLine(
-	string Name,
-	float Quantity,
-	string Unit);
+	[property: JsonPropertyName("name")] string Name,
+	[property: JsonPropertyName("quantity")] float Quantity,
+	[property: JsonPropertyName("unit")] string Unit);

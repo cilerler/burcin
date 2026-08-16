@@ -1,7 +1,9 @@
 using System;
 using System.Threading.Tasks;
+using BurcinCo.BurcinApp.Gateway.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Ruya.Primitives;
 
@@ -26,7 +28,16 @@ internal static partial class Program
 		var builder = WebApplication.CreateBuilder(args);
 
 		builder.AddDefaultServices();
-		builder.AddCustomServices();
+
+		// Capture graph-changing configuration once. Registration and endpoint mapping use the
+		// same immutable instance, so a reload cannot produce a half-changed Gateway graph.
+		var capabilities = builder.Configuration
+			.GetRequiredSection(CapabilitySelection.ConfigurationSectionName)
+			.Get<CapabilitySelection>()
+			?? throw new InvalidOperationException(
+				$"{CapabilitySelection.ConfigurationSectionName} configuration is required.");
+
+		builder.AddCustomServices(capabilities);
 
 		var app = builder.Build();
 

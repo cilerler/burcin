@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -78,8 +79,6 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 			.AddInMemoryCollection(new Dictionary<string, string?>
 			{
 				["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
-				// Recipe flag OFF → Nutrition binds IRecipeService to RecipeClient (HTTP).
-				["FeatureManagement:Modules.Recipe"] = "false",
 				// RecipeClientSettings binds; supply a non-empty BaseAddress so DataAnnotation [Required] passes.
 				["Modules:Nutrition:Tracking:NutritionFact:Clients:Recipe:BaseAddress"] = "http://recipe-deployment.test/",
 				["Modules:Nutrition:Tracking:NutritionFact:Clients:Recipe:TimeoutSeconds"] = "10",
@@ -93,7 +92,7 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 
 		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
 
-		services.AddNutritionModule(config);
+		services.AddNutritionModule(recipeIsLocal: false);
 
 		// Override the IRecipeService HttpClient's primary handler with the test stub.
 		services.AddHttpClient<IRecipeService, BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Clients.RecipeClient>()
@@ -136,8 +135,6 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 			.AddInMemoryCollection(new Dictionary<string, string?>
 			{
 				["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
-				// Recipe flag ON → IRecipeService binds to in-process RecipeService.
-				["FeatureManagement:Modules.Recipe"] = "true",
 			})
 			.Build();
 
@@ -148,10 +145,10 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 
 		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
 
-		// Recipe must be registered first because Nutrition's wiring inspects the Modules.Recipe flag
-		// and either expects the in-process IRecipeService binding to be present or registers RecipeClient.
-		services.AddRecipeModule(config);
-		services.AddNutritionModule(config);
+		// The Host's captured snapshot says Recipe is local, so register the producer before Nutrition
+		// and pass that immutable composition decision through the cascade.
+		services.AddRecipeModule();
+		services.AddNutritionModule(recipeIsLocal: true);
 
 		return services.BuildServiceProvider(validateScopes: true);
 	}
@@ -160,9 +157,16 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 	{
 		await using var scope = CreateScopeWithLocalRecipe();
 		var db = scope.ServiceProvider.GetRequiredService<BurcinDatabaseDbContext>();
-		await db.Database.MigrateAsync().ConfigureAwait(false);
+		if (db.Database.GetMigrations().Any())
+		{
+			await db.Database.MigrateAsync().ConfigureAwait(false);
+		}
+		else
+		{
+			await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+		}
 
-		// Apply post-migration soft-delete triggers so tests run against production-equivalent DB behavior.
+		// Apply the soft-delete triggers after either schema-creation path.
 		var triggersSqlPath = Path.Combine(AppContext.BaseDirectory, "triggers.sql");
 		var triggersSql = await File.ReadAllTextAsync(triggersSqlPath).ConfigureAwait(false);
 		var result = await _mssql.ExecScriptAsync(triggersSql).ConfigureAwait(false);

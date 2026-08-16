@@ -104,11 +104,9 @@ public static class StartupExtensions
 					}
 				})
 				.EnableDetailedErrors()
-#if DEBUG
-				.EnableSensitiveDataLogging()
-#endif
 				.AddInterceptors(serviceProvider.GetRequiredService<SoftDeleteSaveChangesInterceptor>())
 			;
+			EnableSensitiveDataLoggingInDebug(options);
 
 			// Apply any registered cross-cutting configurers. Preserved as a seam for runtime opt-ins.
 			// When Sample is on, AddBurcinDatabaseReliableMessaging registers a configurer that wires
@@ -122,6 +120,16 @@ public static class StartupExtensions
 		});
 
 		return services;
+	}
+
+	// A normal DEBUG preprocessor block is interpreted by `dotnet new` as a template condition and
+	// disappears from generated projects. ConditionalAttribute preserves the compiler-only Debug behavior
+	// without colliding with the template engine's C# conditional processor.
+	[System.Diagnostics.Conditional("DEBUG")]
+	private static void EnableSensitiveDataLoggingInDebug(DbContextOptionsBuilder optionsBuilder)
+	{
+		ArgumentNullException.ThrowIfNull(optionsBuilder);
+		optionsBuilder.EnableSensitiveDataLogging();
 	}
 
 	#if (Sample)

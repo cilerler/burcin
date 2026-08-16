@@ -5,7 +5,6 @@ using BurcinCo.BurcinApp.Modules.Recipe.Catalog.Recipe.Extensions;
 using BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto.Extensions;
 using BurcinCo.BurcinApp.Modules.Recipe.Catalog.Tag.Extensions;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Extensions;
@@ -18,26 +17,31 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Extensions;
 /// </summary>
 public static class StartupExtensions
 {
-	public static IServiceCollection AddCatalogComponent(
-		this IServiceCollection services,
-		IConfiguration configuration)
+	public static IServiceCollection AddCatalogComponent(this IServiceCollection services)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
-		services.AddRecipeService(configuration);
-		services.AddChefService(configuration);
-		services.AddCategoryService(configuration);
-		services.AddTagService(configuration);
-		services.AddRecipePhotoService(configuration);
+		services.AddRecipeService();
+		services.AddChefService();
+		services.AddCategoryService();
+		services.AddTagService();
+		services.AddRecipePhotoService();
 
 		return services;
 	}
 
-	public static IEndpointRouteBuilder MapCatalogComponent(this IEndpointRouteBuilder endpoints)
+	public static IEndpointRouteBuilder MapCatalogComponent(
+		this IEndpointRouteBuilder endpoints,
+		bool enabled)
 	{
 		ArgumentNullException.ThrowIfNull(endpoints);
-		endpoints.MapRecipePhotoApi();
+
+		if (!enabled)
+		{
+			return endpoints;
+		}
+
+		endpoints.MapRecipePhotoApi(enabled);
 		return endpoints;
 	}
 }

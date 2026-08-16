@@ -1,8 +1,6 @@
 using System;
 using BurcinCo.BurcinApp.Modules.Sourcing.Procurement.Extensions;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Extensions;
@@ -14,24 +12,28 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Extensions;
 /// </summary>
 public static class StartupExtensions
 {
-	public static IServiceCollection AddSourcingModule(
-		this IServiceCollection services,
-		IConfiguration configuration)
+	public static IServiceCollection AddSourcingModule(this IServiceCollection services)
 	{
 		ArgumentNullException.ThrowIfNull(services);
-		ArgumentNullException.ThrowIfNull(configuration);
 
-		services.AddProcurementComponent(configuration);
+		services.AddProcurementComponent();
 
 		return services;
 	}
 
-	public static IEndpointRouteBuilder MapSourcingModule(this IEndpointRouteBuilder endpoints)
+	public static WebApplication MapSourcingModule(
+		this WebApplication app,
+		bool enabled)
 	{
-		ArgumentNullException.ThrowIfNull(endpoints);
+		ArgumentNullException.ThrowIfNull(app);
 
-		endpoints.MapProcurementComponent();
+		if (!enabled)
+		{
+			return app;
+		}
 
-		return endpoints;
+		app.MapProcurementComponent(enabled);
+
+		return app;
 	}
 }

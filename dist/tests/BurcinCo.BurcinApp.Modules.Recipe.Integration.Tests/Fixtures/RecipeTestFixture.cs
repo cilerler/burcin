@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,7 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.Fixtures;
 
 /// <summary>
 /// Per-assembly fixture for the Recipe module tests. Spins up a single MsSql Testcontainer, applies
-/// the schema via EF migrations, and exposes scoped <see cref="IServiceProvider"/>s with the Recipe
+/// the schema from EF migrations or the current model, and exposes scoped <see cref="IServiceProvider"/>s with the Recipe
 /// module DI registered. No broker — Recipe is a pure DB-backed module.
 /// </summary>
 internal sealed class RecipeTestFixture : IAsyncDisposable
@@ -107,7 +108,7 @@ internal sealed class RecipeTestFixture : IAsyncDisposable
 		// via the EF CLI which pins through --project, not the runtime options.
 		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
 
-		services.AddRecipeModule(config);
+		services.AddRecipeModule();
 
 		return services.BuildServiceProvider(validateScopes: true);
 	}
@@ -116,9 +117,16 @@ internal sealed class RecipeTestFixture : IAsyncDisposable
 	{
 		await using var scope = CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<BurcinDatabaseDbContext>();
-		await db.Database.MigrateAsync().ConfigureAwait(false);
+		if (db.Database.GetMigrations().Any())
+		{
+			await db.Database.MigrateAsync().ConfigureAwait(false);
+		}
+		else
+		{
+			await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+		}
 
-		// Apply post-migration soft-delete triggers so tests run against production-equivalent DB behavior.
+		// Apply the soft-delete triggers after either schema-creation path.
 		// triggers.sql is copied to the test exe's output directory via the csproj's <None Include=...Link=...> entry.
 		var triggersSqlPath = Path.Combine(AppContext.BaseDirectory, "triggers.sql");
 		var triggersSql = await File.ReadAllTextAsync(triggersSqlPath).ConfigureAwait(false);

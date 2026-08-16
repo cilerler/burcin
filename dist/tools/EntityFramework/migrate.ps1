@@ -1,8 +1,8 @@
 Push-Location $PSScriptRoot
 try {
-	Set-Location ".\..\..\src\BurcinCo.BurcinApp.Host";
-	dotnet ef migrations add initial --context BurcinDatabaseDbContext --project ../BurcinCo.BurcinApp.Migrations/;
-	dotnet ef database update --context BurcinDatabaseDbContext;
+	Set-Location ".\..\..\src\BurcinCo.BurcinApp.Migrations";
+	dotnet ef migrations add initial --context BurcinDatabaseDbContext --project . --startup-project .;
+	dotnet ef database update --context BurcinDatabaseDbContext --project . --startup-project .;
 
 	# Apply post-migration triggers. EF Core doesn't author triggers (it owns schema, not behaviour
 	# bolted onto schema), so anything DDL-but-not-EF lives here. Currently: the soft-delete

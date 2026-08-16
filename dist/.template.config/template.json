@@ -15,6 +15,7 @@
 	"PrimaryOutputs":
 	[
 		{
+			"condition": "(EntityFrameworkScaffold)",
 			"path": "src/BurcinCo.BurcinApp.Data/_BurcinDatabaseDbContext.cs"
 		}
 	],
@@ -121,19 +122,19 @@
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false",
-			"description": "Include the reliable-messaging reference module (Modules.Sourcing) demonstrating Outbox/Inbox via Ruya. When on, the Data project gains a Ruya.Services.ReliableMessaging dep and registers Outbox/Inbox in the shared DbContext; when off, Data stays Ruya-free and Sourcing isn't generated. Sample also auto-enables --EntityFramework + --OData (both are required for the demo to function)."
+			"description": "Include the Recipe, Nutrition, and Sourcing reference modules plus the Gateway-owned Webhook edge adapter. Sourcing demonstrates Outbox/Inbox and supplier webhook ingestion via Ruya. When on, the Data project gains a Ruya.Services.ReliableMessaging dependency and registers Outbox/Inbox in the shared DbContext; when off, Data stays Ruya-free and the reference modules and Webhook edge adapter are not generated. Sample also auto-enables --EntityFramework + --OData (both are required for the demo to function)."
 		},
 		"EntityFramework": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false",
-			"description": "Generate the EF Core scaffold (Models/Data/Migrations projects + reference modules). Auto-enabled when --Sample is on, since the Sourcing reference module depends on it."
+			"description": "Generate the shared EF Core scaffold (Models, Data, Migrations, and tooling). Reference business modules remain gated by --Sample. Auto-enabled when --Sample is on, since the Sourcing reference module depends on it."
 		},
 		"OData": {
 			"type": "parameter",
 			"dataType": "bool",
 			"defaultValue": "false",
-			"description": "Generate OData controllers for Recipe + Nutrition modules. Auto-enabled when --Sample is on, since the AppHost E2E demo exercises OData CRUD."
+			"description": "Enable OData plumbing for application modules. Recipe and Nutrition reference controllers are present only with --Sample. Auto-enabled when --Sample is on, since the AppHost E2E demo exercises OData CRUD."
 		},
 		"EntityFrameworkScaffold": {
 			"type": "computed",
@@ -254,7 +255,12 @@
 						"src/BurcinCo.BurcinApp.Modules.Nutrition/**/*",
 						"src/BurcinCo.BurcinApp.Modules.Sourcing/**/*",
 						"src/BurcinCo.BurcinApp.Modules.Sourcing.Abstractions/**/*",
-						"tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/**/*",
+						"src/BurcinCo.BurcinApp.Gateway/Webhook/**/*",
+						"tests/BurcinCo.BurcinApp.Gateway.Integration.Tests/WebhookTests.cs",
+						"tests/BurcinCo.BurcinApp.Gateway.Integration.Tests/Fixtures/BrokerCallRecorder.cs",
+						"tests/BurcinCo.BurcinApp.Gateway.Integration.Tests/Fixtures/NoContentLengthHttpContent.cs",
+						"tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/ODataCrudTests.cs",
+						"tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/Fixtures/DatabaseSchemaInitializer.cs",
 						"tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests/**/*",
 						"tests/BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests/**/*",
 						"tests/BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests/**/*",
@@ -266,7 +272,7 @@
 						"tests/NutritionFact.http",
 						"tests/Tag.http",
 						"tests/Photo.http",
-						"tests/Sourcing.http",
+						"tests/IngredientSupply.http",
 						"tests/Batch.http"
 					]
 				},
@@ -274,8 +280,6 @@
 					"condition": "(!EntityFrameworkScaffold)",
 					"exclude": [
 						"tools/EntityFramework/**/*",
-						"src/BurcinCo.BurcinApp.Host/DbContextFactory.cs",
-						"src/BurcinCo.BurcinApp.Host/EntityFramework.targets",
 						"src/BurcinCo.BurcinApp.Models/**/*",
 						"src/BurcinCo.BurcinApp.Data/**/*",
 						"src/BurcinCo.BurcinApp.Migrations/**/*"
@@ -379,7 +383,7 @@
 				}
 			]
 		},
-		"**/nuget.config": {
+		"**/nuget.config.example": {
 			"operations": [
 				{
 					"type": "conditional",

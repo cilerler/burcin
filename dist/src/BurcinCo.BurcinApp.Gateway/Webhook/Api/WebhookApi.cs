@@ -2,25 +2,30 @@ using BurcinCo.BurcinApp.Gateway.Webhook.Api.Filters;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 
 namespace BurcinCo.BurcinApp.Gateway.Webhook.Api;
 
 /// <summary>
-/// Entry point for the Webhook service's HTTP surface. Per the dotnet-service-generator skill,
-/// each service's <c>Api/{ServiceName}Api.cs</c> owns the route grouping and filter wiring; the
-/// individual <c>{Verb}Endpoint.cs</c> files hold each operation's handler logic. <c>MapWebhook()</c>
-/// is what the Gateway-level <c>ProgramExtensionsCustom.ConfigureCustomPipeline</c> calls.
+/// Low-level HTTP adapter for the Gateway-owned Webhook edge capability. Only its
+/// <c>StartupExtensions.MapWebhook</c> wrapper invokes it.
 /// </summary>
 internal static class WebhookApi
 {
-	public static IEndpointRouteBuilder MapWebhook(this IEndpointRouteBuilder endpoints)
+	internal static WebApplication MapWebhookApi(this WebApplication app)
 	{
-		endpoints.MapPost("/webhooks/{**path}", PostEndpoint.HandleAsync)
+		app.MapPost(Constants.RoutePattern, PostEndpoint.HandleAsync)
 			.AddEndpointFilter<WebhookSecretAuthFilter>()
 			.WithName("PostWebhook")
-			.WithTags("Webhooks");
+			.WithTags(Constants.OpenApiTag)
+			.WithOpenApi()
+			.Produces(StatusCodes.Status202Accepted)
+			.ProducesValidationProblem(StatusCodes.Status400BadRequest)
+			.Produces(StatusCodes.Status401Unauthorized)
+			.Produces(StatusCodes.Status404NotFound)
+			.ProducesProblem(StatusCodes.Status413PayloadTooLarge)
+			.ProducesProblem(StatusCodes.Status502BadGateway)
+			.ProducesProblem(StatusCodes.Status500InternalServerError);
 
-		return endpoints;
+		return app;
 	}
 }

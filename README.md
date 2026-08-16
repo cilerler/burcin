@@ -10,7 +10,9 @@
 ![ci](https://github.com/cilerler/burcin/workflows/ci/badge.svg?branch=main)
 
 
-The template will change all `Burcin` words under the `dist` folder to the folder name.
+The template replaces the `BurcinCo`, `BurcinApp`, and `BurcinDatabase` sentinel names with the
+organization, project, and database values supplied at generation time. The Burcin template name
+and attribution remain Burcin.
 
 ## Install
 
@@ -28,12 +30,12 @@ dotnet new install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.
 > It looks like `--update-*` commands are not working (4/22/2020)
 
 ```pwsh
-# checks if tere is an update
+# checks if there is an update
 dotnet new "Burcin.Templates.CSharp" --update-check
 ```
 
 ```pwsh
-# applies if tere is an update
+# applies if there is an update
 dotnet new "Burcin.Templates.CSharp" --update-apply
 ```
 
@@ -59,19 +61,32 @@ dotnet new burcin --name "MyFolder" `
     --OrganizationLegalName "MyOrganization, Inc." --OrganizationName "MyOrganization" --ProjectName "MyProject" `
     --DatabaseName "MyProjectDb" --Authors "Your Name" `
     --RepositoryUrl "https://github.com/<changeme>/myproject" `
-    --EntityFramework --OData --Cache "All" `
-    --DocFx --GitHubTemplates --NugetSourceGitHub --NugetSourceAzureDevOps `
+    --Sample --Cache "All" `
+    --DocFx --GitHubTemplates `
     --SkipRestore;
 
-# Minimal scaffold (no EF / no modules / no OData) — useful for stateless services:
+# Minimal scaffold (no EF / no reference modules / no OData):
 dotnet new burcin --name "MyFolder" `
     --OrganizationLegalName "MyOrganization, Inc." --OrganizationName "MyOrganization" --ProjectName "MyService" `
     --DatabaseName "MyServiceDb" --Authors "Your Name" `
     --SkipRestore;
 ```
 
-See the generated project's `README.md` for architecture details — the Modular Polylith pattern,
-per-module schemas, Outbox/Inbox flows, Aspire AppHost orchestration, and how to add a new module.
+The generated project's `README.md` reflects the selected options. With `--Sample`, it documents
+the Modular Polylith reference modules, per-module schemas, Outbox/Inbox flows, Aspire AppHost
+orchestration, the Gateway-owned Webhook edge adapter, and how to add a new module; minimal
+output omits claims about projects it did not generate.
+
+## Verify local template changes
+
+```pwsh
+Copy-Item tests/.env.example tests/.env
+# Fill in tests/.env, then generate the canonical Sample fixture with a private template hive.
+./tests/CreateProject.ps1 -Versioned
+```
+
+`CreateProject.ps1` packs the current template, installs it into an isolated private hive, and writes the
+generated fixture beneath `tests/TestResults.ignore` without changing the globally installed template.
 
 ## List all templates
 

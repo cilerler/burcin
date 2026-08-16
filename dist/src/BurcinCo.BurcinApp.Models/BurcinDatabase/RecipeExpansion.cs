@@ -23,7 +23,7 @@ namespace BurcinCo.BurcinApp.Models.BurcinDatabase
 		public string ModifiedBy { get; set; } = null!;
 
 		// SoftDelete column intentionally absent: RecipeExpansion has a cascading FK to Recipe.
-		// SQL Server forbids INSTEAD OF DELETE triggers on tables with cascading FKs (lillian guidance).
+		// SQL Server forbids INSTEAD OF DELETE triggers on tables with cascading FKs.
 		// RecipeExpansion's lifecycle is tied to Recipe — when Recipe deletes, the cascade hard-deletes
 		// the expansion row; soft-delete on this 1:1 extension table doesn't carry useful semantics.
 		public int Rate { get; set; }

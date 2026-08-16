@@ -5,8 +5,8 @@
 	</PropertyGroup>
 
 	<!-- Module's public cross-module contract. Dep-free by design — consumers reference only this csproj,
-	     never the Modules.Sourcing implementation csproj. Outbox event types (IngredientQuoteRequestedEvent,
-	     IngredientQuoteResponseReceivedEvent) live here so any module that subscribes to them can receive
-	     the typed payload without dragging in the producer's implementation assembly. -->
+	     never the Modules.Sourcing implementation csproj. The public command/query surface and the inbound
+	     IngredientQuoteResponseReceivedEvent wire contract live here. The service-internal Outbox request
+	     event remains at the IngredientSupply service boundary instead of being exposed module-wide. -->
 
 </Project>

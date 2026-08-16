@@ -16,7 +16,7 @@ COPY ["Directory.Packages.props", "./"]
 COPY ["Directory.Build.props", "./"]
 COPY ["Directory.Build.targets", "./"]
 COPY ["global.json", "./"]
-COPY ["nuget.config","./"]
+COPY ["nuget.config*", "./"]
 COPY ["src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj","src/BurcinCo.BurcinApp.Gateway/"]
 RUN dotnet restore "./src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj" -p:Configuration=Release
 COPY . .

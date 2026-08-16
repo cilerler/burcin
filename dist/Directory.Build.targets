@@ -21,4 +21,13 @@
 		<Message Importance="high" Text="RepositoryBranch set to: $(RepositoryBranch)" />
 	</Target>
 
+	<Target Name="ValidateLocalRuyaSource"
+		BeforeTargets="CollectPackageReferences;ResolveProjectReferences"
+		Condition="'$(UseLocalRuyaSource)' == 'true'">
+		<Error Condition="'$(LibrariesRoot)' == ''"
+			Text="UseLocalRuyaSource=true requires LibrariesRoot. Copy Directory.Build.local.props.example to Directory.Build.local.props and set the Ruya repository root." />
+		<Error Condition="'$(LibrariesRoot)' != '' AND !Exists('$(LibrariesRoot)/src')"
+			Text="LibrariesRoot '$(LibrariesRoot)' does not contain a src directory. Update Directory.Build.local.props or set UseLocalRuyaSource=false to use NuGet packages." />
+	</Target>
+
 </Project>

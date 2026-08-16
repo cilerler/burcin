@@ -7,6 +7,13 @@
 		<Version>0.1</Version>
 	</PropertyGroup>
 
+	<!--#if (TemplateEditMode)-->
+	<!-- Template-edit-mode only: keep Sample-gated orchestration compilable in the raw dist source. -->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Sample;</DefineConstants>
+	</PropertyGroup>
+	<!--#endif-->
+
 	<PropertyGroup>
 		<PackageTags>devbox;apphost;aspire;hosting;microservices;local-development;sqlserver;redis;rabbitmq;migrations;seeding;diagnostics;configuration;dotnet</PackageTags>
 		<Description>A preconfigured Aspire-based application host for local development and integration testing.</Description>
@@ -18,6 +25,7 @@
 		<PackageReference Include="Aspire.Hosting.SqlServer" />
 		<PackageReference Include="Aspire.Hosting.Redis" />
 		<PackageReference Include="Aspire.Hosting.RabbitMQ" />
+		<PackageReference Include="MessagePack" />
 	</ItemGroup>
 
 	<ItemGroup>

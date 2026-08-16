@@ -23,10 +23,11 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.OpenApi" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.Abstractions" />
-		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(OData)' == 'true'" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Condition="'$(ODataServices)' == 'true'" />
 	</ItemGroup>
 
 	<ItemGroup>

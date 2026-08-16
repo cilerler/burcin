@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -11,28 +13,35 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using BurcinCo.BurcinApp.Data;
+using BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Interfaces;
 using BurcinCo.BurcinApp.Modules.Sourcing.Extensions;
+using BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Contracts;
+using Ruya.Diagnostics.DistributedTracing;
 using Ruya.Services.MessageQueue.Extensions;
 using Ruya.Services.MessageQueue.RabbitMq;
 using Ruya.Services.ReliableMessaging.Extensions;
 using Ruya.Services.ReliableMessaging.MessageQueue.Extensions;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
+using IngredientSupplyConstants = BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Constants;
 
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Integration.Tests.Fixtures;
 
 /// <summary>
 /// Shared per-assembly fixture: spins up MsSql + RabbitMQ Testcontainers once for the whole test run,
-/// applies the Sourcing schema via EF migrations, and exposes two test entry points:
+/// applies the Sourcing schema from EF migrations or the current model, and exposes two test entry points:
 ///   <list type="bullet">
-///     <item><see cref="CreateScope"/> — lightweight per-test DI scope (no host, no workers, no broker traffic)
+///     <item><see cref="CreateScope"/> — lightweight per-test DI scope (no host, no subscribers, no broker traffic)
 ///       used by tests that exercise the producer chain only.</item>
 ///     <item><see cref="BuildHostAsync"/> — full <see cref="IHost"/> with Outbox processor + RabbitMQ +
-///       Sourcing workers; used by end-to-end tests that need to observe the broker round-trip.</item>
+///       Sourcing subscribers; used by end-to-end tests that need to observe the broker round-trip.</item>
 ///   </list>
 /// </summary>
 internal sealed class SourcingTestFixture : IAsyncDisposable
 {
+	internal const string RabbitMqUsername = "useradmin";
+	internal const string RabbitMqPassword = "passwordadmin";
+
 	private readonly MsSqlContainer _mssql;
 	private readonly RabbitMqContainer _rabbit;
 	private ServiceProvider? _root;
@@ -46,8 +55,8 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 
 		// Default RabbitMQ image is enough — we don't exercise shovel/delayed-message plugins in these tests.
 		_rabbit = new RabbitMqBuilder()
-			.WithUsername("guest")
-			.WithPassword("guest")
+			.WithUsername(RabbitMqUsername)
+			.WithPassword(RabbitMqPassword)
 			.Build();
 	}
 
@@ -64,6 +73,7 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		await Task.WhenAll(_mssql.StartAsync(), _rabbit.StartAsync()).ConfigureAwait(false);
 		_root = BuildRootServices();
 		await EnsureSchemaAsync().ConfigureAwait(false);
+		await ValidateServiceGraphAsync().ConfigureAwait(false);
 		_initialized = true;
 	}
 
@@ -101,11 +111,33 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 	/// <summary>
 	/// Build + start a full <see cref="IHost"/> mirroring the production wire-up for the Sourcing module:
 	/// shared <see cref="BurcinDatabaseDbContext"/>, Outbox interceptor + processor, RabbitMQ provider pointed at
-	/// the test container, and the Sourcing module's workers (<c>QuoteRequestDispatcher</c>,
-	/// <c>QuoteResponseSubscriber</c>). The supplier-side HTTP boundary is replaced with the supplied
+	/// the test container, and the Sourcing module's subscribers
+	/// (<c>IngredientQuoteRequestedEventSubscriber</c>,
+	/// <c>IngredientQuoteResponseReceivedEventSubscriber</c>). The supplier-side HTTP boundary is replaced with the supplied
 	/// stub handler so tests can shape supplier responses (200 OK, 5xx, transport failure) without a real endpoint.
 	/// </summary>
-	public async Task<IHost> BuildHostAsync(HttpMessageHandler supplierHandler, CancellationToken cancellationToken = default)
+	public Task<IHost> BuildHostAsync(HttpMessageHandler supplierHandler, CancellationToken cancellationToken = default)
+	{
+		return BuildHostCoreAsync(
+			supplierHandler,
+			configureServices: null,
+			cancellationToken: cancellationToken);
+	}
+
+	/// <summary>Build a full host and apply a test-only service override before the container is built.</summary>
+	public Task<IHost> BuildHostAsync(
+		HttpMessageHandler supplierHandler,
+		Action<IServiceCollection> configureServices,
+		CancellationToken cancellationToken = default)
+	{
+		ArgumentNullException.ThrowIfNull(configureServices);
+		return BuildHostCoreAsync(supplierHandler, configureServices, cancellationToken);
+	}
+
+	private async Task<IHost> BuildHostCoreAsync(
+		HttpMessageHandler supplierHandler,
+		Action<IServiceCollection>? configureServices,
+		CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(supplierHandler);
 
@@ -114,20 +146,31 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
 		{
 			["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
+			["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
 
-			["MessageQueue:DefaultProvider"] = "default",
-			["MessageQueue:Providers:default:Type"] = "RabbitMQ",
-			["MessageQueue:Providers:default:Enabled"] = "true",
+			// The global fallback is deliberately unusable. The full flow can reach RabbitMQ only when
+			// every persisted Outbox envelope and both subscribers select the service-owned provider.
+			["MessageQueue:DefaultProvider"] = "invalid-global-fallback",
+			["MessageQueue:Providers:invalid-global-fallback:Type"] = "RabbitMQ",
+			["MessageQueue:Providers:invalid-global-fallback:Enabled"] = "false",
+			["MessageQueue:Providers:sourcing-rabbitmq:Type"] = "RabbitMQ",
+			["MessageQueue:Providers:sourcing-rabbitmq:Enabled"] = "true",
 			["MessageQueue:RabbitMQ:Host"] = RabbitMqHost,
 			["MessageQueue:RabbitMQ:Port"] = RabbitMqPort.ToString(System.Globalization.CultureInfo.InvariantCulture),
 			["MessageQueue:RabbitMQ:VirtualHost"] = "/",
-			["MessageQueue:RabbitMQ:Username"] = "guest",
-			["MessageQueue:RabbitMQ:Password"] = "guest",
+			["MessageQueue:RabbitMQ:Username"] = RabbitMqUsername,
+			["MessageQueue:RabbitMQ:Password"] = RabbitMqPassword,
 
 			// Sourcing module config: one configured supplier whose URL the stub handler intercepts.
 			// SupplierWebhookClientSettings binds the `Clients` section, so the dict-property `Suppliers`
 			// becomes `Clients:Suppliers:<key>`.
-			["Modules:Sourcing:Procurement:IngredientSupply:MessageQueueProviderName"] = "default",
+			["ReliableMessaging:MessageQueueDispatcher:QueueName"] = "invalid-global-fallback",
+
+			["Modules:Sourcing:Procurement:IngredientSupply:MessageQueueProviderName"] = "sourcing-rabbitmq",
+			["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteRequestedEventTopicName"] = "sourcing.ingredient-quote.requested",
+			["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteResponseReceivedEventTopicName"] = "webhooks.sourcing.quote-response",
+			// Supplier HTTP calls do not retry locally; the subscriber owns the one finite retry budget.
+			["Modules:Sourcing:Procurement:IngredientSupply:Clients:HttpTimeout"] = "00:00:30",
 			["Modules:Sourcing:Procurement:IngredientSupply:Clients:Suppliers:test-supplier:Url"]
 				= "http://supplier.test/quote",
 		});
@@ -135,6 +178,7 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		builder.Services.AddBurcinDatabaseDbContext();
 
 		builder.Services.AddMessageQueue(builder.Configuration)
+			.AddSourcingMessageContracts()
 			.AddRabbitMQ(builder.Configuration);
 
 		// Data owns the persistence-side reliable-messaging wiring (EF stores + interceptor configurer);
@@ -143,15 +187,19 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 			.AddBurcinDatabaseReliableMessaging()
 			.AddMessageQueueOutboundDispatcher();
 
-		builder.Services.AddSourcingModule(builder.Configuration);
+		builder.Services.AddMetrics();
+		builder.Services.AddDistributedMemoryCache();
+		builder.Services.AddDistributedTracingService();
+		builder.Services.AddSourcingModule();
 
 		// Replace the primary handler on the named HttpClient that SupplierWebhookClient resolves.
-		// The Sourcing module already registered AddHttpClient<SupplierWebhookClient>(); calling
-		// AddHttpClient(<same-name>) again returns the same builder, and ConfigurePrimaryHttpMessageHandler
+		// The Sourcing module already registered the named supplier client. Calling AddHttpClient with
+		// the same name returns that builder, and ConfigurePrimaryHttpMessageHandler
 		// supplies the bottom of the handler chain. The class is internal to Sourcing, so we hard-code
 		// the name here — kept in lockstep with the production wiring.
-		builder.Services.AddHttpClient("SupplierWebhookClient")
+		builder.Services.AddHttpClient(IngredientSupplyConstants.HttpClients.SupplierWebhook)
 			.ConfigurePrimaryHttpMessageHandler(_ => supplierHandler);
+		configureServices?.Invoke(builder.Services);
 
 		var host = builder.Build();
 		await host.StartAsync(cancellationToken).ConfigureAwait(false);
@@ -186,6 +234,12 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 			.AddInMemoryCollection(new Dictionary<string, string?>
 			{
 				["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
+				["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
+				["Modules:Sourcing:Procurement:IngredientSupply:MessageQueueProviderName"] = "sourcing-rabbitmq",
+				["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteRequestedEventTopicName"] = "sourcing.ingredient-quote.requested",
+				["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteResponseReceivedEventTopicName"] = "webhooks.sourcing.quote-response",
+				["Modules:Sourcing:Procurement:IngredientSupply:Clients:HttpTimeout"] = "00:00:30",
+				["Modules:Sourcing:Procurement:IngredientSupply:Clients:Suppliers:test-supplier:Url"] = "http://supplier.test/quote",
 			})
 			.Build();
 
@@ -196,7 +250,8 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		// Production-equivalent DbContext registration. The Outbox interceptor wiring happens
 		// automatically via the IDbContextConfigurer<> seam once AddBurcinDatabaseReliableMessaging
 		// registers its configurer (below). MigrationsAssemblyName pinning is required because
-		// EnsureSchemaAsync calls MigrateAsync against a Testcontainer.
+		// EnsureSchemaAsync uses migrations when the generated project has them and otherwise creates
+		// the current model for a freshly generated template.
 		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
 
 		// Reliable-messaging composition root + Data's per-context outbox/inbox + EF stores +
@@ -205,8 +260,11 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		services.AddReliableMessaging()
 			.AddBurcinDatabaseReliableMessaging();
 
-		// Sourcing module DI. Registers ISourcingService + workers (workers won't run; no IHost.StartAsync).
-		services.AddSourcingModule(config);
+		// Sourcing module DI. Registers ISourcingService + subscribers (they won't run; no IHost.StartAsync).
+		services.AddMetrics();
+		services.AddDistributedMemoryCache();
+		services.AddDistributedTracingService();
+		services.AddSourcingModule();
 
 		return services.BuildServiceProvider(validateScopes: true);
 	}
@@ -215,9 +273,16 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 	{
 		await using var scope = CreateScope();
 		var db = scope.ServiceProvider.GetRequiredService<BurcinDatabaseDbContext>();
-		await db.Database.MigrateAsync().ConfigureAwait(false);
+		if (db.Database.GetMigrations().Any())
+		{
+			await db.Database.MigrateAsync().ConfigureAwait(false);
+		}
+		else
+		{
+			await db.Database.EnsureCreatedAsync().ConfigureAwait(false);
+		}
 
-		// Apply post-migration soft-delete triggers so tests run against production-equivalent DB behavior.
+		// Apply the soft-delete triggers after either schema-creation path.
 		var triggersSqlPath = Path.Combine(AppContext.BaseDirectory, "triggers.sql");
 		var triggersSql = await File.ReadAllTextAsync(triggersSqlPath).ConfigureAwait(false);
 		var result = await _mssql.ExecScriptAsync(triggersSql).ConfigureAwait(false);
@@ -225,6 +290,13 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		{
 			throw new InvalidOperationException($"triggers.sql apply failed (exit {result.ExitCode}): {result.Stderr}");
 		}
+	}
+
+	private async Task ValidateServiceGraphAsync()
+	{
+		await using var scope = CreateScope();
+		_ = scope.ServiceProvider.GetRequiredService<ISourcingService>();
+		_ = scope.ServiceProvider.GetRequiredService<IIngredientSupply>();
 	}
 }
 
@@ -234,7 +306,7 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 internal sealed class StubSupplierHandler : HttpMessageHandler
 {
 	private readonly Func<HttpRequestMessage, HttpResponseMessage> _responder;
-	private readonly List<HttpRequestMessage> _requests = new();
+	private readonly ConcurrentQueue<HttpRequestMessage> _requests = new();
 
 	public StubSupplierHandler(HttpStatusCode statusCode)
 		: this(_ => new HttpResponseMessage(statusCode)) { }
@@ -244,11 +316,11 @@ internal sealed class StubSupplierHandler : HttpMessageHandler
 		_responder = responder ?? throw new ArgumentNullException(nameof(responder));
 	}
 
-	public IReadOnlyList<HttpRequestMessage> ReceivedRequests => _requests;
+	public IReadOnlyCollection<HttpRequestMessage> ReceivedRequests => _requests;
 
 	protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
 	{
-		_requests.Add(request);
+		_requests.Enqueue(request);
 		return Task.FromResult(_responder(request));
 	}
 }

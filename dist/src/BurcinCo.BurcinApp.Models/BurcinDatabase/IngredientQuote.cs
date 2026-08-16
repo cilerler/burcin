@@ -8,9 +8,10 @@ namespace BurcinCo.BurcinApp.Models.BurcinDatabase
 	/// <summary>
 	/// A quote-request lifecycle row owned by Modules.Sourcing.
 	/// Created when the producer side asks an external supplier for an ingredient quote;
-	/// transitions through Status as the request flows out (Pending → Sent), and is
-	/// updated again when the supplier's response arrives via webhook → Gateway → broker
-	/// → Modules.Sourcing's Inbox handler (Sent → ResponseReceived).
+	/// transitions through Status as the request flows out (Pending → Sent), then the supplier
+	/// response commits Sent → ResponseReceived when accepted or Sent → Failed when rejected.
+	/// The first terminal response committed from Sent wins: a same-outcome replay is a no-op,
+	/// while an out-of-order or conflicting response is rejected without mutating the row.
 	/// </summary>
 	[Table("IngredientQuote", Schema = "Sourcing")]
 	[Index(nameof(Status), nameof(RequestedAt), Name = "IX_IngredientQuote_Status_RequestedAt")]

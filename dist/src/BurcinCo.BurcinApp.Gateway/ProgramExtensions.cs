@@ -74,7 +74,7 @@ internal static class ProgramExtensions
 		builder.Services.AddHealthChecks()
 						.AddResourceUtilizationHealthCheck()
 						.AddApplicationLifecycleHealthCheck()
-						.AddCheck<StartupHealthCheck>("Startup", tags: ["startup"])
+						.AddCheck<StartupHealthCheck>("Startup", tags: ["startup", "ready"])
 			;
 
 		return builder;
@@ -100,11 +100,11 @@ internal static class ProgramExtensions
 
 		app.MapPrometheusScrapingEndpoint();
 
-		// Health check endpoints (live/ready/startup triad per lillian observability skill).
+		// Health check endpoints (live/ready/startup triad).
 		var liveOptions = new HealthCheckOptions { Predicate = _ => false };
 		var readyOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("ready") };
 		var startupOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("startup") };
-		var healthGroup = app.MapGroup("");
+		var healthGroup = app.MapGroup("").AllowAnonymous();
 		healthGroup.MapHealthChecks("/health");
 		healthGroup.MapHealthChecks("/healthz", readyOptions);
 		healthGroup.MapHealthChecks("/healthz/ready", readyOptions);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Models;
 
 namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Requests;
@@ -7,6 +8,6 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Requests;
 /// Public request DTO: ask Modules.Sourcing to fetch an ingredient quote from a configured supplier.
 /// </summary>
 public record RequestQuoteRequest(
-	string SupplierKey,
-	long? RecipeId,
-	IReadOnlyList<IngredientLine> Ingredients);
+	[property: JsonPropertyName("supplierKey")] string SupplierKey,
+	[property: JsonPropertyName("recipeId")] long? RecipeId,
+	[property: JsonPropertyName("ingredients")] IReadOnlyList<IngredientLine> Ingredients);

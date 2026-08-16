@@ -35,16 +35,25 @@
 		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
 		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Models\BurcinCo.BurcinApp.Models.csproj" />
 		<ProjectReference Include="..\..\src\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Testing.Primitives\Ruya.Testing.Primitives.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
-		<ProjectReference Include="..\..\..\..\..\..\ruya\src\Ruya.Services.ReliableMessaging.EntityFrameworkCore\Ruya.Services.ReliableMessaging.EntityFrameworkCore.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
+		<PackageReference Include="Ruya.Testing.Primitives" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging" />
+		<PackageReference Include="Ruya.Services.ReliableMessaging.EntityFrameworkCore" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' == 'true'">
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Testing.Primitives\Ruya.Testing.Primitives.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging\Ruya.Services.ReliableMessaging.csproj" />
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Services.ReliableMessaging.EntityFrameworkCore\Ruya.Services.ReliableMessaging.EntityFrameworkCore.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<None Update="appsettings.Test.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<!-- Soft-delete triggers, applied per Testcontainer after MigrateAsync so tests run against
+		<!-- Soft-delete triggers, applied per Testcontainer after schema initialization so tests run against
 		     production-equivalent DB behavior. Linked from tools/EntityFramework so the single source of
 		     truth stays with the migration scripts. -->
 		<None Include="..\..\tools\EntityFramework\triggers.sql" Link="triggers.sql" CopyToOutputDirectory="PreserveNewest" />

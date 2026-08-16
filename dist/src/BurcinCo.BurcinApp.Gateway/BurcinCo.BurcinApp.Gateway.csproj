@@ -6,6 +6,13 @@
 		<Version>0.1</Version>
 	</PropertyGroup>
 
+	<!--#if (TemplateEditMode)-->
+	<!-- Template-edit-mode only: keep Sample-gated composition compilable in the raw dist source. -->
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Sample;</DefineConstants>
+	</PropertyGroup>
+	<!--#endif-->
+
 	<ItemGroup>
 		<PackageReference Include="Yarp.ReverseProxy" />
 		<PackageReference Include="Microsoft.Extensions.ServiceDiscovery" />
@@ -20,21 +27,31 @@
 		<PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.ResourceUtilization" />
 	</ItemGroup>
 
-	<ItemGroup Condition="'$(Configuration)' == 'Release'">
+	<!--#if (Sample)-->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+		<PackageReference Include="Microsoft.OpenApi" />
+		<PackageReference Include="Microsoft.Extensions.Http" />
+		<PackageReference Include="Microsoft.Extensions.Http.Resilience" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+	</ItemGroup>
+	<!--#endif-->
+
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
 		<PackageReference Include="Ruya.AspNetCore.Diagnostics" />
 		<PackageReference Include="Ruya.AspNetCore.Middleware" />
 		<PackageReference Include="Ruya.Diagnostics" />
 		<PackageReference Include="Ruya.Extensions.Configuration" />
 		<PackageReference Include="Ruya.Extensions.Hosting" />
 		<PackageReference Include="Ruya.OpenTelemetry" />
+		<PackageReference Include="Ruya.Primitives" />
+		<!--#if (Sample)-->
+		<PackageReference Include="Ruya.Extensions.DependencyInjection" />
+		<!--#endif-->
 	</ItemGroup>
 
-	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-		<LibrariesRoot>..\..\..\..\..\..\ruya</LibrariesRoot>
-	</PropertyGroup>
-	<Import Project="Directory.Build.local.props" Condition="'$(Configuration)' == 'Debug' AND Exists('Directory.Build.local.props')" />
-
-	<ItemGroup Condition="'$(Configuration)' == 'Debug'">
+	<ItemGroup Condition="'$(UseLocalRuyaSource)' == 'true'">
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Diagnostics\Ruya.AspNetCore.Diagnostics.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.AspNetCore.Middleware\Ruya.AspNetCore.Middleware.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Diagnostics\Ruya.Diagnostics.csproj" />
@@ -42,6 +59,9 @@
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Configuration\Ruya.Extensions.Configuration.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.Hosting\Ruya.Extensions.Hosting.csproj" />
 		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.OpenTelemetry\Ruya.OpenTelemetry.csproj" />
+		<!--#if (Sample)-->
+		<ProjectReference Include="$(LibrariesRoot)\src\Ruya.Extensions.DependencyInjection\Ruya.Extensions.DependencyInjection.csproj" />
+		<!--#endif-->
 	</ItemGroup>
 
 </Project>

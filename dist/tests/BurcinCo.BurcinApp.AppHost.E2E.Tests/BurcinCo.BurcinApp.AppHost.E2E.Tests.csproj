@@ -23,13 +23,36 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
 		<PackageReference Include="MSTest" />
 		<PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
-		<PackageReference Include="Moq" />	
 		<PackageReference Include="Aspire.Hosting.Testing" />
 	</ItemGroup>
+
+	<!--#if (Sample) -->
+	<ItemGroup>
+		<PackageReference Include="Moq" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+	</ItemGroup>
+	<!--#endif -->
 
 	<ItemGroup>
 		<ProjectReference
 			Include="..\..\src\BurcinCo.BurcinApp.AppHost\BurcinCo.BurcinApp.AppHost.csproj" />
 	</ItemGroup>
+
+	<!--#if (Sample) -->
+	<ItemGroup>
+		<ProjectReference
+			Include="..\..\src\BurcinCo.BurcinApp.Data\BurcinCo.BurcinApp.Data.csproj" />
+		<ProjectReference
+			Include="..\..\src\BurcinCo.BurcinApp.Migrations\BurcinCo.BurcinApp.Migrations.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\tools\EntityFramework\triggers.sql"
+			Link="triggers.sql"
+			CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+	<!--#endif -->
 
 </Project>

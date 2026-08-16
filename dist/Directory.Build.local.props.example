@@ -1,0 +1,10 @@
+<Project>
+	<!-- Copy to Directory.Build.local.props (gitignored), then keep the path anchored to
+	     MSBuildThisFileDirectory as below or replace it with an absolute path. This opt-in switches
+	     every Ruya dependency, including test-only dependencies, from NuGet packages to local
+	     source ProjectReferences. -->
+	<PropertyGroup>
+		<UseLocalRuyaSource>true</UseLocalRuyaSource>
+		<LibrariesRoot>$(MSBuildThisFileDirectory)../ruya</LibrariesRoot>
+	</PropertyGroup>
+</Project>

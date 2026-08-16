@@ -1,0 +1,37 @@
+# IngredientSupply exposes a versioned command/query API. RequestQuote returns 202 Accepted
+# after the quote row and Outbox event commit atomically; poll the returned resource until the
+# asynchronous supplier and response flows advance its status.
+@baseUrl = https://127.0.0.1:443/api/v1/ingredient-supply
+@contentType = application/json
+
+###
+# @name RequestQuote
+POST {{baseUrl}}/
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "supplierKey": "test-supplier",
+  "recipeId": 1,
+  "ingredients": [
+    { "name": "spaghetti", "quantity": 400, "unit": "g" },
+    { "name": "pancetta", "quantity": 150, "unit": "g" }
+  ]
+}
+
+###
+# @name GetQuoteById
+GET {{baseUrl}}/1
+Accept: {{contentType}}
+
+###
+# @name RejectInvalidRequest
+POST {{baseUrl}}/
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "supplierKey": "",
+  "recipeId": null,
+  "ingredients": []
+}

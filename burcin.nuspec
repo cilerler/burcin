@@ -17,6 +17,6 @@
 	</metadata>
 
 	<files>
-		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\artifacts\**\*;**\*.user;**\*.lock.json;**\.git\**\*" />
+		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\artifacts\**\*;**\*.user;**\*.lock.json;**\.git\**\*;**\Directory.Build.local.props" />
 	</files>
 </package>

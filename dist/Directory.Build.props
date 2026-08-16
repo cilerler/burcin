@@ -1,4 +1,12 @@
 <Project>
+	<!-- Package references are the portable default. Developers working on Burcin and Ruya
+	     together may copy Directory.Build.local.props.example to Directory.Build.local.props
+	     and opt into source ProjectReferences for the whole solution in one place. -->
+	<Import Project="$(MSBuildThisFileDirectory)Directory.Build.local.props"
+		Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.local.props')" />
+	<PropertyGroup>
+		<UseLocalRuyaSource Condition="'$(UseLocalRuyaSource)' == ''">false</UseLocalRuyaSource>
+	</PropertyGroup>
 
 	<PropertyGroup>
 		<Authors>(authors-xml-encoded)</Authors>

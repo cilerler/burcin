@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization;
+using BurcinCo.BurcinApp.Host.Api;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,9 +15,9 @@ using Ruya.AspNetCore.Diagnostics.GlobalExceptionHandler;
 using Ruya.Diagnostics.DistributedTracing;
 using Ruya.Extensions.Configuration;
 using Ruya.OpenTelemetry;
-using Ruya.Services.DistributedLock.Redis.Extensions;
 using Scalar.AspNetCore;
 #if (CacheRedis)
+using Ruya.Services.DistributedLock.Redis.Extensions;
 using StackExchange.Redis;
 #endif
 
@@ -40,13 +41,22 @@ internal static class ProgramExtensions
 				options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
 			});
 
-		// builder.Services.AddAuthentication();
-		// builder.Services.AddAuthorization(options =>
-		// {
-		// options.FallbackPolicy = new AuthorizationPolicyBuilder()
-		// 	.RequireAuthenticatedUser()
-		// 	.Build();
-		// });
+		builder.Services
+			.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+			.AddJwtBearer();
+		builder.Services
+			.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+			.BindConfiguration("Authentication:Schemes:Bearer")
+			.Configure(options => options.MapInboundClaims = false)
+			.Validate(
+				options => !string.IsNullOrWhiteSpace(options.Authority) ||
+					!string.IsNullOrWhiteSpace(options.MetadataAddress),
+				"Bearer authentication requires Authority or MetadataAddress deployment configuration.")
+			.Validate(
+				options => !string.IsNullOrWhiteSpace(options.Audience),
+				"Bearer authentication requires Audience deployment configuration.")
+			.ValidateOnStart();
+		builder.Services.AddAuthorization();
 
 		builder.Services.AddMemoryCache();
 #if (!CacheExists)
@@ -56,17 +66,17 @@ internal static class ProgramExtensions
 #if (CacheSqlServer)
 		builder.Services.AddDistributedSqlServerCache(options =>
 		{
-			options.ConnectionString = builder.Configuration.GetConnectionString(builder.Configuration["Cache:SqlServer:ConnectionStringKey"]);
-			options.SchemaName = builder.Configuration["Cache:SqlServer:SchemaName"];
-			options.TableName = builder.Configuration["Cache:SqlServer:TableName"];
+			options.ConnectionString = builder.Configuration.GetConnectionString(builder.Configuration["DistributedCache:SqlServer:ConnectionStringKey"]);
+			options.SchemaName = builder.Configuration["DistributedCache:SqlServer:SchemaName"];
+			options.TableName = builder.Configuration["DistributedCache:SqlServer:TableName"];
 		});
 #endif
 
 #if (CacheRedis)
 		builder.Services.AddStackExchangeRedisCache(options =>
 		{
-			options.Configuration = builder.Configuration.GetConnectionString(builder.Configuration["Cache:Redis:ConnectionStringKey"]);
-			options.InstanceName = builder.Configuration["Cache:Redis:InstanceName"];
+			options.Configuration = builder.Configuration.GetConnectionString(builder.Configuration["DistributedCache:Redis:ConnectionStringKey"]);
+			options.InstanceName = builder.Configuration["DistributedCache:Redis:InstanceName"];
 			options.ConfigurationOptions = ConfigurationOptions.Parse(options.Configuration);
 			options.ConfigurationOptions.AbortOnConnectFail = true;
 		});
@@ -90,8 +100,6 @@ internal static class ProgramExtensions
 		builder.ConfigureOpenTelemetry();
 		builder.Services.AddDistributedTracingService();
 
-		builder.Services.AddRedisDistributedLock();
-
 		builder.Services.AddResponseCaching();
 		builder.Services.AddResponseCompression();
 
@@ -110,33 +118,33 @@ internal static class ProgramExtensions
 		builder.Services.AddHealthChecks()
 						.AddResourceUtilizationHealthCheck()
 						.AddApplicationLifecycleHealthCheck()
-						.AddCheck<StartupHealthCheck>("Startup", tags: ["startup"])
+						.AddCheck<StartupHealthCheck>("Startup", tags: ["startup", "ready"])
 #if (EntityFrameworkScaffold)
 			.AddSqlServer(
 				connectionString: builder.Configuration["ConnectionStrings:MsSqlConnection"]!,
 				name: "Microsoft SQL",
 				failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Unhealthy,
-				tags: ["services"])
+				tags: ["services", "ready"])
 #endif
 #if (CacheSqlServer)
 			.AddSqlServer(
 				connectionString: builder.Configuration["ConnectionStrings:MsSqlCacheConnection"]!,
 				name: "Microsoft SQL (Cache)",
 				failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded,
-				tags: ["services"])
+				tags: ["services", "ready"])
 #endif
 #if (CacheRedis)
 			.AddRedis(
 				redisConnectionString: builder.Configuration["ConnectionStrings:RedisConnection"]!,
 				name: "Redis",
 				failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded,
-				tags: ["services"])
+				tags: ["services", "ready"])
 #endif
 			.AddRabbitMQ(
 				rabbitConnectionString: builder.Configuration["ConnectionStrings:RabbitMQConnection"]!,
 				name: "RabbitMQ",
 				failureStatus: Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Degraded,
-				tags: ["services"])
+				tags: ["services", "ready"])
 			;
 
 		return builder;
@@ -162,22 +170,23 @@ internal static class ProgramExtensions
 		app.UseStaticFiles();
 
 		app.UseRouting();
+		app.UseAuthentication();
+		app.UseAuthorization();
 
 		app.UseResponseCaching();
 		app.UseResponseCompression();
 
 		// app.UseCors();
 
-		// app.UseAuthentication();
-		// app.UseAuthorization();
-
 		app.MapPrometheusScrapingEndpoint();
+		app.MapPingEndpoint();
+		app.MapMeEndpoint();
 
-		// Health check endpoints (live/ready/startup triad per lillian observability skill).
+		// Health check endpoints (live/ready/startup triad).
 		var liveOptions = new HealthCheckOptions { Predicate = _ => false };
 		var readyOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("ready") };
 		var startupOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("startup") };
-		var healthGroup = app.MapGroup("");
+		var healthGroup = app.MapGroup("").AllowAnonymous();
 		healthGroup.MapHealthChecks("/health");
 		healthGroup.MapHealthChecks("/healthz", readyOptions);
 		healthGroup.MapHealthChecks("/healthz/ready", readyOptions);
