@@ -17,6 +17,7 @@ using BurcinCo.BurcinApp.Modules.Sourcing.Abstractions.Interfaces;
 using BurcinCo.BurcinApp.Modules.Sourcing.Extensions;
 using BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Contracts;
 using Ruya.Diagnostics.DistributedTracing;
+using Ruya.Services.MessageQueue.Abstractions;
 using Ruya.Services.MessageQueue.Extensions;
 using Ruya.Services.MessageQueue.RabbitMq;
 using Ruya.Services.ReliableMessaging.Extensions;
@@ -148,11 +149,13 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 			["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
 			["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
 
-			// The global fallback is deliberately unusable. The full flow can reach RabbitMQ only when
-			// every persisted Outbox envelope and both subscribers select the service-owned provider.
+			// The global fallback is deliberately unusable at runtime. It is enabled and backed by a
+			// registered rejecting test provider so startup referential validation still succeeds. The
+			// full flow can reach RabbitMQ only when every persisted Outbox envelope and both subscribers
+			// select the service-owned provider.
 			["MessageQueue:DefaultProvider"] = "invalid-global-fallback",
-			["MessageQueue:Providers:invalid-global-fallback:Type"] = "RabbitMQ",
-			["MessageQueue:Providers:invalid-global-fallback:Enabled"] = "false",
+			["MessageQueue:Providers:invalid-global-fallback:Type"] = RejectingFallbackMessageQueueProvider.ProviderName,
+			["MessageQueue:Providers:invalid-global-fallback:Enabled"] = "true",
 			["MessageQueue:Providers:sourcing-rabbitmq:Type"] = "RabbitMQ",
 			["MessageQueue:Providers:sourcing-rabbitmq:Enabled"] = "true",
 			["MessageQueue:RabbitMQ:Host"] = RabbitMqHost,
@@ -177,9 +180,10 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 
 		builder.Services.AddBurcinDatabaseDbContext();
 
-		builder.Services.AddMessageQueue(builder.Configuration)
+		builder.Services.AddMessageQueue()
 			.AddSourcingMessageContracts()
-			.AddRabbitMQ(builder.Configuration);
+			.AddProvider<RejectingFallbackMessageQueueProvider>()
+			.AddRabbitMQ();
 
 		// Data owns the persistence-side reliable-messaging wiring (EF stores + interceptor configurer);
 		// Host owns the broker bridge (AddMessageQueueOutboundDispatcher). Same composition as production.
@@ -252,7 +256,8 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		// registers its configurer (below). MigrationsAssemblyName pinning is required because
 		// EnsureSchemaAsync uses migrations when the generated project has them and otherwise creates
 		// the current model for a freshly generated template.
-		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
+		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName =
+			typeof(BurcinCo.BurcinApp.Migrations.DbContextFactory).Assembly.GetName().Name);
 
 		// Reliable-messaging composition root + Data's per-context outbox/inbox + EF stores +
 		// interceptor configurer. Skip AddMessageQueueOutboundDispatcher — that drains to a broker;
@@ -297,6 +302,25 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		await using var scope = CreateScope();
 		_ = scope.ServiceProvider.GetRequiredService<ISourcingService>();
 		_ = scope.ServiceProvider.GetRequiredService<IIngredientSupply>();
+	}
+}
+
+/// <summary>
+/// Test-only provider that keeps the global fallback configuration valid at startup while failing fast if
+/// production code accidentally selects it instead of the service-owned provider.
+/// </summary>
+internal sealed class RejectingFallbackMessageQueueProvider : IMessageQueueProvider
+{
+	internal const string ProviderName = "RejectingTestFallback";
+
+	public ProviderCapabilities Capabilities { get; } = new();
+
+	string IMessageQueueProvider.ProviderName => ProviderName;
+
+	public Task<IMessageQueue> CreateAsync(string name, CancellationToken cancellationToken = default)
+	{
+		return Task.FromException<IMessageQueue>(new InvalidOperationException(
+			$"Test isolation failure: queue '{name}' selected the global fallback provider."));
 	}
 }
 

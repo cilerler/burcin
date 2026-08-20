@@ -47,7 +47,8 @@ internal static class DatabaseSchemaInitializer
 		services.AddSingleton<IConfiguration>(configuration);
 		services.AddLogging();
 		services.AddBurcinDatabaseDbContext(
-			settings => settings.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
+			settings => settings.MigrationsAssemblyName =
+				typeof(BurcinCo.BurcinApp.Migrations.DbContextFactory).Assembly.GetName().Name);
 
 		await using var provider = services.BuildServiceProvider(validateScopes: true);
 		await using var scope = provider.CreateAsyncScope();

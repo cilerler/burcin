@@ -8,7 +8,8 @@ namespace BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Clients;
 /// </summary>
 public sealed class RecipeClientSettings
 {
-	public const string ConfigurationSectionName = "Modules:Nutrition:Tracking:NutritionFact:Clients:Recipe";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Modules)}:{nameof(BurcinCo.BurcinApp.Modules.Nutrition)}:{nameof(BurcinCo.BurcinApp.Modules.Nutrition.Tracking)}:{nameof(BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact)}:{nameof(BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Clients)}:{nameof(BurcinCo.BurcinApp.Modules.Recipe)}";
 
 	/// <summary>
 	/// Base URL of the Recipe module's deployment. Example: <c>http://recipe.svc.cluster.local</c> or

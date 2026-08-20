@@ -2,7 +2,10 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply;
 
 internal static class Constants
 {
-	public const string ServiceName = "IngredientSupply";
+	private const string InstrumentationName =
+		$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.{nameof(BurcinCo.BurcinApp.Modules)}.{nameof(BurcinCo.BurcinApp.Modules.Sourcing)}.{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement)}.{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply)}";
+
+	public const string ServiceName = nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply);
 
 	public const string RouteGroup = "/api/v1/ingredient-supply";
 
@@ -16,7 +19,7 @@ internal static class Constants
 
 	public static class Metrics
 	{
-		public const string MeterName = "BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply";
+		public const string MeterName = InstrumentationName;
 
 		public const string QuoteRequested = "app_ingredient_supply_quote_requested_total";
 		public const string QuoteSent = "app_ingredient_supply_quote_sent_total";

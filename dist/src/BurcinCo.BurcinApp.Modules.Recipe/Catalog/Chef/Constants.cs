@@ -2,15 +2,18 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef;
 
 internal static class Constants
 {
-	public const string ServiceName = "Chef";
+	private const string InstrumentationName =
+		$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.{nameof(BurcinCo.BurcinApp.Modules)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef)}";
+
+	public const string ServiceName = nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef);
 
 	public const string RouteGroup = "/api/chefs";
 
-	public const string OpenApiTag = "Chef";
+	public const string OpenApiTag = ServiceName;
 
 	public static class Metrics
 	{
-		public const string MeterName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef";
+		public const string MeterName = InstrumentationName;
 
 		public const string Created = "recipe.chef.created";
 		public const string Updated = "recipe.chef.updated";
@@ -19,7 +22,7 @@ internal static class Constants
 
 	public static class Activities
 	{
-		public const string ActivitySourceName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.Chef";
+		public const string ActivitySourceName = InstrumentationName;
 	}
 
 	public static class Tags

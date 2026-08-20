@@ -90,7 +90,8 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 		services.AddOptions();
 		services.AddMetrics();
 
-		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
+		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName =
+			typeof(BurcinCo.BurcinApp.Migrations.DbContextFactory).Assembly.GetName().Name);
 
 		services.AddNutritionModule(recipeIsLocal: false);
 
@@ -143,7 +144,8 @@ internal sealed class NutritionTestFixture : IAsyncDisposable
 		services.AddOptions();
 		services.AddMetrics();
 
-		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
+		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName =
+			typeof(BurcinCo.BurcinApp.Migrations.DbContextFactory).Assembly.GetName().Name);
 
 		// The Host's captured snapshot says Recipe is local, so register the producer before Nutrition
 		// and pass that immutable composition decision through the cascade.

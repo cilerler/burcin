@@ -2,9 +2,12 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto;
 
 internal static class Constants
 {
-	public const string ServiceName = "RecipePhoto";
+	private const string InstrumentationName =
+		$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.{nameof(BurcinCo.BurcinApp.Modules)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto)}";
 
-	public const string OpenApiTag = "RecipePhoto";
+	public const string ServiceName = nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto);
+
+	public const string OpenApiTag = ServiceName;
 
 	// Two minimal-API endpoints — the signed-URL issuer is per-recipe (entity-adjacent), the
 	// download endpoint is keyed by an opaque token (not entity-bound). Different shapes, same
@@ -14,7 +17,7 @@ internal static class Constants
 
 	public static class Metrics
 	{
-		public const string MeterName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto";
+		public const string MeterName = InstrumentationName;
 
 		public const string SignedUrlIssued = "recipe.photo.signed_url.issued";
 		public const string DownloadServed = "recipe.photo.download.served";
@@ -23,7 +26,7 @@ internal static class Constants
 
 	public static class Activities
 	{
-		public const string ActivitySourceName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto";
+		public const string ActivitySourceName = InstrumentationName;
 	}
 
 	public static class Tags

@@ -123,8 +123,8 @@ public sealed class NutritionFactServiceTests
 		// Sanity-check: with Recipe flag OFF, IRecipeService should be the HTTP RecipeClient, not the in-process service.
 		var recipeService = scope.ServiceProvider.GetRequiredService<IRecipeService>();
 		Assert.AreEqual(
-			"BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Clients.RecipeClient",
-			recipeService.GetType().FullName);
+			typeof(BurcinCo.BurcinApp.Modules.Nutrition.Tracking.NutritionFact.Clients.RecipeClient),
+			recipeService.GetType());
 
 		var sut = scope.ServiceProvider.GetRequiredService<INutritionFactService>();
 

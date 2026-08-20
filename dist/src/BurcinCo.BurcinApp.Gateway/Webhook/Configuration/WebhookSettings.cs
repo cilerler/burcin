@@ -6,7 +6,8 @@ namespace BurcinCo.BurcinApp.Gateway.Webhook.Configuration;
 
 internal sealed class WebhookSettings : IValidatableObject
 {
-	public const string ConfigurationSectionName = "Gateway:Webhook";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Gateway)}:{nameof(BurcinCo.BurcinApp.Gateway.Webhook)}";
 
 	/// <summary>
 	/// RabbitMQ virtual host (URL-encoded, e.g. <c>%2F</c> for the default <c>/</c>).

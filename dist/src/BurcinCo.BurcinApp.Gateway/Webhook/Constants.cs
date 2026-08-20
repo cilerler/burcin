@@ -2,8 +2,9 @@ namespace BurcinCo.BurcinApp.Gateway.Webhook;
 
 internal static class Constants
 {
-	public const string ServiceName = "BurcinCo.BurcinApp.Gateway.Webhook";
-	public const string OpenApiTag = "Webhook";
+	public const string ServiceName =
+		$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.{nameof(BurcinCo.BurcinApp.Gateway)}.{nameof(BurcinCo.BurcinApp.Gateway.Webhook)}";
+	public const string OpenApiTag = nameof(BurcinCo.BurcinApp.Gateway.Webhook);
 	public const string RoutePattern = "/webhooks/{**path}";
 
 	internal static class Metrics

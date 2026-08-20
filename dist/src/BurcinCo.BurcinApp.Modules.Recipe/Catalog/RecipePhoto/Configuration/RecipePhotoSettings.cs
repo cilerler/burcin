@@ -9,7 +9,8 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto.Configuration;
 /// </summary>
 public sealed class RecipePhotoSettings
 {
-	public const string ConfigurationSectionName = "Modules:Recipe:Catalog:RecipePhoto";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Modules)}:{nameof(BurcinCo.BurcinApp.Modules.Recipe)}:{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog)}:{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.RecipePhoto)}";
 
 	/// <summary>
 	/// HMAC-SHA256 signing key for the opaque token. Tokens issued with one secret won't validate

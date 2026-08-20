@@ -7,9 +7,9 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing;
 /// </summary>
 internal static class Constants
 {
-	public const string ModuleName = "Sourcing";
+	public const string ModuleName = nameof(BurcinCo.BurcinApp.Modules.Sourcing);
 
 	public static readonly string FeatureFlag = $"Modules.{ModuleName}";
 
-	public const string ConfigurationSectionName = "Modules:Sourcing";
+	public const string ConfigurationSectionName = $"{nameof(BurcinCo.BurcinApp.Modules)}:{ModuleName}";
 }

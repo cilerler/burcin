@@ -11,7 +11,8 @@ namespace BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Confi
 /// </summary>
 public sealed class IngredientSupplySettings : IValidatableObject
 {
-	public const string ConfigurationSectionName = "Modules:Sourcing:Procurement:IngredientSupply";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Modules)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply)}";
 
 	/// <summary>
 	/// MessageQueue provider name for both the Outbox dispatcher target and the inbox subscriber.

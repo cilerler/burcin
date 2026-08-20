@@ -5,7 +5,7 @@ namespace BurcinCo.BurcinApp.Modules.Recipe;
 /// </summary>
 internal static class Constants
 {
-	public const string ModuleName = "Recipe";
+	public const string ModuleName = nameof(BurcinCo.BurcinApp.Modules.Recipe);
 
 	/// <summary>
 	/// Feature-flag key checked by Host startup. When the flag is off in this deployment,
@@ -16,5 +16,5 @@ internal static class Constants
 	/// <summary>
 	/// Configuration section name for module-wide settings (rare; most config lives at service level).
 	/// </summary>
-	public const string ConfigurationSectionName = "Modules:Recipe";
+	public const string ConfigurationSectionName = $"{nameof(BurcinCo.BurcinApp.Modules)}:{ModuleName}";
 }

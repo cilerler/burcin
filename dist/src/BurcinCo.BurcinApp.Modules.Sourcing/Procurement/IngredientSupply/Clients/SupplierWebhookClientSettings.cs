@@ -16,7 +16,8 @@ public sealed class SupplierWebhookClientSettings : IValidatableObject
 	// The previous value `...:Clients:Suppliers` would have required a doubly-nested
 	// `Suppliers:Suppliers:<key>` config shape that production didn't have, leaving the dict empty
 	// and every supplier dispatch failing with "supplier not configured" at runtime.
-	public const string ConfigurationSectionName = "Modules:Sourcing:Procurement:IngredientSupply:Clients";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Modules)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply)}:{nameof(BurcinCo.BurcinApp.Modules.Sourcing.Procurement.IngredientSupply.Clients)}";
 
 	/// <summary>
 	/// Map of supplier key (e.g. <c>"flour-provider"</c>) → endpoint config.

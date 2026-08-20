@@ -58,7 +58,8 @@ internal static class ProgramExtensionsCustom
 		// declares an `ActivitySourceName` in its Constants.Activities, scoped under the
 		// `BurcinCo.BurcinApp.*` prefix. Wildcards in OTel cover them all in one line so adding new
 		// modules doesn't require a tracer-side update.
-		builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddSource("BurcinCo.BurcinApp.*"));
+		builder.Services.ConfigureOpenTelemetryTracerProvider(tracing => tracing.AddSource(
+			$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.*"));
 
 #if (EntityFrameworkScaffold)
 		// Single shared BurcinDatabaseDbContext registration via the BurcinCo.BurcinApp.Data project.
@@ -90,9 +91,9 @@ internal static class ProgramExtensionsCustom
 			// schema and runtime wiring). AddMessageQueueOutboundDispatcher() drains the Outbox to
 			// RabbitMQ; the IngredientQuoteRequestedEventSubscriber subscribes to that topic and delegates the
 			// actual external HTTP call to the configured supplier.
-			builder.Services.AddMessageQueue(builder.Configuration)
+			builder.Services.AddMessageQueue()
 				.AddSourcingMessageContracts()
-				.AddRabbitMQ(builder.Configuration);
+				.AddRabbitMQ();
 			builder.Services.AddReliableMessaging()
 				.AddBurcinDatabaseReliableMessaging()
 				.AddMessageQueueOutboundDispatcher();

@@ -2,18 +2,21 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category;
 
 internal static class Constants
 {
-	public const string ServiceName = "Category";
+	private const string InstrumentationName =
+		$"{nameof(BurcinCo)}.{nameof(BurcinCo.BurcinApp)}.{nameof(BurcinCo.BurcinApp.Modules)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog)}.{nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category)}";
+
+	public const string ServiceName = nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category);
 
 	public const string RouteGroupBase = "/api/categories";
 	public const string CodesRoute = "/codes";
 	public const string GroupsRoute = "/groups";
 	public const string MappingsRoute = "/mappings";
 
-	public const string OpenApiTag = "Category";
+	public const string OpenApiTag = ServiceName;
 
 	public static class Metrics
 	{
-		public const string MeterName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category";
+		public const string MeterName = InstrumentationName;
 
 		public const string CodeCreated = "recipe.category.code.created";
 		public const string CodeUpdated = "recipe.category.code.updated";
@@ -27,7 +30,7 @@ internal static class Constants
 
 	public static class Activities
 	{
-		public const string ActivitySourceName = "BurcinCo.BurcinApp.Modules.Recipe.Catalog.Category";
+		public const string ActivitySourceName = InstrumentationName;
 	}
 
 	public static class Tags

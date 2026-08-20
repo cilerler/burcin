@@ -5,10 +5,11 @@ namespace BurcinCo.BurcinApp.Modules.Recipe.Catalog;
 /// </summary>
 internal static class Constants
 {
-	public const string ComponentName = "Catalog";
+	public const string ComponentName = nameof(BurcinCo.BurcinApp.Modules.Recipe.Catalog);
 
 	/// <summary>
 	/// Configuration section name for component-wide settings.
 	/// </summary>
-	public const string ConfigurationSectionName = "Modules:Recipe:Catalog";
+	public const string ConfigurationSectionName =
+		$"{nameof(BurcinCo.BurcinApp.Modules)}:{nameof(BurcinCo.BurcinApp.Modules.Recipe)}:{ComponentName}";
 }

@@ -10,6 +10,7 @@ internal static class MeEndpoint
 {
 	internal static IEndpointRouteBuilder MapMeEndpoint(this IEndpointRouteBuilder endpoints)
 	{
+		// The operation ID is a published API contract and intentionally remains independent of handler renames.
 		endpoints.MapGet("/me", GetCurrentUser)
 			.WithName("GetCurrentUser")
 			.WithTags("Host")

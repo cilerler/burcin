@@ -106,7 +106,8 @@ internal sealed class RecipeTestFixture : IAsyncDisposable
 		// was generated from (Outbox/Inbox are part of the schema when Sample is on, owned by Data).
 		// MigrationsAssemblyName is the only override test fixtures need — production applies migrations
 		// via the EF CLI which pins through --project, not the runtime options.
-		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName = "BurcinCo.BurcinApp.Migrations");
+		services.AddBurcinDatabaseDbContext(s => s.MigrationsAssemblyName =
+			typeof(BurcinCo.BurcinApp.Migrations.DbContextFactory).Assembly.GetName().Name);
 
 		services.AddRecipeModule();
 
