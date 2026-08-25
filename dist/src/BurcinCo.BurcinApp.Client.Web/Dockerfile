@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+USER app
+WORKDIR /app
+EXPOSE 8080
+EXPOSE 8081
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+ARG BUILD_CONFIGURATION=Release
+ARG VERSION
+#--if (GitHubTemplates)
+RUN --mount=type=secret,id=GITHUB_PAT \
+    dotnet nuget add source https://nuget.pkg.github.com/burcinco/index.json -n "github" -u "docker" -p "$(cat /run/secrets/GITHUB_PAT)" --store-password-in-clear-text
+#--endif
+WORKDIR /build
+COPY ["Directory.Packages.props", "./"]
+COPY ["Directory.Build.props", "./"]
+COPY ["Directory.Build.targets", "./"]
+COPY ["global.json", "./"]
+COPY ["nuget.config*", "./"]
+COPY ["src/BurcinCo.BurcinApp.Client.Shared/BurcinCo.BurcinApp.Client.Shared.csproj", "src/BurcinCo.BurcinApp.Client.Shared/"]
+COPY ["src/BurcinCo.BurcinApp.Client.Web/BurcinCo.BurcinApp.Client.Web.csproj", "src/BurcinCo.BurcinApp.Client.Web/"]
+RUN dotnet restore "./src/BurcinCo.BurcinApp.Client.Web/BurcinCo.BurcinApp.Client.Web.csproj" -p:Configuration=Release
+COPY . .
+WORKDIR "/build/src/BurcinCo.BurcinApp.Client.Web"
+
+FROM build AS publish
+RUN dotnet publish "./BurcinCo.BurcinApp.Client.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false /p:Version=${VERSION:-$(date "+%y.%m%d.%H%M")}
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+
+ENTRYPOINT ["dotnet", "BurcinCo.BurcinApp.Client.Web.dll"]

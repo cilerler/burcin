@@ -37,6 +37,39 @@ public sealed class WebTests
 			$"/healthz/live should be 200 when AppHost starts the Host. Got {response.StatusCode}.");
 	}
 
+#if (Web)
+	[TestMethod]
+	public async Task ClientWeb_StartsThroughAspire_AndHealthEndpointResponds()
+	{
+		await using var app = await StartAppAsync();
+		using var http = await CreateHttpClientAsync(app, "client-web");
+
+		using var response = await http.GetAsync(new Uri("/healthz/live", UriKind.Relative));
+
+		Assert.AreEqual(
+			HttpStatusCode.OK,
+			response.StatusCode,
+			$"/healthz/live should be 200 when AppHost starts Client.Web. Got {response.StatusCode}.");
+	}
+
+	[TestMethod]
+	public async Task GetPortal_ThroughGateway_RendersSharedClientSurface()
+	{
+		await using var app = await StartAppAsync();
+		await app.ResourceNotifications
+			.WaitForResourceAsync("client-web", "Running")
+			.WaitAsync(DefaultTimeout);
+		using var http = await CreateHttpClientAsync(app, "gateway");
+
+		using var response = await http.GetAsync(new Uri("/portal/", UriKind.Relative));
+		var body = await response.Content.ReadAsStringAsync();
+
+		Assert.AreEqual(HttpStatusCode.OK, response.StatusCode, body);
+		StringAssert.Contains(body, "<base href=\"/portal/\"", StringComparison.Ordinal);
+		StringAssert.Contains(body, "data-client-surface=\"shared\"", StringComparison.Ordinal);
+	}
+#endif
+
 	[TestMethod]
 	public async Task GetPing_ThroughGateway_ReturnsExactPong()
 	{

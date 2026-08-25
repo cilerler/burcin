@@ -4,7 +4,7 @@
 		<id>Burcin.Templates.CSharp</id>
 		<version>$version$</version>
 		<description>
-			Boilerplate for .NET 10 Web/Console Application
+			Boilerplate for .NET 10 server, Blazor Web, and .NET MAUI applications
 		</description>
 		<authors>Cengiz Ilerler</authors>
 		<projectUrl>https://github.com/cilerler/burcin</projectUrl>

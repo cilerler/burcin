@@ -47,6 +47,9 @@
 		<PackageVersion Include="Microsoft.AspNetCore.Components.Web" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.*" />
+		<PackageVersion Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.14.4" />
+		<PackageVersion Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageVersion Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
 		<PackageVersion Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.*" />
 		<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.*" />
@@ -108,12 +111,15 @@
 
 	<!-- Aspire -->
 	<ItemGroup>
-		<PackageVersion Include="Aspire.Hosting.Testing" Version="13.2.4" />
-		<PackageVersion Include="Aspire.Hosting.AppHost" Version="13.2.4" />
-		<PackageVersion Include="Aspire.Hosting.Docker" Version="13.2.4" />
-		<PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.2.4" />
-		<PackageVersion Include="Aspire.Hosting.Redis" Version="13.2.4" />
-		<PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.2.4" />
+		<PackageVersion Include="Aspire.Hosting.Testing" Version="13.5.2" />
+		<PackageVersion Include="Aspire.Hosting.AppHost" Version="13.5.2" />
+		<PackageVersion Include="Aspire.Hosting.Docker" Version="13.5.2" />
+		<!--#if (Maui)-->
+		<PackageVersion Include="Aspire.Hosting.Maui" Version="13.5.2-preview.1.26421.6" />
+		<!--#endif-->
+		<PackageVersion Include="Aspire.Hosting.SqlServer" Version="13.5.2" />
+		<PackageVersion Include="Aspire.Hosting.Redis" Version="13.5.2" />
+		<PackageVersion Include="Aspire.Hosting.RabbitMQ" Version="13.5.2" />
 	</ItemGroup>
 
 	<!-- DAPR -->

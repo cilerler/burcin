@@ -1,8 +1,8 @@
 # BurcinCo.BurcinApp
 
 <!--#if (Sample) -->
-A **Modular Polylith** built on .NET 10 — a single Docker image, multiple Kubernetes Deployments,
-runtime activation per module via `Microsoft.FeatureManagement` flags. The same image runs every
+A **Modular Polylith** built on .NET 10 — one server runtime image, multiple Kubernetes Deployments,
+runtime activation per module via `Microsoft.FeatureManagement` flags. The same Host image runs every
 module in dev (one process), and runs ONE module per pod in production.
 <!--#else -->
 A .NET 10 application scaffold with thin Host and Gateway composition projects plus Aspire local
@@ -42,7 +42,16 @@ orchestration. The reference business modules are intentionally omitted; add sib
 |---|---|---|
 | Composition | `BurcinCo.BurcinApp.Host` | Thin ASP.NET Core app-runner wrapper. Owns process/configuration/module composition only—no contracts, business logic, data tooling, or service implementations. |
 | Composition | `BurcinCo.BurcinApp.Gateway` | YARP edge runner. With `--Sample`, owns process-intrinsic Webhook authentication, validation, envelope translation, and broker handoff; owns no application/domain behavior. |
-| Composition | `BurcinCo.BurcinApp.AppHost` | Aspire orchestration for local dev — brings up MsSql, Redis, RabbitMQ, the Host, and the Gateway. |
+| Composition | `BurcinCo.BurcinApp.AppHost` | Aspire orchestration for local dev — brings up MsSql, Redis, RabbitMQ, the Host, and the Gateway, and models selected client runners; MAUI targets are explicit-start. |
+<!--#if (ClientShared) -->
+| Client UI | `BurcinCo.BurcinApp.Client.Shared` | Razor Class Library containing the reusable routes, layout, navigation, pages, and FluentUI surface shared by the selected client runners. It is not a process. |
+<!--#endif -->
+<!--#if (Web) -->
+| Client runner | `BurcinCo.BurcinApp.Client.Web` | Blazor Web process and render-mode shell. AppHost orchestrates it as `client-web`, and the Gateway exposes it at `/portal`; its Dockerfile is independent from the Host image. |
+<!--#endif -->
+<!--#if (Maui) -->
+| Client runner | `BurcinCo.BurcinApp.Client.Maui` | .NET MAUI Blazor Hybrid native shell. Aspire exposes explicit-start platform resources for local development; its app-local `wwwroot/index.html` bootstraps `BlazorWebView`, which maps `Client.Shared.Routes` directly. |
+<!--#endif -->
 <!--#if (EntityFrameworkScaffold) -->
 | Persistence | `BurcinCo.BurcinApp.Models` | DB-first entities + persistence marker interfaces (`Abstractions/`) + DB-tied enums (`BurcinDatabaseConstants/`). |
 | Persistence | `BurcinCo.BurcinApp.Data` | Shared `BurcinDatabaseDbContext`. |
@@ -83,6 +92,9 @@ its initial migration.
 
 - .NET 10 SDK
 - Docker Desktop (for Aspire's containers)
+<!--#if (Maui) -->
+- .NET MAUI workload plus the SDK/toolchain required by each native target you build
+<!--#endif -->
 
 Ruya dependencies restore from NuGet packages by default in every build configuration. To develop
 against a local Ruya checkout, copy `Directory.Build.local.props.example` to
@@ -99,11 +111,32 @@ The Aspire AppHost owns the lifecycle of `mssql`, `redis`, and `rabbitmq` contai
 or stop them manually with `docker` commands.
 
 ```pwsh
-dotnet run --project src/BurcinCo.BurcinApp.AppHost
+aspire start --apphost src/BurcinCo.BurcinApp.AppHost
 ```
 
 The Aspire dashboard prints its URL at startup. From there you can see the Host, Gateway, broker
 activity, OpenTelemetry traces, and structured logs.
+<!--#if (Web) -->
+The same AppHost starts the Web runner as `client-web` after the Gateway is ready. The Gateway resolves that
+resource through Aspire service discovery and exposes it at `/portal`. Web and Shared remain separate
+projects; Host does not serve or reference their UI.
+<!--#endif -->
+<!--#if (Maui) -->
+
+The AppHost registers MAUI through the preview `Aspire.Hosting.Maui` integration. Its Windows, Mac Catalyst,
+Android-emulator, and iOS-simulator targets appear as explicit-start resources in the dashboard and build on
+demand after the Gateway is ready. Select the target supported by your development machine.
+
+The MAUI platform resources use `ExcludeFromManifest()`, so they remain local-development resources instead
+of Docker Compose services. Restore the workload and build or package the target platform explicitly; for
+example, on Windows:
+
+```pwsh
+dotnet workload restore src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj
+dotnet build src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj `
+    --framework net10.0-windows10.0.19041.0
+```
+<!--#endif -->
 
 <!--#if (EntityFrameworkScaffold) -->
 ### Apply EF migrations
@@ -166,6 +199,9 @@ dotnet build BurcinCo.BurcinApp.slnx
 .\artifacts\bin\BurcinCo.BurcinApp.Host.Integration.Tests\debug\BurcinCo.BurcinApp.Host.Integration.Tests.exe
 .\artifacts\bin\BurcinCo.BurcinApp.Gateway.Integration.Tests\debug\BurcinCo.BurcinApp.Gateway.Integration.Tests.exe
 .\artifacts\bin\BurcinCo.BurcinApp.AppHost.E2E.Tests\debug\BurcinCo.BurcinApp.AppHost.E2E.Tests.exe
+<!--#if (Web) -->
+.\artifacts\bin\BurcinCo.BurcinApp.Client.Web.Integration.Tests\debug\BurcinCo.BurcinApp.Client.Web.Integration.Tests.exe
+<!--#endif -->
 <!--#if (Sample) -->
 .\artifacts\bin\BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests\debug\BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.exe
 .\artifacts\bin\BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests\debug\BurcinCo.BurcinApp.Modules.Nutrition.Integration.Tests.exe
@@ -177,6 +213,10 @@ Test projects use **MSTest 4** with the `Microsoft.Testing.Platform` runner. The
 `WebApplicationFactory` for the authenticated identity projection, the Gateway integration suite uses it for
 process health, and the AppHost E2E suite uses `Aspire.Hosting.Testing` for orchestration plus public
 Gateway-to-Host traversal.
+<!--#if (Web) -->
+The Client.Web integration suite renders the shared `/portal/` route through the Web shell. AppHost E2E
+coverage verifies both the `client-web` liveness endpoint and Gateway-to-Web traversal through `/portal/`.
+<!--#endif -->
 <!--#if (Sample) -->
 The module suites use **Testcontainers** for ephemeral MsSql + RabbitMQ instances. The Gateway suite also
 tests its selected Webhook edge adapter, and the E2E suite adds the Sample's public OData and
@@ -197,6 +237,9 @@ migrate a deployed database at startup; this initialization belongs exclusively 
 | Project | Flavor | Coverage |
 |---|---|---|
 | `BurcinCo.BurcinApp.Host.Integration.Tests` | Integration | Authenticated current-user projection with the external identity-provider boundary substituted. |
+<!--#if (Web) -->
+| `BurcinCo.BurcinApp.Client.Web.Integration.Tests` | Integration | Web shell startup and server-rendered delivery of the shared client surface under `/portal`. |
+<!--#endif -->
 <!--#if (Sample) -->
 | `BurcinCo.BurcinApp.Gateway.Integration.Tests` | Integration | In-process health probes plus Webhook registration, translation, broker handoff, and bounded-body behavior. |
 | `BurcinCo.BurcinApp.AppHost.E2E.Tests` | E2E | Runner orchestration, public Gateway→Host process endpoints, OData metadata and CRUD, signed URLs, and Sourcing request persistence. |

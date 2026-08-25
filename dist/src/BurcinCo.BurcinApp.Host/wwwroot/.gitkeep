@@ -1,3 +1,0 @@
-# Placeholder so ASP.NET Core's Microsoft.NET.Sdk.Web stops logging
-# "The WebRootPath was not found: …\wwwroot" at startup.
-# Delete this file if you actually add static assets here.

@@ -1,16 +1,17 @@
-﻿<Project Sdk="Aspire.AppHost.Sdk/13.2.0">
+﻿<Project Sdk="Aspire.AppHost.Sdk/13.5.2">
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net10.0</TargetFramework>
+		<AspireUseCliBundle>true</AspireUseCliBundle>
 		<UserSecretsId>BurcinCo.BurcinApp.AppHost</UserSecretsId>
 		<Version>0.1</Version>
 	</PropertyGroup>
 
 	<!--#if (TemplateEditMode)-->
-	<!-- Template-edit-mode only: keep Sample-gated orchestration compilable in the raw dist source. -->
+	<!-- Template-edit-mode only: keep conditionally generated orchestration compilable in the raw dist source. -->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);Sample;</DefineConstants>
+		<DefineConstants>$(DefineConstants);Sample;Web;Maui;</DefineConstants>
 	</PropertyGroup>
 	<!--#endif-->
 
@@ -22,6 +23,9 @@
 	<ItemGroup>
 		<PackageReference Include="Aspire.Hosting.AppHost" />
 		<PackageReference Include="Aspire.Hosting.Docker" />
+		<!--#if (Maui)-->
+		<PackageReference Include="Aspire.Hosting.Maui" />
+		<!--#endif-->
 		<PackageReference Include="Aspire.Hosting.SqlServer" />
 		<PackageReference Include="Aspire.Hosting.Redis" />
 		<PackageReference Include="Aspire.Hosting.RabbitMQ" />

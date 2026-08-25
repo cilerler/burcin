@@ -43,12 +43,25 @@
 		<Project Path="src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj" />
 		<Project Path="src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj" />
+
+		<!--#if (ClientShared) -->
+		<Project Path="src/BurcinCo.BurcinApp.Client.Shared/BurcinCo.BurcinApp.Client.Shared.csproj" />
+		<!--#endif -->
+		<!--#if (Web) -->
+		<Project Path="src/BurcinCo.BurcinApp.Client.Web/BurcinCo.BurcinApp.Client.Web.csproj" />
+		<!--#endif -->
+		<!--#if (Maui) -->
+		<Project Path="src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj" />
+		<!--#endif -->
 	</Folder>
 	<Folder Name="/tests/">
 		<!-- Runner-owned process and public-boundary coverage is generated for every application. -->
 		<Project Path="tests/BurcinCo.BurcinApp.Host.Integration.Tests/BurcinCo.BurcinApp.Host.Integration.Tests.csproj" />
 		<Project Path="tests/BurcinCo.BurcinApp.Gateway.Integration.Tests/BurcinCo.BurcinApp.Gateway.Integration.Tests.csproj" />
 		<Project Path="tests/BurcinCo.BurcinApp.AppHost.E2E.Tests/BurcinCo.BurcinApp.AppHost.E2E.Tests.csproj" />
+		<!--#if (Web) -->
+		<Project Path="tests/BurcinCo.BurcinApp.Client.Web.Integration.Tests/BurcinCo.BurcinApp.Client.Web.Integration.Tests.csproj" />
+		<!--#endif -->
 		<!--#if (Sample) -->
 		<!-- Sample-gated suites exercise the reference modules. -->
 		<Project Path="tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests/BurcinCo.BurcinApp.Modules.Recipe.Integration.Tests.csproj" />

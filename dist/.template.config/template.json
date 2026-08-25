@@ -1,7 +1,7 @@
 {
 	"$schema": "http://json.schemastore.org/template",
 	"author": "Cengiz Ilerler",
-	"classifications": ["Web"],
+	"classifications": ["Web", "Blazor", "MAUI"],
 	"identity": "Burcin.BoilerPlate.CSharp",
 	"name": "Burcin BoilerPlate",
 	"shortName": "burcin",
@@ -11,7 +11,6 @@
 	},
 	"groupIdentity": "Burcin.Templates",
 	"preferNameDirectory": true,
-	"guids": ["412f3e04-fa62-4566-8e71-3fe15dc33c1c"],
 	"PrimaryOutputs":
 	[
 		{
@@ -144,6 +143,22 @@
 			"type": "computed",
 			"value": "(OData || Sample)"
 		},
+		"Web": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false",
+			"description": "Generate the Blazor Web client runner and its shared Razor Class Library."
+		},
+		"Maui": {
+			"type": "parameter",
+			"dataType": "bool",
+			"defaultValue": "false",
+			"description": "Generate the .NET MAUI Blazor Hybrid client runner and its shared Razor Class Library."
+		},
+		"ClientShared": {
+			"type": "computed",
+			"value": "(Web || Maui)"
+		},
 		"Cache": {
 			"type": "parameter",
 			"datatype": "choice",
@@ -207,10 +222,11 @@
 			"defaultValue": "false",
 			"description": "Skip `dotnet restore`"
 		},
-		"DockerId": {
+		"MauiPhoneProductId": {
 			"type": "generated",
 			"generator": "guid",
 			"replaces": "412f3e04-fa62-4566-8e71-3fe15dc33c1c",
+			"description": "Generated Windows PhoneProductId for the MAUI package manifest.",
 			"parameters": {
 				"format": "D"
 			}
@@ -247,6 +263,21 @@
 	"sources": [
 		{
 			"modifiers": [
+				{
+					"condition": "(!ClientShared)",
+					"exclude": ["src/BurcinCo.BurcinApp.Client.Shared/**/*"]
+				},
+				{
+					"condition": "(!Web)",
+					"exclude": [
+						"src/BurcinCo.BurcinApp.Client.Web/**/*",
+						"tests/BurcinCo.BurcinApp.Client.Web.Integration.Tests/**/*"
+					]
+				},
+				{
+					"condition": "(!Maui)",
+					"exclude": ["src/BurcinCo.BurcinApp.Client.Maui/**/*"]
+				},
 				{
 					"condition": "(!Sample)",
 					"exclude": [

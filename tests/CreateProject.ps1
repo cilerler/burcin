@@ -102,6 +102,7 @@ try {
 	dotnet new --debug:custom-hive $templateHive burcin --name $repositoryName `
 		--OrganizationLegalName $organizationLegalName --OrganizationName $organizationName --ProjectName $projectName `
 		--EntityFramework --OData --Sample `
+		--Web --Maui `
 		--DatabaseName $databaseName `
 		--DocFx --NugetSourceGitHub --NugetSourceAzureDevOps --GitHubTemplates `
 		--Cache "All" --Authors $authors `

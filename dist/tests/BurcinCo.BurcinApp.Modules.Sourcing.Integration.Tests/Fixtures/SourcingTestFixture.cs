@@ -148,6 +148,7 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 		{
 			["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
 			["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
+			["DistributedTracing:CacheAbsoluteExpiration"] = "1.00:00:00",
 
 			// The global fallback is deliberately unusable at runtime. It is enabled and backed by a
 			// registered rejecting test provider so startup referential validation still succeeds. The
@@ -239,6 +240,7 @@ internal sealed class SourcingTestFixture : IAsyncDisposable
 			{
 				["ConnectionStrings:MsSqlConnection"] = MsSqlConnectionString,
 				["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
+				["DistributedTracing:CacheAbsoluteExpiration"] = "1.00:00:00",
 				["Modules:Sourcing:Procurement:IngredientSupply:MessageQueueProviderName"] = "sourcing-rabbitmq",
 				["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteRequestedEventTopicName"] = "sourcing.ingredient-quote.requested",
 				["Modules:Sourcing:Procurement:IngredientSupply:IngredientQuoteResponseReceivedEventTopicName"] = "webhooks.sourcing.quote-response",

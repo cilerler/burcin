@@ -167,8 +167,6 @@ internal static class ProgramExtensions
 		}
 
 		app.UseStatusCodePages();
-		app.UseStaticFiles();
-
 		app.UseRouting();
 		app.UseAuthentication();
 		app.UseAuthorization();

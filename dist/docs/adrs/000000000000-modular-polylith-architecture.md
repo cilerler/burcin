@@ -6,7 +6,7 @@
 
 ## Context
 
-BurcinCo.BurcinApp is a .NET 10 line-of-business application (Aspire-orchestrated, single deployable image, Yarp-fronted) built on an opinionated project template. The runtime topology we want is **one Docker image deployed to many independent k8s Deployments**, with each Deployment activating only its assigned module via `Microsoft.FeatureManagement` flags. This is neither a classical modular monolith (one process) nor classical microservices (separate codebases + databases) — and the gap between those two off-the-shelf patterns is exactly what this ADR fills.
+BurcinCo.BurcinApp is a .NET 10 line-of-business application (Aspire-orchestrated and YARP-fronted) built on an opinionated project template. The server-module topology we want is **one Host image deployed to many independent k8s Deployments**, with each Deployment activating only its assigned module via `Microsoft.FeatureManagement` flags. Selected Web and MAUI clients remain separate runners around one shared Razor UI library; they are not folded into that Host image. This is neither a classical modular monolith (one process) nor classical microservices (separate codebases + databases) — and the gap between those two off-the-shelf patterns is exactly what this ADR fills.
 
 Three forces shape the architecture:
 
@@ -38,6 +38,15 @@ src/
 ├─ BurcinCo.BurcinApp.Modules.{ModuleName}.Abstractions/    # producer-owned cross-module contracts, when needed
 ├─ BurcinCo.BurcinApp.Modules.{ModuleName}/                 # module implementation; components and services are folders
 ├─ BurcinCo.BurcinApp.Services.{ServiceName}.Abstractions/  # standalone-service contracts, when another project consumes them
+<!--#if (ClientShared) -->
+├─ BurcinCo.BurcinApp.Client.Shared/                        # reusable Razor UI shared by selected client runners
+<!--#endif -->
+<!--#if (Web) -->
+├─ BurcinCo.BurcinApp.Client.Web/                           # independent Blazor Web runner
+<!--#endif -->
+<!--#if (Maui) -->
+├─ BurcinCo.BurcinApp.Client.Maui/                          # independent MAUI Blazor Hybrid runner
+<!--#endif -->
 ├─ BurcinCo.BurcinApp.Host/                                 # application composition/app-runner wrapper only
 ├─ BurcinCo.BurcinApp.Gateway/                              # YARP edge and process-specific edge adapters
 │  └─ Webhook/                                              # process-intrinsic webhook-to-broker edge adapter

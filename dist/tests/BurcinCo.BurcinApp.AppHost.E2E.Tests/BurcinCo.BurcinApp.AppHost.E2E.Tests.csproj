@@ -14,7 +14,7 @@
 
 	<!--#if (TemplateEditMode)-->
 	<PropertyGroup>
-		<DefineConstants>$(DefineConstants);Sample;</DefineConstants>
+		<DefineConstants>$(DefineConstants);Sample;Web;</DefineConstants>
 		<Sample>true</Sample>
 	</PropertyGroup>
 	<!--#endif-->

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<UserSecretsId>BurcinCo.BurcinApp.Client.Web</UserSecretsId>
+		<Version>0.1</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\BurcinCo.BurcinApp.Client.Shared\BurcinCo.BurcinApp.Client.Shared.csproj" />
+	</ItemGroup>
+</Project>

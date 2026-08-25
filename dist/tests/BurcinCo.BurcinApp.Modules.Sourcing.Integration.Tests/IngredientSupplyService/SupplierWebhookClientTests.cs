@@ -143,6 +143,7 @@ public sealed class SupplierWebhookClientTests
 		var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
 		{
 			["DistributedTracing:CacheSlidingExpiration"] = "1.00:00:00",
+			["DistributedTracing:CacheAbsoluteExpiration"] = "1.00:00:00",
 			["Modules:Sourcing:Procurement:IngredientSupply:Clients:HttpTimeout"]
 				= httpTimeout.ToString("c", System.Globalization.CultureInfo.InvariantCulture),
 			["Modules:Sourcing:Procurement:IngredientSupply:Clients:Suppliers:test-supplier:Url"]

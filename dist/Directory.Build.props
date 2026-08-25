@@ -41,7 +41,8 @@
 		<!-- Deliberate: explicit usings for full visibility over dependencies in each file -->
 		<ImplicitUsings>disable</ImplicitUsings>
 		<InvariantGlobalization>false</InvariantGlobalization>
-		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UsePortableClientPlatformTarget Condition="'$(MSBuildProjectName)' == 'BurcinCo.BurcinApp.Client.Shared' Or '$(MSBuildProjectName)' == 'BurcinCo.BurcinApp.Client.Maui'">true</UsePortableClientPlatformTarget>
+		<DockerDefaultTargetOS Condition="'$(UsePortableClientPlatformTarget)' != 'true'">Linux</DockerDefaultTargetOS>
 		<LangVersion>latest</LangVersion>
 		<UseArtifactsOutput>true</UseArtifactsOutput>
 	</PropertyGroup>
@@ -63,11 +64,11 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU' And '$(UsePortableClientPlatformTarget)' != 'true'">
 		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU' And '$(UsePortableClientPlatformTarget)' != 'true'">
 		<PlatformTarget>x64</PlatformTarget>
 		<Optimize>true</Optimize>
 	</PropertyGroup>

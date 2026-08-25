@@ -195,6 +195,49 @@ internal static class Program
 				service.Restart = "unless-stopped";
 			});
 
+#if (Web)
+		var clientWeb = builder.AddProject(
+				"client-web",
+				"../BurcinCo.BurcinApp.Client.Web/BurcinCo.BurcinApp.Client.Web.csproj")
+			.WithExternalHttpEndpoints()
+			.WithHttpHealthCheck("/healthz/live")
+			.WithReference(gateway)
+			.WaitFor(gateway)
+			.PublishAsDockerComposeService((resource, service) =>
+			{
+				service.Name = "burcinco.burcinapp.client.web";
+				service.Restart = "unless-stopped";
+			});
+
+		gateway.WithReference(clientWeb);
+#endif
+
+#if (Maui)
+		var clientMaui = builder.AddMauiProject(
+				"client-maui",
+				"../BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj");
+
+		clientMaui.AddWindowsDevice()
+			.ExcludeFromManifest()
+			.WithReference(gateway)
+			.WaitFor(gateway);
+
+		clientMaui.AddMacCatalystDevice()
+			.ExcludeFromManifest()
+			.WithReference(gateway)
+			.WaitFor(gateway);
+
+		clientMaui.AddAndroidEmulator()
+			.ExcludeFromManifest()
+			.WithReference(gateway)
+			.WaitFor(gateway);
+
+		clientMaui.AddiOSSimulator()
+			.ExcludeFromManifest()
+			.WithReference(gateway)
+			.WaitFor(gateway);
+#endif
+
 		await builder.Build().RunAsync().ConfigureAwait(false);
 	}
 }

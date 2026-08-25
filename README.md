@@ -62,6 +62,7 @@ dotnet new burcin --name "MyFolder" `
     --DatabaseName "MyProjectDb" --Authors "Your Name" `
     --RepositoryUrl "https://github.com/<changeme>/myproject" `
     --Sample --Cache "All" `
+    --Web --Maui `
     --DocFx --GitHubTemplates `
     --SkipRestore;
 
@@ -71,6 +72,21 @@ dotnet new burcin --name "MyFolder" `
     --DatabaseName "MyServiceDb" --Authors "Your Name" `
     --SkipRestore;
 ```
+
+The client switches are independent. Either one generates the shared Razor Class Library; neither is enabled
+for the minimal scaffold unless selected.
+
+| Selection | Generated client projects |
+|---|---|
+| neither | none |
+| `--Web` | `Client.Shared`, `Client.Web` |
+| `--Maui` | `Client.Shared`, `Client.Maui` |
+| `--Web --Maui` | `Client.Shared`, `Client.Web`, `Client.Maui` |
+
+Reusable Razor UI lives once in `Client.Shared`. Web owns its Blazor server shell and Dockerfile, and the
+Gateway exposes that runner at `/portal`. MAUI owns its native shell and the app-local `wwwroot/index.html`
+required by `BlazorWebView`; it maps the shared `Routes` component directly and does not duplicate the
+shared UI.
 
 The generated project's `README.md` reflects the selected options. With `--Sample`, it documents
 the Modular Polylith reference modules, per-module schemas, Outbox/Inbox flows, Aspire AppHost
@@ -86,7 +102,8 @@ Copy-Item tests/.env.example tests/.env
 ```
 
 `CreateProject.ps1` packs the current template, installs it into an isolated private hive, and writes the
-generated fixture beneath `tests/TestResults.ignore` without changing the globally installed template.
+generated fixture with both client runners beneath `tests/TestResults.ignore` without changing the globally
+installed template.
 
 ## List all templates
 
