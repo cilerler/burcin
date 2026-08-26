@@ -9,10 +9,11 @@ Fill these in as the project acquires them. Until a row exists, that question ha
 
 | If you want to… | Read |
 |---|---|
-| Understand how the system works today | `architectures/{slug}.md` — usually `system.md` |
-| Know what is *not* built, or not decided | the same file → Known Limitations |
-| Use the app day to day | `sops/{slug}.md` |
-| Run or operate the app | `sops/{slug}.md` |
+| Understand how the system works today | [System architecture](architectures/system.md) |
+| Know what is *not* built, or not decided | [System architecture → Known Limitations](architectures/system.md#known-limitations) |
+| Configure Gateway edge protections | [Gateway edge-protection SOP](sops/configure-gateway-edge-protections.md) |
+| Perform a repeatable operational task | `sops/{slug}.md` |
+| Respond to an operational problem | `runbooks/{slug}.md` |
 | Look up a field or table | `data-dictionary.md` once the project creates it |
 | Look up a term | `business-glossary.md` once the project creates it |
 | Know what technology is used and why | `tech-stack-overview.md` once the project creates it |
@@ -165,3 +166,25 @@ Two rules that prevent the most common damage:
   Assumptions or Risks section corrupts the record.
 - **Where a section genuinely does not apply, say so in a line** rather than deleting the heading.
   An explicit absence is information; a missing heading is indistinguishable from an oversight.
+
+## PlantUML diagrams
+
+GitHub does not render PlantUML source directly, so keep each editable `.puml` file beside its generated
+`.svg` and commit both. The configured pre-commit hook renders staged PlantUML files through Docker, stages the
+sibling SVGs, and then verifies staged C# formatting. Initial hook installation, prerequisites, verification,
+and custom-hook handling belong to **Git hooks** in the repository root `README.md`.
+
+To render before committing—or to troubleshoot diagram generation—stage the PlantUML source first, then invoke
+the same renderer directly:
+
+```pwsh
+git add docs/architectures/attachments/system/request-flow.puml
+pwsh -NoProfile -File ./tools/git/scripts/plantuml-render.ps1
+```
+
+The script processes staged `.puml` and `.plantuml` changes only and stages the generated sibling SVG.
+<!--#if (GitHubTemplates) -->
+The `Render PlantUML SVGs` GitHub Actions workflow provides the same repository-level safety net for changed
+PlantUML sources. Contributors to fork-based pull requests must render and commit SVG changes locally because
+the workflow cannot push to their branches.
+<!--#endif -->

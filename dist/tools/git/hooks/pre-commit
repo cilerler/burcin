@@ -1,4 +1,8 @@
 #!/bin/sh
 
-REPO_ROOT=$(git rev-parse --show-toplevel)
-pwsh -File "$REPO_ROOT/tools/git/pre-commit.ps1"
+set -eu
+
+HOOK_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROJECT_ROOT=$(CDPATH= cd -- "$HOOK_DIR/../../.." && pwd)
+
+exec pwsh -NoProfile -File "$PROJECT_ROOT/tools/git/pre-commit.ps1"

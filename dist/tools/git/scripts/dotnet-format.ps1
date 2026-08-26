@@ -1,8 +1,12 @@
 $ErrorActionPreference = "Stop"
+$projectRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot "../../.."))
 
 Write-Host "`n🔍 Running dotnet format check..." -ForegroundColor Cyan
 
-$stagedFiles = @(git diff --cached --name-only --diff-filter=ACM "*.cs")
+$stagedFiles = @(
+    git -C $projectRoot diff --relative --cached --name-only --diff-filter=ACMR -- . |
+        Where-Object { $_ -match '\.cs$' }
+)
 
 if ($stagedFiles.Count -eq 0) {
     Write-Host "No C# files to format." -ForegroundColor Gray
@@ -11,13 +15,41 @@ if ($stagedFiles.Count -eq 0) {
 
 Write-Host "Found $($stagedFiles.Count) C# file(s) to check." -ForegroundColor Yellow
 
-$fileList = $stagedFiles -join ','
+$unstagedFiles = @(
+    git -C $projectRoot diff --relative --name-only -- . |
+        Where-Object { $_ -match '\.cs$' }
+)
+$partiallyStagedFiles = @($stagedFiles | Where-Object { $unstagedFiles -contains $_ })
 
-Write-Host "Running: dotnet format --include $fileList --verify-no-changes" -ForegroundColor Gray
+if ($partiallyStagedFiles.Count -gt 0) {
+    Write-Host "`nPartially staged C# files cannot be checked safely:" -ForegroundColor Red
+    $partiallyStagedFiles | ForEach-Object { Write-Host "  $_" -ForegroundColor Yellow }
+    Write-Host "Stage each file completely or stash its unstaged changes, then commit again." -ForegroundColor Yellow
+    exit 1
+}
 
-dotnet format ".\BurcinCo.BurcinApp.slnx" --include $fileList --verify-no-changes --verbosity diagnostic
+Write-Host "Running dotnet format for: $($stagedFiles -join ', ')" -ForegroundColor Gray
 
-if ($LASTEXITCODE -ne 0) {
+Push-Location -LiteralPath $projectRoot
+try {
+    $formatArguments = @(
+        "format",
+        ".\BurcinCo.BurcinApp.slnx",
+        "--include"
+    ) + $stagedFiles + @(
+        "--verify-no-changes",
+        "--verbosity",
+        "diagnostic"
+    )
+
+    & dotnet @formatArguments
+    $formatExitCode = $LASTEXITCODE
+}
+finally {
+    Pop-Location
+}
+
+if ($formatExitCode -ne 0) {
     Write-Host "`n❌ Code formatting issues detected!`n" -ForegroundColor Red
     Write-Host "Please run the following command to fix:" -ForegroundColor Yellow
     Write-Host "  dotnet format" -ForegroundColor White

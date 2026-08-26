@@ -24,6 +24,21 @@
 		},
 		"upperCase": {
 			"identifier": "upperCase"
+		},
+		"documentYear": {
+			"identifier": "replace",
+			"pattern": "^(\\d{4}).*$",
+			"replacement": "$1"
+		},
+		"documentIsoDate": {
+			"identifier": "replace",
+			"pattern": "^(\\d{4})(\\d{2})(\\d{2}).*$",
+			"replacement": "$1-$2-$3"
+		},
+		"documentCompactDate": {
+			"identifier": "replace",
+			"pattern": "^(\\d{8}).*$",
+			"replacement": "$1"
 		}
 	},
 	"symbols": {
@@ -62,6 +77,12 @@
 			"valueTransform": "upperCase",
 			"replaces": "BURCINLEGAL"
 		},
+		"OrganizationLegalNameXmlEncoded": {
+			"type": "derived",
+			"valueSource": "OrganizationLegalName",
+			"valueTransform": "xmlEncode",
+			"replaces": "(organization-legal-name-xml-encoded)"
+		},
 		"ProjectName": {
 			"type": "parameter",
 			"datatype": "string",
@@ -88,6 +109,19 @@
 			"defaultValue": "anonymous",
 			"replaces": "(authors)"
 		},
+		"DocumentClassification": {
+			"type": "parameter",
+			"datatype": "string",
+			"defaultValue": "INTERNAL USE ONLY",
+			"replaces": "BurcinDocumentClassification",
+			"description": "Classification shown in generated architecture diagrams"
+		},
+		"DocumentClassificationXmlEncoded": {
+			"type": "derived",
+			"valueSource": "DocumentClassification",
+			"valueTransform": "xmlEncode",
+			"replaces": "(document-classification-xml-encoded)"
+		},
 		"AuthorsXmlEncoded": {
 			"type": "derived",
 			"replaces": "(authors-xml-encoded)",
@@ -110,12 +144,6 @@
 			"replaces": "(repositoryUrl-xml-encoded)",
 			"valueSource": "RepositoryUrlLower",
 			"valueTransform": "xmlEncode"
-		},
-		"RepositoryUrlMarkdown": {
-			"type": "derived",
-			"replaces": "https://repository.invalid",
-			"valueSource": "RepositoryUrl",
-			"valueTransform": "identity"
 		},
 		"DatabaseName": {
 			"type": "parameter",
@@ -238,27 +266,32 @@
 				"format": "D"
 			}
 		},
-		"AdrStampSource": {
+		"DocumentStamp": {
 			"type": "generated",
 			"generator": "now",
+			"replaces": "(document-stamp)",
+			"fileRename": "(document-stamp)",
 			"parameters": {
 				"format": "yyyyMMddHHmm"
 			}
 		},
-		"AdrStamp": {
+		"DocumentYear": {
 			"type": "derived",
-			"valueSource": "AdrStampSource",
-			"valueTransform": "identity",
-			"replaces": "000000000000",
-			"fileRename": "000000000000"
+			"valueSource": "DocumentStamp",
+			"valueTransform": "documentYear",
+			"replaces": "(document-year)"
 		},
-		"AdrDate": {
-			"type": "generated",
-			"generator": "now",
-			"replaces": "0000-00-00",
-			"parameters": {
-				"format": "yyyy-MM-dd"
-			}
+		"DocumentDate": {
+			"type": "derived",
+			"valueSource": "DocumentStamp",
+			"valueTransform": "documentIsoDate",
+			"replaces": "(document-date)"
+		},
+		"DocumentCompactDate": {
+			"type": "derived",
+			"valueSource": "DocumentStamp",
+			"valueTransform": "documentCompactDate",
+			"replaces": "(document-date-compact)"
 		},
 		"TemplateEditMode": {
 			"type": "generated",

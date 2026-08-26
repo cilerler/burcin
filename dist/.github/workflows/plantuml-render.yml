@@ -22,20 +22,20 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - name: Checkout
+      - name: Checkout writable branch
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # For PRs from same repo, check out head branch so we can push back.
-          # For fork PRs, this falls back to the merge ref and push will be skipped.
-          ref: ${{ github.event.pull_request.head.ref || github.ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.ref || github.ref }}
 
-      - name: Install PlantUML
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y plantuml
+      - name: Checkout fork pull request
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          repository: ${{ github.repository }}
+          ref: refs/pull/${{ github.event.pull_request.number }}/merge
 
       - name: Determine changed PlantUML files
         id: changed
@@ -48,8 +48,18 @@ jobs:
             $head = '${{ github.sha }}'
           }
 
-          $changed = @(git diff --name-only --diff-filter=ACM $base $head -- '*.puml' '*.plantuml')
-          $deleted = @(git diff --name-only --diff-filter=D $base $head -- '*.puml' '*.plantuml')
+          if ($base -match '^0{40}$') {
+            # A repository's first push has no base commit. Treat every current
+            # PlantUML source as new instead of asking git to diff the zero SHA.
+            $changed = @(git ls-tree -r --name-only $head -- '*.puml' '*.plantuml')
+            if ($LASTEXITCODE -ne 0) { throw "git ls-tree failed with exit code $LASTEXITCODE" }
+            $deleted = @()
+          } else {
+            $changed = @(git diff --name-only --diff-filter=ACM $base $head -- '*.puml' '*.plantuml')
+            if ($LASTEXITCODE -ne 0) { throw "git diff for changed PlantUML files failed with exit code $LASTEXITCODE" }
+            $deleted = @(git diff --name-only --diff-filter=D $base $head -- '*.puml' '*.plantuml')
+            if ($LASTEXITCODE -ne 0) { throw "git diff for deleted PlantUML files failed with exit code $LASTEXITCODE" }
+          }
 
           if ($changed.Count -eq 0 -and $deleted.Count -eq 0) {
             Write-Host "No PlantUML files changed."
@@ -67,6 +77,8 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $modified = @()
+          $mountPath = ((Resolve-Path '.').Path -replace '\\', '/')
+          $plantUmlImage = 'plantuml/plantuml@sha256:f2c8916a795483bf32ea61ca63b1c6726845c0085c997d86431e20b52ca1c257'
 
           # Handle deletions first
           $deletedFiles = '${{ steps.changed.outputs.deleted }}'.Trim() -split '\s+' | Where-Object { $_ }
@@ -92,8 +104,15 @@ jobs:
 
             $oldHash = if (Test-Path $svg) { (Get-FileHash $svg -Algorithm SHA256).Hash } else { $null }
 
-            $outDir = if ($dir) { $dir } else { '.' }
-            plantuml -tsvg -nometadata -failfast2 -o (Resolve-Path $outDir).Path $puml
+            $pumlArgs = @(
+              'run', '--rm',
+              '-v', "${mountPath}:/data",
+              '-w', '/data',
+              $plantUmlImage,
+              '-tsvg', '-nometadata', '-failfast2', '-o', '.',
+              $puml
+            )
+            & docker @pumlArgs
             if ($LASTEXITCODE -ne 0) {
               Write-Host "::error file=$puml::PlantUML render failed"
               exit 1
@@ -103,6 +122,8 @@ jobs:
               Write-Host "::error file=$puml::Expected SVG not produced: $svg"
               exit 1
             }
+
+            & ./tools/git/scripts/normalize-plantuml-template-svg.ps1 -SvgPath $svg
 
             $newHash = (Get-FileHash $svg -Algorithm SHA256).Hash
 
@@ -129,7 +150,7 @@ jobs:
                     '${{ github.event.pull_request.head.repo.full_name }}' -ne '${{ github.repository }}'
 
           if ($isFork) {
-            Write-Host "::error::PR is from a fork. Cannot push SVG updates back. Please run the pre-commit hook locally and re-push."
+            Write-Host "::error::PR is from a fork. Stage the changed PlantUML source, run 'pwsh -NoProfile -File ./tools/git/scripts/plantuml-render.ps1', commit the generated SVG, and re-push."
             exit 1
           }
 

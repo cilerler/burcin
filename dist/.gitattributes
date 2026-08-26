@@ -3,6 +3,9 @@
 ###############################################################################
 * text=auto
 
+# Git hook entrypoints are POSIX shell scripts even when the repository is created on Windows.
+/tools/git/hooks/* text eol=lf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #

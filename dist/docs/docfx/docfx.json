@@ -13,6 +13,9 @@
 				}
 			],
 			"dest": "api/reference",
+			"properties": {
+				"Nullable": "enable"
+			},
 			"disableGitFeatures": false,
 			"disableDefaultFilter": false
 		}

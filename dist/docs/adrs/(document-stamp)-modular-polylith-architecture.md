@@ -1,7 +1,7 @@
 # ADR: Modular Polylith architecture for BurcinCo.BurcinApp
 
 - **Status:** Accepted
-- **Date:** 0000-00-00
+- **Date:** (document-date)
 - **Authors:** Cengiz Ilerler
 
 ## Context
@@ -177,7 +177,7 @@ Snapshot pattern (`RecipeSnapshot`, `UserSnapshot`, …) populated by Outbox-pub
 
 ## References
 
-- [Repository overview](https://repository.invalid)
+- Repository overview: root `README.md`
 - Capability-selection snapshot: `src/BurcinCo.BurcinApp.Host/Configuration/CapabilitySelection.cs`
 <!--#if (EntityFrameworkScaffold) -->
 - EF migration workflow: `tools/EntityFramework/migrate.ps1`

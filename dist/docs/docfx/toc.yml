@@ -1,8 +1,12 @@
 - name: Documentation
   href: index.md
   items:
+    - name: System architecture
+      href: ~/../architectures/system.md
+    - name: Configure Gateway edge protections
+      href: ~/../sops/configure-gateway-edge-protections.md
     - name: Modular Polylith decision
-      href: ~/../adrs/000000000000-modular-polylith-architecture.md
+      href: ~/../adrs/(document-stamp)-modular-polylith-architecture.md
 - name: Managed API reference
   href: api/
   homepage: api/index.md

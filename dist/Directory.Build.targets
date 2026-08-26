@@ -5,10 +5,77 @@
 		<Exec Command="dotnet format whitespace &#45;&#45;verify-no-changes &#45;&#45;verbosity diagnostic" ContinueOnError="false" />
 	</Target> -->
 
-	<!-- <Target Name="SetupGitHooks" BeforeTargets="Build">
-		<Exec Command="git config core.hooksPath ../../tools/git/hooks" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
-		<Exec Command="git update-index &#45;&#45;add &#45;&#45;chmod=+x ../../tools/git/hooks/pre-commit" WorkingDirectory="$(MSBuildProjectDirectory)" ContinueOnError="true" />
-	</Target> -->
+	<!-- Configure the generated repository's hook once through its AppHost build. Limiting this to the
+	     AppHost avoids concurrent writes to .git/config when a solution build compiles projects in parallel. -->
+	<Target Name="SetupGitHooks"
+		BeforeTargets="Build"
+		Condition="'$(DesignTimeBuild)' != 'true' And '$(MSBuildProjectName)' == 'BurcinCo.BurcinApp.AppHost'">
+		<Exec Command="git rev-parse &#45;&#45;show-prefix"
+			WorkingDirectory="$(MSBuildThisFileDirectory)"
+			ConsoleToMSBuild="true"
+			IgnoreExitCode="true"
+			StandardOutputImportance="Low"
+			StandardErrorImportance="Low">
+			<Output TaskParameter="ConsoleOutput" PropertyName="GitRepositoryPrefix" />
+			<Output TaskParameter="ExitCode" PropertyName="GitRepositoryCheckExitCode" />
+		</Exec>
+
+		<PropertyGroup Condition="'$(GitRepositoryCheckExitCode)' == '0'">
+			<ExpectedGitHooksPath>$(GitRepositoryPrefix)tools/git/hooks</ExpectedGitHooksPath>
+		</PropertyGroup>
+
+		<Exec Command="git config &#45;&#45;get core.hooksPath"
+			WorkingDirectory="$(MSBuildThisFileDirectory)"
+			ConsoleToMSBuild="true"
+			IgnoreExitCode="true"
+			StandardOutputImportance="Low"
+			StandardErrorImportance="Low"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0'">
+			<Output TaskParameter="ConsoleOutput" PropertyName="ExistingGitHooksPath" />
+		</Exec>
+
+		<Exec Command="git rev-parse &#45;&#45;git-path hooks"
+			WorkingDirectory="$(MSBuildThisFileDirectory)"
+			ConsoleToMSBuild="true"
+			IgnoreExitCode="true"
+			StandardOutputImportance="Low"
+			StandardErrorImportance="Low"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == ''">
+			<Output TaskParameter="ConsoleOutput" PropertyName="DefaultGitHooksDirectory" />
+			<Output TaskParameter="ExitCode" PropertyName="DefaultGitHooksPathExitCode" />
+		</Exec>
+
+		<Exec Command="pwsh -NoProfile -File &quot;$(MSBuildThisFileDirectory)tools/git/scripts/detect-active-hooks.ps1&quot; -HooksDirectory &quot;$(DefaultGitHooksDirectory)&quot;"
+			WorkingDirectory="$(MSBuildThisFileDirectory)"
+			ConsoleToMSBuild="true"
+			IgnoreExitCode="true"
+			StandardOutputImportance="Low"
+			StandardErrorImportance="Low"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == '' And '$(DefaultGitHooksPathExitCode)' == '0'">
+			<Output TaskParameter="ConsoleOutput" PropertyName="ActiveDefaultGitHooks" />
+			<Output TaskParameter="ExitCode" PropertyName="DefaultGitHooksScanExitCode" />
+		</Exec>
+
+		<Exec Command="git config &#45;&#45;local core.hooksPath &quot;$(ExpectedGitHooksPath)&quot;"
+			WorkingDirectory="$(MSBuildThisFileDirectory)"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == '' And '$(DefaultGitHooksPathExitCode)' == '0' And '$(DefaultGitHooksScanExitCode)' == '0' And '$(ActiveDefaultGitHooks)' == 'false'" />
+
+		<Exec Command="chmod +x &quot;$(MSBuildThisFileDirectory)tools/git/hooks/pre-commit&quot;"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And ('$(ExistingGitHooksPath)' == '$(ExpectedGitHooksPath)' Or ('$(ExistingGitHooksPath)' == '' And '$(DefaultGitHooksPathExitCode)' == '0' And '$(DefaultGitHooksScanExitCode)' == '0' And '$(ActiveDefaultGitHooks)' == 'false')) And !$([MSBuild]::IsOSPlatform('Windows'))" />
+
+		<Message Importance="high"
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == '' And '$(DefaultGitHooksPathExitCode)' == '0' And '$(DefaultGitHooksScanExitCode)' == '0' And '$(ActiveDefaultGitHooks)' == 'false'"
+			Text="Configured Git hooks at '$(ExpectedGitHooksPath)'." />
+		<Warning
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == '' And '$(DefaultGitHooksPathExitCode)' == '0' And '$(DefaultGitHooksScanExitCode)' == '0' And '$(ActiveDefaultGitHooks)' == 'true'"
+			Text="Git hooks were not changed because the repository's default hooks directory already contains active hooks. Burcin pre-commit checks require '$(ExpectedGitHooksPath)' or a compatible chained hook." />
+		<Warning
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' == '' And ('$(DefaultGitHooksPathExitCode)' != '0' Or '$(DefaultGitHooksScanExitCode)' != '0')"
+			Text="Git hooks were not changed because the repository's default hooks directory could not be inspected safely. Configure or chain '$(ExpectedGitHooksPath)' manually." />
+		<Warning
+			Condition="'$(GitRepositoryCheckExitCode)' == '0' And '$(ExistingGitHooksPath)' != '' And '$(ExistingGitHooksPath)' != '$(ExpectedGitHooksPath)'"
+			Text="Git hooks were not changed because core.hooksPath is already '$(ExistingGitHooksPath)'. Burcin pre-commit checks require '$(ExpectedGitHooksPath)' or a compatible chained hook." />
+	</Target>
 
 	<Target Name="SetRepositoryBranch" BeforeTargets="GenerateNuspec">
 		<Exec Command="git rev-parse &#45;&#45;abbrev-ref HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true">

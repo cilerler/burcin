@@ -38,71 +38,41 @@ orchestration. The reference business modules are intentionally omitted; add sib
 
 ## Documentation
 
-Start with the canonical [documentation index](docs/README.md) for architecture, decisions, operational
-guidance, specifications, and project records. The authored Markdown under `docs/` remains the source of
-truth whether or not a documentation site is generated.
+Use this README to get the repository running, then follow the canonical document for the question you have:
+
+| When you need to… | Start here |
+|---|---|
+| Understand the selected projects, process boundaries, request flows, data ownership, or limitations | [System architecture](docs/architectures/system.md) |
+| Configure Gateway rate limits, CIDR safelists, or trusted forwarded headers | [Gateway edge-protection SOP](docs/sops/configure-gateway-edge-protections.md) |
+| Understand why an architectural choice was made | [Architecture decision records](docs/adrs/) |
+| Add or find any other documentation | [Documentation index](docs/README.md) |
+| Run or verify the repository | [Local development](#local-development) and [Tests](#tests) below |
+
+The authored Markdown under `docs/` remains the source of truth whether or not a documentation site is
+generated.
 
 <!--#if (DocFx) -->
 This repository also includes a searchable DocFX site and curated managed .NET API reference. Build, preview,
 output, and optional GitHub Pages instructions live in the documentation index.
 <!--#endif -->
 
-## What's in the box
+## System at a glance
 
-| Layer | Project | Notes |
-|---|---|---|
-| Composition | `BurcinCo.BurcinApp.Host` | Thin ASP.NET Core app-runner wrapper. Owns process/configuration/module composition only—no contracts, business logic, data tooling, or service implementations. |
-| Composition | `BurcinCo.BurcinApp.Gateway` | YARP edge runner with default per-client rate limits, configurable CIDR safelists, and trusted-proxy handling. With `--Sample`, owns process-intrinsic Webhook authentication, validation, envelope translation, and broker handoff; owns no application/domain behavior. |
-| Composition | `BurcinCo.BurcinApp.AppHost` | Aspire orchestration for local dev — brings up MsSql, Redis, RabbitMQ, the Host, and the Gateway, and models selected client runners; MAUI targets are explicit-start. |
-<!--#if (ClientShared) -->
-| Client UI | `BurcinCo.BurcinApp.Client.Shared` | Razor Class Library containing the reusable routes, layout, navigation, pages, and FluentUI surface shared by the selected client runners. It is not a process. |
-<!--#endif -->
-<!--#if (Web) -->
-| Client runner | `BurcinCo.BurcinApp.Client.Web` | Blazor Web process and render-mode shell. AppHost orchestrates it as `client-web`, and the Gateway exposes it at `/portal`; its Dockerfile is independent from the Host image. |
-<!--#endif -->
-<!--#if (Maui) -->
-| Client runner | `BurcinCo.BurcinApp.Client.Maui` | .NET MAUI Blazor Hybrid native shell. Aspire exposes explicit-start platform resources for local development; its app-local `wwwroot/index.html` bootstraps `BlazorWebView`, which maps `Client.Shared.Routes` directly. |
-<!--#endif -->
-<!--#if (EntityFrameworkScaffold) -->
-| Persistence | `BurcinCo.BurcinApp.Models` | DB-first entities + persistence marker interfaces (`Abstractions/`) + DB-tied enums (`BurcinDatabaseConstants/`). |
-| Persistence | `BurcinCo.BurcinApp.Data` | Shared `BurcinDatabaseDbContext`. |
-| Persistence | `BurcinCo.BurcinApp.Migrations` | Single migrations project for all modules; owns the EF design-time factory and migration-only configuration. |
-<!--#endif -->
-<!--#if (Sample) -->
-| Module | `BurcinCo.BurcinApp.Modules.Recipe` | Reference module: Catalog component → Recipe, Chef, Category, Tag, and RecipePhoto services. |
-| Module | `BurcinCo.BurcinApp.Modules.Nutrition` | Reference module: Tracking component → NutritionFact service + cross-module call to Recipe (in-process or HTTP via `RecipeClient`). |
-| Module | `BurcinCo.BurcinApp.Modules.Sourcing` | Reference module: Procurement component → IngredientSupply service. Demonstrates non-default-provider Outbox routing, an atomic Inbox consumer with post-commit business telemetry, and finite delayed retry → DLX via Ruya reliable-messaging. |
-<!--#endif -->
-
-<!--#if (EntityFrameworkScaffold) -->
-### Persistence scaffold
-
-<!--#if (Sample) -->
-The reference modules use this database layout:
-
-| Schema | Owner | Tables |
-|---|---|---|
-| `Recipe` | Modules.Recipe | Chef, Recipe, RecipeExpansion, CategoryCode, CategoryGroup, CategoryCodeGroupMapping |
-| `Nutrition` | Modules.Nutrition | NutritionFact |
-| `Sourcing` | Modules.Sourcing | IngredientQuote |
-| `dbo` | Cross-cutting infrastructure | Outbox, Inbox, `__EFMigrationsHistory` |
-
-Module-owned tables live in their own schema; per-deployment SQL users get broad SELECT and narrow
-INSERT/UPDATE/DELETE on their module's schema only — module isolation enforced at the database tier.
-<!--#else -->
-`BurcinCo.BurcinApp.Models`, `BurcinCo.BurcinApp.Data`, and
-`BurcinCo.BurcinApp.Migrations` provide the shared EF Core foundation. No reference business module
-is generated; define the schemas, entities, and module ownership for this application before adding
-its initial migration.
-<!--#endif -->
-<!--#endif -->
+`BurcinCo.BurcinApp.Gateway` is the public edge, `BurcinCo.BurcinApp.Host` is the application runtime,
+and `BurcinCo.BurcinApp.AppHost` orchestrates resources without joining the request path. The living
+[system architecture](docs/architectures/system.md) is the canonical description of component ownership,
+runtime paths, persistence, cross-cutting concerns, and known limitations. Its
+[component inventory](docs/architectures/system.md#components) is the application-project map for this generated
+repository; the [test inventory](#tests) maps verification projects separately.
 
 ## Local development
 
 ### Prerequisites
 
+- Git
 - .NET 10 SDK
-- Docker Desktop (for Aspire's containers)
+- PowerShell 7 (`pwsh`, for repository checks)
+- Docker Desktop (for Aspire's containers and PlantUML rendering)
 <!--#if (Maui) -->
 - .NET MAUI workload plus the SDK/toolchain required by each native target you build
 <!--#endif -->
@@ -116,6 +86,35 @@ solution needs repository-specific package sources. Host and Gateway container b
 `nuget.config*`, so Docker restore automatically uses the active file when it exists while remaining
 buildable with only the example present.
 
+### Git hooks
+
+After Git has been initialized, the first AppHost or solution build configures the repository-local
+`core.hooksPath` automatically. It also marks the hook executable on macOS and Linux. If the project was built
+before Git was initialized, build the AppHost or solution once more. Verify the result from the generated
+application root:
+
+```pwsh
+git config --get core.hooksPath
+```
+
+The result is normally `tools/git/hooks`. A project generated inside an existing repository includes its
+repository-relative folder prefix. If another hook path is already configured, or the default `.git/hooks`
+directory already contains a non-sample hook, the build preserves it and emits a warning instead of disabling
+the owner's hooks. Chain the Burcin hook deliberately or, when no existing hook must be preserved, activate it
+manually from the generated application root:
+
+```pwsh
+$gitRoot = git rev-parse --show-toplevel
+$repositoryPrefix = git rev-parse --show-prefix
+$hooksPath = "${repositoryPrefix}tools/git/hooks"
+git config --local core.hooksPath $hooksPath
+if (-not $IsWindows) { chmod +x (Join-Path $gitRoot "$hooksPath/pre-commit") }
+```
+
+The hook validates staged C# and PlantUML changes. It rejects partially staged files in those two categories so
+an unstaged edit cannot affect the commit; stage the complete file or stash its unstaged changes and retry.
+Diagram authoring and manual rendering are documented under [PlantUML diagrams](docs/README.md#plantuml-diagrams).
+
 ### Run
 
 The Aspire AppHost owns the lifecycle of `mssql`, `redis`, and `rabbitmq` containers — never start
@@ -128,19 +127,14 @@ aspire start --apphost src/BurcinCo.BurcinApp.AppHost
 The Aspire dashboard prints its URL at startup. From there you can see the Host, Gateway, broker
 activity, OpenTelemetry traces, and structured logs.
 <!--#if (Web) -->
-The same AppHost starts the Web runner as `client-web` after the Gateway is ready. The Gateway resolves that
-resource through Aspire service discovery and exposes it at `/portal`. Web and Shared remain separate
-projects; Host does not serve or reference their UI.
+The selected Web runner is available through the Gateway at `/portal`. See the
+[Web portal request](docs/architectures/system.md#web-portal-request) for the process boundary and route behavior.
 <!--#endif -->
 <!--#if (Maui) -->
 
-The AppHost registers MAUI through the preview `Aspire.Hosting.Maui` integration. Its Windows, Mac Catalyst,
-Android-emulator, and iOS-simulator targets appear as explicit-start resources in the dashboard and build on
-demand after the Gateway is ready. Select the target supported by your development machine.
-
-The MAUI platform resources use `ExcludeFromManifest()`, so they remain local-development resources instead
-of Docker Compose services. Restore the workload and build or package the target platform explicitly; for
-example, on Windows:
+Start the MAUI target supported by your machine explicitly from the Aspire dashboard. See
+[Native client startup](docs/architectures/system.md#native-client-startup) for its orchestration and publishing
+boundary. Restore the workload and build or package the target platform explicitly; for example, on Windows:
 
 ```pwsh
 dotnet workload restore src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj
@@ -149,43 +143,12 @@ dotnet build src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.c
 ```
 <!--#endif -->
 
-### Gateway edge protections
+### Configure Gateway edge protections
 
-The Gateway applies ASP.NET Core token-bucket rate limiting by client IP before proxy or Webhook work.
-`gateway-proxy` protects both YARP routes with a 200-request burst and replenishes 50 tokens every five
-seconds. The Sample Webhook uses the tighter `gateway-webhook` policy: a 30-request burst and ten tokens
-every ten seconds. Both reject immediately with `429 Too Many Requests`, a Problem Details body, and
-`Retry-After` when the limiter can calculate it. Tune `Gateway:RateLimiting` after load testing; these
-limits are per Gateway replica, so strict cross-replica quotas still belong at the ingress, WAF, or API
-management layer. Health and Prometheus endpoints are intentionally exempt from request limiting.
-
-Named CIDR safelists are also wired into the proxy, Webhook, and `/metrics` endpoints. They default to
-`Enabled: false` so a generated public application and its Prometheus scraper are not accidentally locked
-out. To restrict a surface, add exact IP addresses or canonical IPv4/IPv6 CIDRs and then enable its policy:
-
-```json
-"Gateway": {
-  "NetworkSecurity": {
-    "IpSafelists": {
-      "gateway-proxy-ip-safelist": {
-        "Enabled": true,
-        "AllowedNetworks": [ "10.20.0.0/16", "2001:db8:1234::/48" ]
-      }
-    }
-  }
-}
-```
-
-An enabled safelist rejects an unknown or disallowed client address with `403 Forbidden` and does not
-reveal the configured networks. Empty enabled lists, invalid CIDRs, and universal `/0` networks fail at
-startup. Individual IPs are accepted and normalized to `/32` or `/128`. Gateway protection policies are
-captured once at startup, so restart the Gateway after changing them.
-
-Direct Kestrel traffic uses the socket peer address. When the Gateway runs behind a reverse proxy, enable
-`Gateway:NetworkSecurity:ForwardedHeaders` and configure a finite `ForwardLimit` plus at least one exact
-IP in `KnownProxies` or canonical CIDR in `KnownNetworks`. The Gateway ignores forwarded headers by
-default and rejects the trust-all `ASPNETCORE_FORWARDEDHEADERS_ENABLED` switch; never make authorization
-or rate-limit decisions from an untrusted `X-Forwarded-For` header.
+Rate limiting is enabled by default; CIDR safelists and forwarded-header trust are opt-in. Follow the
+[Gateway edge-protection SOP](docs/sops/configure-gateway-edge-protections.md) to change and verify those
+settings. The [system security architecture](docs/architectures/system.md#security) explains their enforcement
+order, trust model, and scaling boundary.
 
 <!--#if (EntityFrameworkScaffold) -->
 ### Apply EF migrations

@@ -1,8 +1,5 @@
 $ErrorActionPreference = "Stop"
 
-# comment the following line to enable pre-commit checks
-exit 0;
-
 Write-Host "`n🔍 Running pre-commit checks..." -ForegroundColor Cyan
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path

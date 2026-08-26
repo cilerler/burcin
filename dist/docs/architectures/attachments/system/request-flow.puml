@@ -1,0 +1,257 @@
+@startuml request-flow
+scale 1.5
+skinparam responseMessageBelowArrow true
+skinparam BoxPadding 10
+
+<style>
+.ownerGap {
+  LineColor transparent
+  Participant {
+    MinimumWidth 120
+    FontColor transparent
+    BackGroundColor transparent
+  }
+}
+</style>
+
+hide stereotype
+
+!define _version (document-stamp)
+!define _company BurcinLegal
+!define _classification BurcinDocumentClassification
+!define _copyrightYear (document-year)
+
+header _classification
+title BurcinCo.BurcinApp - End-to-End Request and Service Interactions
+footer \n<b>_company (c) _copyrightYear</b>\nVersion _version
+
+autonumber 0.10 20 "<b>[0]"
+
+|||
+
+legend top right
+<b><<request>></b> HTTP request at a process boundary
+<b><<relay>></b> Passes request as-is
+<b><<mediate>></b> Transforms then forwards
+<b><<publish>></b> Writes a persistent broker message
+<b><<deliver>></b> Asynchronous queue delivery
+end legend
+
+|||
+
+actor "API caller" as caller
+actor "Supplier" as supplier
+actor "Browser" as browser
+actor "App user" as device
+
+box "Client.Web + Client.Shared" #BBDEFB
+  boundary "Web UI" as web #FFFFFF
+end box
+
+participant " " as webMauiGap <<ownerGap>>
+
+box "Client.Maui + Client.Shared" #F0F4C3
+  boundary "MAUI app" as maui #FFFFFF
+end box
+
+box "Gateway" #CFD8DC
+  boundary "YARP proxy" as gateway #FFFFFF
+  boundary "Webhook API\nPOST /webhooks/{**path}" as webhookApi #FFFFFF
+  control "WebhookService" as webhookService #FFFFFF
+end box
+
+participant " " as gatewayRabbitGap <<ownerGap>>
+
+box "RabbitMQ" #FFECB3
+  queue "Sourcing quote-response queue\nwebhooks.sourcing.quote-response.queue" as webhookQueue #FFFFFF
+end box
+
+box "Host" #C8E6C9
+  boundary "API\n/ping · /me" as hostApi #FFFFFF
+end box
+
+participant " " as hostSourcingGap <<ownerGap>>
+
+box "Modules.Sourcing" #F8BBD0
+  boundary "Quote-response subscriber\n(Inbox)" as responseSubscriber #FFFFFF
+  control "IngredientSupplyService" as ingredientSupply #FFFFFF
+end box
+
+box "Modules.Nutrition" #D1C4E9
+  boundary "NutritionFactController" as nutritionApi #FFFFFF
+  control "NutritionFactService" as nutritionService #FFFFFF
+  boundary "RecipeClient" as recipeClient #FFFFFF
+end box
+
+box "Modules.Recipe" #FFCCBC
+  control "RecipeService" as recipeService #FFFFFF
+  boundary "RecipeController" as recipeApi #FFFFFF
+end box
+
+participant " " as recipeDataGap <<ownerGap>>
+
+box "Data" #B2DFDB
+  control "BurcinDatabaseDbContext\n(main Host)" as nutritionDataContext #FFFFFF
+  control "BurcinDatabaseDbContext\n(Recipe Host)" as recipeDataContext #FFFFFF
+end box
+
+box "SQL Server" #D7CCC8
+  database "BurcinDatabase" as database #FFFFFF
+end box
+
+|||
+
+== Product UI delivery (when selected) ==
+autonumber inc A
+
+opt#1976D2 #E3F2FD <color:#FFFFFF>--Web selected</color>
+  browser -> gateway: <<request>>\n""GET /portal/{**catch-all}""
+  activate gateway
+  gateway -> gateway: <<validate>> configured client network
+  gateway -> gateway: <<process>> per-client token-bucket limit
+  gateway -> web: <<relay>> request retaining /portal path base
+  activate web
+  web -> web: <<render>> Client.Shared routes in-process
+  web --> gateway: HTML response
+  deactivate web
+  gateway --> browser: HTML response
+  deactivate gateway
+end
+
+opt#1976D2 #E3F2FD <color:#FFFFFF>--Maui selected</color>
+  device -> maui: <<initiate>> open native application
+  activate maui
+  maui -> maui: <<render>> Client.Shared routes in-process
+  maui --> device: native UI
+  deactivate maui
+end
+
+note over web, maui #FFF9C4
+AppHost starts and wires selected resources but is not part
+of either runtime path. In development, its MAUI targets are
+explicit-start resources. The generated Web and MAUI shells
+currently render UI only; neither issues an application API call.
+end note
+
+== Application API request ==
+autonumber inc A
+
+note over caller, gateway #FFF9C4
+The API caller represents external consumers today and the
+Product UI HTTP-adapter seam when application data access is added.
+All Product UI API traffic enters through Gateway, never Host directly.
+end note
+
+caller -> gateway: <<request>>\n""GET /ping or GET /me""
+activate gateway
+gateway -> gateway: <<validate>> configured client network
+gateway -> gateway: <<process>> per-client token-bucket limit
+gateway -> hostApi: <<relay>> request through service discovery
+activate hostApi
+hostApi -> hostApi: <<validate>> bearer identity for /me only
+hostApi --> gateway: HTTP 200 or 401 response
+deactivate hostApi
+gateway --> caller: HTTP 200 or 401 response
+deactivate gateway
+
+== Queue-backed Gateway Webhook processing (when --Sample is generated) ==
+autonumber inc A
+
+supplier -> webhookApi: <<request>>\n""POST /webhooks/sourcing/quote-response""\nJSON + X-Webhook-Secret
+activate webhookApi
+webhookApi -> webhookApi: <<validate>> Webhook CIDR safelist, token bucket,\nand shared-secret header
+webhookApi -> webhookService: <<mediate>> path + bounded request body
+activate webhookService
+webhookService -> webhookService: <<validate>> valid JSON body at most 1 MiB
+webhookService -> webhookService: <<mediate>> persistent WebhookMessageEnvelope
+webhookService -> webhookQueue: <<publish>> via RabbitMQ management HTTP API\nexchange + routing key: webhooks.sourcing.quote-response
+activate webhookQueue
+webhookQueue --> webhookService: ""routed = true""
+deactivate webhookQueue
+webhookService --> webhookApi: accepted
+deactivate webhookService
+webhookApi --> supplier: HTTP 202 Accepted
+deactivate webhookApi
+
+note over supplier, webhookQueue #FFF9C4
+HTTP 202 confirms broker routing only; Host-side business
+processing has not completed. Invalid, oversized, failed, or
+unrouted publications return HTTP 400, 413, or 502 instead.
+end note
+
+webhookQueue ->> responseSubscriber: <<deliver>> IngredientQuoteResponseReceivedEvent
+activate responseSubscriber
+responseSubscriber -> nutritionDataContext: <<check>> Inbox message identity
+nutritionDataContext -> database: <<query>> check dbo.Inbox
+database --> nutritionDataContext: no existing Inbox identity
+nutritionDataContext --> responseSubscriber: process once
+responseSubscriber -> ingredientSupply: <<process>> supplier quote response
+activate ingredientSupply
+ingredientSupply -> nutritionDataContext: <<updateRecord>> IngredientQuote terminal state
+nutritionDataContext -> database: <<commit>> business change + Inbox identity atomically
+database --> nutritionDataContext: committed
+nutritionDataContext --> ingredientSupply: committed
+ingredientSupply --> responseSubscriber: success
+deactivate ingredientSupply
+responseSubscriber -> responseSubscriber: <<observe>> post-commit telemetry
+responseSubscriber -->> webhookQueue: <<acknowledge>> delivery
+deactivate responseSubscriber
+
+note over webhookQueue, responseSubscriber #FFF9C4
+Concurrent conflicts use bounded exponential retry with jitter.
+Deliveries that exceed the finite attempt count are dead-lettered.
+end note
+
+== OData write and cross-module validation (when --Sample is generated and Nutrition is active) ==
+autonumber inc A
+
+caller -> gateway: <<request>>\n""POST /odata/NutritionFact""
+gateway -> gateway: <<validate>> configured client network
+gateway -> gateway: <<process>> per-client token-bucket limit
+gateway -> nutritionApi: <<relay>> request through service discovery
+nutritionApi -> nutritionService: <<createRecord>> CreateAsync(fact)
+
+alt#2E7D32 #E8F5E9 <color:#FFFFFF>Recipe is active in the same Host</color>
+  nutritionService -> recipeService: <<read>> IRecipeService.GetByIdAsync(recipeId)
+  recipeService -> nutritionDataContext: <<query>> Recipe by Id
+  nutritionDataContext -> database: <<query>> SELECT Recipe
+  database --> nutritionDataContext: Recipe entity or none
+  nutritionDataContext --> recipeService: Recipe entity or none
+  recipeService --> nutritionService: RecipeView or null
+else #E0F2F1 <color:#00695C>Recipe runs in a separate Host deployment</color>
+  note over recipeClient, recipeApi #FFF9C4
+  This supported deployment branch requires an overlay; the default
+  AppHost does not create a second Host resource. Configure
+  RecipeClientSettings.BaseAddress for the split Recipe Host.
+  end note
+  nutritionService -> recipeClient: <<read>> IRecipeService.GetByIdAsync(recipeId)
+  recipeClient -> recipeApi: <<request>>\n""GET /odata/Recipe({id})""\ndirect service-to-service HTTP
+  recipeApi -> recipeDataContext: <<query>> Recipe by Id
+  recipeDataContext -> database: <<query>> SELECT Recipe
+  database --> recipeDataContext: Recipe entity or none
+  recipeDataContext --> recipeApi: Recipe entity or none
+  recipeApi --> recipeClient: OData entity or HTTP 404
+  alt#2E7D32 #E8F5E9 <color:#FFFFFF>Recipe API returns an entity</color>
+    recipeClient -> recipeClient: <<mediate>> OData entity to RecipeView
+    recipeClient --> nutritionService: RecipeView
+  else #FFEBEE <color:#B71C1C>Recipe API returns HTTP 404</color>
+    recipeClient --> nutritionService: null
+  end
+end
+
+alt#2E7D32 #E8F5E9 <color:#FFFFFF>Recipe exists</color>
+  nutritionService -> nutritionDataContext: <<insert>> NutritionFact
+  nutritionDataContext -> database: <<insert>> INSERT and commit
+  database --> nutritionDataContext: committed
+  nutritionDataContext --> nutritionService: saved entity
+  nutritionService --> nutritionApi: created NutritionFact
+  nutritionApi --> gateway: HTTP 201 Created
+  gateway --> caller: HTTP 201 Created
+else #FFEBEE <color:#B71C1C>Recipe does not exist</color>
+  nutritionService --> nutritionApi: null
+  nutritionApi --> gateway: HTTP 404 Not Found
+  gateway --> caller: HTTP 404 Not Found
+end
+
+|||
+@enduml
