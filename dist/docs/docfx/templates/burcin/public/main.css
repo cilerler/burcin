@@ -1,0 +1,19 @@
+:root {
+  --bs-primary-rgb: 43, 91, 168;
+  --bs-link-color-rgb: 35, 82, 160;
+  --bs-link-hover-color-rgb: 25, 61, 121;
+}
+
+[data-bs-theme="dark"] {
+  --bs-primary-rgb: 121, 164, 235;
+  --bs-link-color-rgb: 137, 177, 241;
+  --bs-link-hover-color-rgb: 174, 203, 250;
+}
+
+article h1 {
+  letter-spacing: -0.025em;
+}
+
+.navbar-brand {
+  font-weight: 650;
+}

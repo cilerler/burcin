@@ -1,5 +1,3 @@
-###############
-#  temp file  #
-###############
-*.yml
+# DocFX-generated managed-reference metadata
+reference/
 .manifest

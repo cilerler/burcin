@@ -200,13 +200,6 @@
 		<PackageVersion Include="Microsoft.OData.Edm" Version="8.0.1" />
 	</ItemGroup>
 
-	<!--#if (DocFx)-->
-	<ItemGroup>
-		<PackageVersion Include="docfx.console" Version="2.59.4" />
-		<PackageVersion Include="DocFx.Plugins.PlantUml" Version="1.1.24" />
-	</ItemGroup>
-	<!--#endif-->
-
 	<!-- Ruya Libraries -->
 	<ItemGroup>
 		<PackageVersion Include="Ruya.AspNetCore.Diagnostics" Version="8.*" />

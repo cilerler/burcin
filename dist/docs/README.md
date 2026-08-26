@@ -13,10 +13,51 @@ Fill these in as the project acquires them. Until a row exists, that question ha
 | Know what is *not* built, or not decided | the same file → Known Limitations |
 | Use the app day to day | `sops/{slug}.md` |
 | Run or operate the app | `sops/{slug}.md` |
-| Look up a field or table | [data-dictionary.md](data-dictionary.md) |
-| Look up a term | [business-glossary.md](business-glossary.md) |
-| Know what technology is used and why | [tech-stack-overview.md](tech-stack-overview.md) |
-| Understand why a choice was made | [adrs/](adrs/) |
+| Look up a field or table | `data-dictionary.md` once the project creates it |
+| Look up a term | `business-glossary.md` once the project creates it |
+| Know what technology is used and why | `tech-stack-overview.md` once the project creates it |
+| Understand why a choice was made | `adrs/` |
+
+<!--#if (DocFx) -->
+## Documentation site
+
+DocFX turns this canonical documentation tree into a searchable site and generates the curated managed
+.NET API reference from the selected public projects. The repository owns one documentation entrypoint;
+from the repository root, validate and build with:
+
+```pwsh
+pwsh -NoProfile -File ./tools/documentation.ps1
+```
+
+The script restores the pinned repository-local DocFX tool, restores only projects selected for managed API
+metadata, and builds the site at `docs/docfx/_site/` with warnings treated as errors. Fix broken links, images,
+cross-references, duplicate API identifiers, and project-loading problems instead of suppressing them. The
+complete repository build and documentation workflow call this same entrypoint.
+
+DocFX is repository tooling and is intentionally not a package dependency of any deployable project. This keeps
+documentation generation out of application restore, build, publish, and runtime dependency graphs.
+
+To validate, build, and serve the site locally:
+
+```pwsh
+pwsh -NoProfile -File ./tools/documentation.ps1 -Serve
+```
+
+Open the URL reported by DocFX and stop the server with `Ctrl+C`. Serving is a blocking local-preview command,
+not a file watcher; rerun it after authored content changes. Neither local command requires GitHub Pages.
+
+Edit and commit the authored Markdown in `docs/`, XML documentation comments in source, and optional API
+overwrites in `docs/docfx/overrides/`. Do not commit the generated API YAML under `docs/docfx/api/` or the
+rendered site under `docs/docfx/_site/`; both are reproducible build output and are ignored by Git.
+
+<!--#if (GitHubTemplates) -->
+The `Documentation` GitHub Actions workflow always performs this strict build for relevant pull requests and
+pushes and uploads `documentation-site` for inspection. That validation does not depend on GitHub Pages being
+configured. To publish from `main`, configure Pages to use GitHub Actions and set the repository Actions
+variable `DOCS_GITHUB_PAGES_ENABLED` to `true`. Only a qualifying push to `main` can deploy the site; manual
+workflow runs and pull requests remain build-and-validate operations.
+<!--#endif -->
+<!--#endif -->
 
 ## The two kinds of document
 
@@ -94,7 +135,9 @@ Four details that do not survive being shortened into a diagram node:
 | `data-dictionary.md` | Living singleton | Schema, fields, types, relationships. Updated on any schema change — no ADR required. |
 | `business-glossary.md` | Living singleton | Domain terms. Updated when terminology enters or shifts. |
 | `tech-stack-overview.md` | Living singleton | What technology is used and why. Carries no version numbers — the package manifest owns those. |
-| `docfx/` | — | Documentation site configuration. |
+<!--#if (DocFx) -->
+| `docfx/` | — | Documentation site configuration, authored API overwrites, and ignored build output. |
+<!--#endif -->
 
 Further folders exist in the convention and are created when first needed rather than up front:
 `specs/`, `diagrams/`, `notebooks/`, `pirs/`, `test-plans/`, `test-cases/`, `tickets/`, `projects/`.

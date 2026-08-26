@@ -177,6 +177,8 @@ Snapshot pattern (`RecipeSnapshot`, `UserSnapshot`, …) populated by Outbox-pub
 
 ## References
 
-- [Repository overview](../../README.md)
-- [Capability-selection snapshot](../../src/BurcinCo.BurcinApp.Host/Configuration/CapabilitySelection.cs)
-- [EF migration workflow](../../tools/EntityFramework/migrate.ps1)
+- [Repository overview](https://repository.invalid)
+- Capability-selection snapshot: `src/BurcinCo.BurcinApp.Host/Configuration/CapabilitySelection.cs`
+<!--#if (EntityFrameworkScaffold) -->
+- EF migration workflow: `tools/EntityFramework/migrate.ps1`
+<!--#endif -->

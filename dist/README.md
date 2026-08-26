@@ -36,6 +36,17 @@ orchestration. The reference business modules are intentionally omitted; add sib
 > configuration; add them to the ADR only when this app actually adopts those boundaries.
 <!--#endif -->
 
+## Documentation
+
+Start with the canonical [documentation index](docs/README.md) for architecture, decisions, operational
+guidance, specifications, and project records. The authored Markdown under `docs/` remains the source of
+truth whether or not a documentation site is generated.
+
+<!--#if (DocFx) -->
+This repository also includes a searchable DocFX site and curated managed .NET API reference. Build, preview,
+output, and optional GitHub Pages instructions live in the documentation index.
+<!--#endif -->
+
 ## What's in the box
 
 | Layer | Project | Notes |

@@ -1,5 +1,8 @@
-- name: Articles
-  href: articles/
-- name: Api Documentation
+- name: Documentation
+  href: index.md
+  items:
+    - name: Modular Polylith decision
+      href: ~/../adrs/000000000000-modular-polylith-architecture.md
+- name: Managed API reference
   href: api/
   homepage: api/index.md

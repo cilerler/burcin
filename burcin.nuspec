@@ -17,6 +17,6 @@
 	</metadata>
 
 	<files>
-		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\artifacts\**\*;**\*.user;**\*.lock.json;**\.git\**\*;**\Directory.Build.local.props" />
+		<file src="**\dist\**\*" exclude="**\bin\**\*;**\obj\**\*;**\artifacts\**\*;**\*.user;**\*.lock.json;**\.git\**\*;**\Directory.Build.local.props;**\dist\docs\docfx\_site\**\*;**\dist\docs\docfx\api\reference\**\*;**\dist\docs\docfx\api\.manifest" />
 	</files>
 </package>

@@ -43,19 +43,6 @@
 		<PackageReference Include="AspNetCore.HealthChecks.RabbitMQ" />
 		<PackageReference Include="AspNetCore.HealthChecks.Redis" />
 	</ItemGroup>
-	<!--#if (DocFx)-->
-	<PropertyGroup Label="docfx">
-		<DocfxConfigFile>../../docs/docfx/docfx.json</DocfxConfigFile>
-		<MetadataOutputFolder>../../_docfx</MetadataOutputFolder>
-		<LogFile>$(MSBuildProjectExtensionsPath)/docfx.log</LogFile>
-		<LogLevel>Info</LogLevel>
-		<BuildDocFx Condition="'$(BuildDocFx)' == ''">false</BuildDocFx>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="docfx.console" PrivateAssets="All" />
-		<PackageReference Include="DocFx.Plugins.PlantUml" />
-	</ItemGroup>
-	<!--#endif-->
 	<ItemGroup Condition="'$(UseLocalRuyaSource)' != 'true'">
 		<PackageReference Include="Ruya.AspNetCore.Diagnostics" />
 		<PackageReference Include="Ruya.AspNetCore.Middleware" />

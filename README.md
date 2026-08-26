@@ -88,6 +88,10 @@ Gateway exposes that runner at `/portal`. MAUI owns its native shell and the app
 required by `BlazorWebView`; it maps the shared `Routes` component directly and does not duplicate the
 shared UI.
 
+DocFX is opt-in. Add `--DocFx` to generate a searchable site containing the canonical Markdown documentation,
+ADRs, and curated managed .NET API reference. The API reference is part of DocFX rather than a separate template
+option. Authored Markdown under `docs/` is generated with or without the site tooling.
+
 The generated project's `README.md` reflects the selected options. With `--Sample`, it documents
 the Modular Polylith reference modules, per-module schemas, Outbox/Inbox flows, Aspire AppHost
 orchestration, the Gateway-owned Webhook edge adapter, and how to add a new module; minimal

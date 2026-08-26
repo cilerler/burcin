@@ -111,6 +111,12 @@
 			"valueSource": "RepositoryUrlLower",
 			"valueTransform": "xmlEncode"
 		},
+		"RepositoryUrlMarkdown": {
+			"type": "derived",
+			"replaces": "https://repository.invalid",
+			"valueSource": "RepositoryUrl",
+			"valueTransform": "identity"
+		},
 		"DatabaseName": {
 			"type": "parameter",
 			"defaultValue": "WideWorldImporters",
@@ -195,7 +201,8 @@
 		"DocFx": {
 			"type": "parameter",
 			"dataType": "bool",
-			"defaultValue": "false"
+			"defaultValue": "false",
+			"description": "Generate a modern searchable DocFX site for the repository documentation and curated managed .NET API reference. Opt in with --DocFx; authored Markdown documentation is always generated."
 		},
 		"GitHubTemplates": {
 			"type": "parameter",
@@ -242,6 +249,7 @@
 			"type": "derived",
 			"valueSource": "AdrStampSource",
 			"valueTransform": "identity",
+			"replaces": "000000000000",
 			"fileRename": "000000000000"
 		},
 		"AdrDate": {
@@ -319,8 +327,10 @@
 				{
 					"condition": "(!DocFx)",
 					"exclude": [
+						".config/dotnet-tools.json",
+						".github/workflows/documentation.yml",
 						"docs/docfx/**/*",
-						"apiSpec/**/*"
+						"tools/documentation.ps1"
 					]
 				},
 				{

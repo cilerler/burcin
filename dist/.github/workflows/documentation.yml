@@ -1,0 +1,110 @@
+#--if (DocFx && GitHubTemplates)
+name: Documentation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.config/dotnet-tools.json'
+      - '.github/workflows/documentation.yml'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'Directory.Packages.props'
+      - 'docs/**'
+      - 'global.json'
+      - 'nuget.config*'
+      - 'README.md'
+      - 'src/**/*.cs'
+      - 'src/**/*.csproj'
+      - 'src/**/*.props'
+      - 'src/**/*.razor'
+      - 'src/**/*.targets'
+      - 'tools/documentation.ps1'
+  push:
+    branches: [main]
+    paths:
+      - '.config/dotnet-tools.json'
+      - '.github/workflows/documentation.yml'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
+      - 'Directory.Packages.props'
+      - 'docs/**'
+      - 'global.json'
+      - 'nuget.config*'
+      - 'README.md'
+      - 'src/**/*.cs'
+      - 'src/**/*.csproj'
+      - 'src/**/*.props'
+      - 'src/**/*.razor'
+      - 'src/**/*.targets'
+      - 'tools/documentation.ps1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: documentation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_NOLOGO: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build:
+    name: Validate and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Validate and build documentation
+        shell: pwsh
+        run: ./tools/documentation.ps1
+
+      - name: Upload documentation site
+        uses: actions/upload-artifact@v7
+        with:
+          name: documentation-site
+          path: docs/docfx/_site
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Prepare GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DOCS_GITHUB_PAGES_ENABLED == 'true'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: docs/docfx/_site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DOCS_GITHUB_PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: github-pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Deploy documentation site
+        id: deployment
+        uses: actions/deploy-pages@v4
+#--endif
