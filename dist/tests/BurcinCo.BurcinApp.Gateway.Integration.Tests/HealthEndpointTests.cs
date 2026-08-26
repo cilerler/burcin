@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BurcinCo.BurcinApp.Gateway.Integration.Tests.Fixtures;
 
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,6 +22,7 @@ public sealed class HealthEndpointTests
 {
 	private static readonly Uri LiveHealthUri = new("/healthz/live", UriKind.Relative);
 	private static readonly Uri CompatibilityHealthUri = new("/healthz", UriKind.Relative);
+	private static readonly Uri MetricsUri = new("/metrics", UriKind.Relative);
 
 	[TestMethod]
 	public async Task GetHealthzLive_Anonymous_ReturnsExactHealthy()
@@ -48,7 +50,25 @@ public sealed class HealthEndpointTests
 		AssertAllowsAnonymous(factory, CompatibilityHealthUri);
 	}
 
-	private static ProcessEnvironmentScope ConfigureEnvironment() =>
+	[TestMethod]
+	public async Task GetMetrics_DisallowedByOperationsSafelist_HealthRemainsAvailable()
+	{
+		using var environment = ConfigureEnvironment(
+			operationsSafelistEnabled: true,
+			operationsAllowedNetwork: "203.0.113.0/24");
+		await using var factory = new GatewayWebApplicationFactory();
+		using var http = factory.CreateClient();
+
+		using var metricsResponse = await http.GetAsync(MetricsUri);
+		using var healthResponse = await http.GetAsync(LiveHealthUri);
+
+		Assert.AreEqual(HttpStatusCode.Forbidden, metricsResponse.StatusCode);
+		await AssertHealthyAsync(healthResponse);
+	}
+
+	private static ProcessEnvironmentScope ConfigureEnvironment(
+		bool operationsSafelistEnabled = false,
+		string? operationsAllowedNetwork = null) =>
 		ProcessEnvironmentScope.Apply(new Dictionary<string, string?>(StringComparer.Ordinal)
 		{
 			["DOTNET_ENVIRONMENT"] = "Development",
@@ -62,6 +82,10 @@ public sealed class HealthEndpointTests
 			["BURCINCO_ReverseProxy__Clusters__host__HealthCheck__Active__Enabled"] = bool.FalseString,
 			["ReverseProxy__Clusters__portal__HealthCheck__Active__Enabled"] = bool.FalseString,
 			["BURCINCO_ReverseProxy__Clusters__portal__HealthCheck__Active__Enabled"] = bool.FalseString,
+			["Gateway__NetworkSecurity__IpSafelists__gateway-operations-ip-safelist__Enabled"] = operationsSafelistEnabled.ToString(),
+			["BURCINCO_Gateway__NetworkSecurity__IpSafelists__gateway-operations-ip-safelist__Enabled"] = operationsSafelistEnabled.ToString(),
+			["Gateway__NetworkSecurity__IpSafelists__gateway-operations-ip-safelist__AllowedNetworks__0"] = operationsAllowedNetwork,
+			["BURCINCO_Gateway__NetworkSecurity__IpSafelists__gateway-operations-ip-safelist__AllowedNetworks__0"] = operationsAllowedNetwork,
 			["OTEL_EXPORTER_OTLP_ENDPOINT"] = string.Empty,
 			["BURCINCO_OTEL_EXPORTER_OTLP_ENDPOINT"] = string.Empty,
 			["LOGGING__CONSOLE__FORMATTERNAME"] = null,
@@ -109,5 +133,8 @@ public sealed class HealthEndpointTests
 		Assert.IsNotNull(
 			endpoint.Metadata.GetMetadata<IAllowAnonymous>(),
 			$"{requestUri} must remain explicitly anonymous.");
+		Assert.IsNotNull(
+			endpoint.Metadata.GetMetadata<DisableRateLimitingAttribute>(),
+			$"{requestUri} must remain explicitly exempt from Gateway request limiting.");
 	}
 }

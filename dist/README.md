@@ -41,7 +41,7 @@ orchestration. The reference business modules are intentionally omitted; add sib
 | Layer | Project | Notes |
 |---|---|---|
 | Composition | `BurcinCo.BurcinApp.Host` | Thin ASP.NET Core app-runner wrapper. Owns process/configuration/module composition only—no contracts, business logic, data tooling, or service implementations. |
-| Composition | `BurcinCo.BurcinApp.Gateway` | YARP edge runner. With `--Sample`, owns process-intrinsic Webhook authentication, validation, envelope translation, and broker handoff; owns no application/domain behavior. |
+| Composition | `BurcinCo.BurcinApp.Gateway` | YARP edge runner with default per-client rate limits, configurable CIDR safelists, and trusted-proxy handling. With `--Sample`, owns process-intrinsic Webhook authentication, validation, envelope translation, and broker handoff; owns no application/domain behavior. |
 | Composition | `BurcinCo.BurcinApp.AppHost` | Aspire orchestration for local dev — brings up MsSql, Redis, RabbitMQ, the Host, and the Gateway, and models selected client runners; MAUI targets are explicit-start. |
 <!--#if (ClientShared) -->
 | Client UI | `BurcinCo.BurcinApp.Client.Shared` | Razor Class Library containing the reusable routes, layout, navigation, pages, and FluentUI surface shared by the selected client runners. It is not a process. |
@@ -138,6 +138,44 @@ dotnet build src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.c
 ```
 <!--#endif -->
 
+### Gateway edge protections
+
+The Gateway applies ASP.NET Core token-bucket rate limiting by client IP before proxy or Webhook work.
+`gateway-proxy` protects both YARP routes with a 200-request burst and replenishes 50 tokens every five
+seconds. The Sample Webhook uses the tighter `gateway-webhook` policy: a 30-request burst and ten tokens
+every ten seconds. Both reject immediately with `429 Too Many Requests`, a Problem Details body, and
+`Retry-After` when the limiter can calculate it. Tune `Gateway:RateLimiting` after load testing; these
+limits are per Gateway replica, so strict cross-replica quotas still belong at the ingress, WAF, or API
+management layer. Health and Prometheus endpoints are intentionally exempt from request limiting.
+
+Named CIDR safelists are also wired into the proxy, Webhook, and `/metrics` endpoints. They default to
+`Enabled: false` so a generated public application and its Prometheus scraper are not accidentally locked
+out. To restrict a surface, add exact IP addresses or canonical IPv4/IPv6 CIDRs and then enable its policy:
+
+```json
+"Gateway": {
+  "NetworkSecurity": {
+    "IpSafelists": {
+      "gateway-proxy-ip-safelist": {
+        "Enabled": true,
+        "AllowedNetworks": [ "10.20.0.0/16", "2001:db8:1234::/48" ]
+      }
+    }
+  }
+}
+```
+
+An enabled safelist rejects an unknown or disallowed client address with `403 Forbidden` and does not
+reveal the configured networks. Empty enabled lists, invalid CIDRs, and universal `/0` networks fail at
+startup. Individual IPs are accepted and normalized to `/32` or `/128`. Gateway protection policies are
+captured once at startup, so restart the Gateway after changing them.
+
+Direct Kestrel traffic uses the socket peer address. When the Gateway runs behind a reverse proxy, enable
+`Gateway:NetworkSecurity:ForwardedHeaders` and configure a finite `ForwardLimit` plus at least one exact
+IP in `KnownProxies` or canonical CIDR in `KnownNetworks`. The Gateway ignores forwarded headers by
+default and rejects the trust-all `ASPNETCORE_FORWARDEDHEADERS_ENABLED` switch; never make authorization
+or rate-limit decisions from an untrusted `X-Forwarded-For` header.
+
 <!--#if (EntityFrameworkScaffold) -->
 ### Apply EF migrations
 
@@ -211,8 +249,8 @@ dotnet build BurcinCo.BurcinApp.slnx
 
 Test projects use **MSTest 4** with the `Microsoft.Testing.Platform` runner. The Host integration suite uses
 `WebApplicationFactory` for the authenticated identity projection, the Gateway integration suite uses it for
-process health, and the AppHost E2E suite uses `Aspire.Hosting.Testing` for orchestration plus public
-Gateway-to-Host traversal.
+process health, rate limiting, CIDR safelists, and trusted forwarded-address handling, and the AppHost E2E
+suite uses `Aspire.Hosting.Testing` for orchestration plus public Gateway-to-Host traversal.
 <!--#if (Web) -->
 The Client.Web integration suite renders the shared `/portal/` route through the Web shell. AppHost E2E
 coverage verifies both the `client-web` liveness endpoint and Gateway-to-Web traversal through `/portal/`.
@@ -241,10 +279,10 @@ migrate a deployed database at startup; this initialization belongs exclusively 
 | `BurcinCo.BurcinApp.Client.Web.Integration.Tests` | Integration | Web shell startup and server-rendered delivery of the shared client surface under `/portal`. |
 <!--#endif -->
 <!--#if (Sample) -->
-| `BurcinCo.BurcinApp.Gateway.Integration.Tests` | Integration | In-process health probes plus Webhook registration, translation, broker handoff, and bounded-body behavior. |
+| `BurcinCo.BurcinApp.Gateway.Integration.Tests` | Integration | In-process health probes, YARP edge-protection policies, trusted client-address handling, and Webhook registration, translation, broker handoff, bounded-body, safelist, and rate-limit behavior. |
 | `BurcinCo.BurcinApp.AppHost.E2E.Tests` | E2E | Runner orchestration, public Gateway→Host process endpoints, OData metadata and CRUD, signed URLs, and Sourcing request persistence. |
 <!--#else -->
-| `BurcinCo.BurcinApp.Gateway.Integration.Tests` | Integration | In-process liveness and readiness-compatible health contracts. |
+| `BurcinCo.BurcinApp.Gateway.Integration.Tests` | Integration | In-process liveness/readiness contracts plus YARP rate-limit and CIDR-safelist policy wiring. |
 | `BurcinCo.BurcinApp.AppHost.E2E.Tests` | E2E | Runner orchestration and public Gateway→Host process endpoints. |
 <!--#endif -->
 <!--#if (Sample) -->

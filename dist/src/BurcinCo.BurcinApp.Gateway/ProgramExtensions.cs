@@ -2,6 +2,7 @@ using System;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ using Ruya.Diagnostics.DistributedTracing;
 using Ruya.Extensions.Configuration;
 using Ruya.OpenTelemetry;
 using Ruya.Primitives;
+
+using NetworkSecurityConstants = BurcinCo.BurcinApp.Gateway.NetworkSecurity.Constants;
 
 namespace BurcinCo.BurcinApp.Gateway;
 
@@ -97,14 +100,20 @@ internal static class ProgramExtensions
 		}
 
 		app.UseRouting();
+		app.UseAuthorization();
+		app.UseRateLimiter();
 
-		app.MapPrometheusScrapingEndpoint();
+		app.MapPrometheusScrapingEndpoint()
+			.RequireAuthorization(NetworkSecurityConstants.IpSafelistPolicies.Operations)
+			.DisableRateLimiting();
 
 		// Health check endpoints (live/ready/startup triad).
 		var liveOptions = new HealthCheckOptions { Predicate = _ => false };
 		var readyOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("ready") };
 		var startupOptions = new HealthCheckOptions { Predicate = h => h.Tags.Contains("startup") };
-		var healthGroup = app.MapGroup("").AllowAnonymous();
+		var healthGroup = app.MapGroup("")
+			.AllowAnonymous()
+			.DisableRateLimiting();
 		healthGroup.MapHealthChecks("/health");
 		healthGroup.MapHealthChecks("/healthz", readyOptions);
 		healthGroup.MapHealthChecks("/healthz/ready", readyOptions);

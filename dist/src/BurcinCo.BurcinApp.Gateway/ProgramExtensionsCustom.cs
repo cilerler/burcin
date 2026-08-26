@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using BurcinCo.BurcinApp.Gateway.Configuration;
+using BurcinCo.BurcinApp.Gateway.NetworkSecurity.Extensions;
+using BurcinCo.BurcinApp.Gateway.RateLimiting.Extensions;
 using BurcinCo.BurcinApp.Gateway.ReverseProxy.Api;
 #if (Sample)
 using BurcinCo.BurcinApp.Gateway.Webhook.Extensions;
@@ -14,17 +16,11 @@ namespace BurcinCo.BurcinApp.Gateway;
 
 /// <summary>
 /// Gateway's distinct wiring — what differs from every other deployable in this shop.
-#if (Sample)
-/// The generated reference application composes two edge capabilities:
-///   1. Webhook ingestion: receive supplier webhook callbacks and deliver them to a configurable
-///      sink (today: RabbitMQ; alternative transports are a Gateway edge-adapter implementation
-///      choice). Wired via the Webhook capability's own <c>AddWebhook</c> extension.
-///   2. Reverse proxy: forward incoming requests to module-deployment backends through YARP.
-#else
-/// It composes the reverse proxy that forwards incoming requests to deployment backends through YARP.
-#endif
-///      Destinations resolve via Service Discovery so the same routing config works in Aspire
-///      local-dev, docker compose, and K8s.
+/// It composes the YARP reverse proxy, per-client rate limits, configurable CIDR safelists, and
+/// trusted forwarded-address handling. Destinations resolve through Service Discovery so the same
+/// routing configuration works in Aspire local development, Docker Compose, and Kubernetes.
+/// When the Sample is selected, it also receives supplier Webhooks and hands them to the configured
+/// Gateway edge adapter (RabbitMQ in the reference application).
 /// </summary>
 internal static class ProgramExtensionsCustom
 {
@@ -35,6 +31,8 @@ internal static class ProgramExtensionsCustom
 		ArgumentNullException.ThrowIfNull(builder);
 		ArgumentNullException.ThrowIfNull(capabilities);
 		builder.Services.AddSingleton(capabilities);
+		builder.Services.AddGatewayNetworkSecurity(builder.Configuration);
+		builder.Services.AddGatewayRateLimiting(builder.Configuration);
 
 #if (Sample)
 		// Webhook ingestion. The Gateway edge capability owns its settings (WebhookSettings,

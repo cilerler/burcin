@@ -10,6 +10,12 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
       "gridPos": {
         "h": 8,
         "w": 24,
@@ -19,14 +25,44 @@
       "id": 1,
       "targets": [
         {
-          "expr": "sum by (route) (rate(yarp_proxy_requests_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
-          "legendFormat": "{{route}}",
+          "expr": "sum by (http_route) (rate(http_server_request_duration_seconds_count{job=\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{http_route}}",
           "refId": "A"
         }
       ],
-      "title": "YARP request rate by route",
+      "title": "Gateway request rate by route",
       "type": "timeseries"
     },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "sum by (aspnetcore_rate_limiting_policy, aspnetcore_rate_limiting_result) (rate(aspnetcore_rate_limiting_requests_total{job=\"$job\"}[$__rate_interval]))",
+          "legendFormat": "{{aspnetcore_rate_limiting_policy}} / {{aspnetcore_rate_limiting_result}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Gateway rate-limiter decisions",
+      "type": "timeseries"
+    }
+    //#if (Sample)
+    ,
     {
       "datasource": {
         "type": "prometheus",
@@ -42,12 +78,12 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 8
+        "y": 16
       },
       "id": 2,
       "targets": [
         {
-          "expr": "sum by (outcome) (rate(app_webhook_received_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "expr": "sum by (outcome) (rate(app_webhook_received_total{job=\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{outcome}}",
           "refId": "A"
         }
@@ -70,22 +106,22 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 8
+        "y": 16
       },
       "id": 3,
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{env=\"$env\",service_name=\"$service\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{job=\"$job\"}[$__rate_interval])))",
           "legendFormat": "p50",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{env=\"$env\",service_name=\"$service\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{job=\"$job\"}[$__rate_interval])))",
           "legendFormat": "p95",
           "refId": "B"
         },
         {
-          "expr": "histogram_quantile(0.99, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{env=\"$env\",service_name=\"$service\"}[$__rate_interval])))",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(app_webhook_publish_duration_seconds_bucket{job=\"$job\"}[$__rate_interval])))",
           "legendFormat": "p99",
           "refId": "C"
         }
@@ -108,12 +144,12 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 24
       },
       "id": 4,
       "targets": [
         {
-          "expr": "sum by (reason) (rate(app_webhook_publish_failures_total{env=\"$env\",service_name=\"$service\"}[$__rate_interval]))",
+          "expr": "sum by (reason) (rate(app_webhook_publish_failures_total{job=\"$job\"}[$__rate_interval]))",
           "legendFormat": "{{reason}}",
           "refId": "A"
         }
@@ -121,6 +157,7 @@
       "title": "Webhook broker publish failures",
       "type": "timeseries"
     }
+    //#endif
   ],
   "schemaVersion": 39,
   "tags": [
@@ -144,31 +181,13 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(target_info, env)",
+        "definition": "label_values(http_server_request_duration_seconds_count, job)",
         "hide": 0,
         "includeAll": false,
-        "label": "Environment",
-        "name": "env",
+        "label": "Prometheus job",
+        "name": "job",
         "query": {
-          "query": "label_values(target_info, env)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 1,
-        "sort": 1,
-        "type": "query"
-      },
-      {
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${datasource}"
-        },
-        "definition": "label_values(target_info{env=\"$env\"}, service_name)",
-        "hide": 0,
-        "includeAll": false,
-        "label": "Service",
-        "name": "service",
-        "query": {
-          "query": "label_values(target_info{env=\"$env\"}, service_name)",
+          "query": "label_values(http_server_request_duration_seconds_count, job)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,
