@@ -463,23 +463,3 @@ $RECYCLE.BIN/
 # =========================
 Directory.Build.local.props
 *.local.slnx
-
-# =========================
-# AI Files
-# =========================
-CLAUDE.local.md
-CLAUDE.md
-AGENTS.md
-GEMINI.md
-.mcp.json
-.github/agents
-.github/instructions
-.github/prompts
-.github/skills
-.copilotignore
-.claudeignore
-.aiexclude
-.geminiignore
-.claude/
-.agents/
-.ai/
