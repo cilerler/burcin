@@ -21,7 +21,7 @@ and attribution remain Burcin.
 dotnet new install "Burcin.Templates.CSharp"
 
 # retrieves a specific version with source definition
-dotnet new install "Burcin.Templates.CSharp::1.2.21" --nuget-source https://api.nuget.org/v3/index.json
+dotnet new install "Burcin.Templates.CSharp@10.0.26" --nuget-source https://api.nuget.org/v3/index.json
 ```
 
 ## Update
