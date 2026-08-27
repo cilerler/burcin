@@ -1,6 +1,22 @@
 {
 	"$schema": "https://json.schemastore.org/launchsettings.json",
 	"profiles": {
+		"Standalone": {
+			"commandName": "Project",
+			"dotnetRunMessages": true,
+			"launchBrowser": false,
+			"environmentVariables": {
+				"ASPNETCORE_ENVIRONMENT": "Development",
+				//#if (Sample)
+				"ConnectionStrings__RabbitMqManagement": "http://useradmin:passwordadmin@localhost:15672",
+				//#endif
+				//#if (Web)
+				"ReverseProxy__Clusters__portal__Destinations__portal-1__Address": "http://localhost:5004",
+				//#endif
+				"ReverseProxy__Clusters__host__Destinations__host-1__Address": "http://localhost:5002"
+			},
+			"applicationUrl": "https://+:5001;http://+:5000"
+		},
 		"BurcinCo.BurcinApp.Gateway": {
 			"commandName": "Project",
 			"dotnetRunMessages": true,

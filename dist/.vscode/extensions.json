@@ -1,5 +1,12 @@
 {
 	"recommendations": [
+		"ms-dotnettools.csdevkit",
+		//#if (Maui)
+		"ms-dotnettools.dotnet-maui",
+		//#endif
+		"microsoft-aspire.aspire-vscode",
+		"ms-vscode-remote.remote-containers",
+		"ms-vscode.powershell",
 		"humao.rest-client"
 	]
 }

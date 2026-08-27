@@ -69,12 +69,24 @@ repository; the [test inventory](#tests) maps verification projects separately.
 
 ### Prerequisites
 
-- Git
-- .NET 10 SDK
-- PowerShell 7 (`pwsh`, for repository checks)
-- Docker Desktop (for Aspire's containers and PlantUML rendering)
+Choose one development environment:
+
+- **Dev Container (recommended):** Git, Docker Desktop, Visual Studio Code, and its Dev Containers extension.
+  The container supplies .NET 10, PowerShell, the Aspire CLI, VS Code's Aspire tooling, and an isolated Docker
+  daemon for AppHost resources.
+- **Host-native:** Git, .NET 10 SDK, PowerShell 7, the Aspire CLI, and Docker Desktop.
+
+The Dev Container requires at least 8 CPUs, 32 GB of memory, and 64 GB of storage. From Visual Studio Code,
+run **Dev Containers: Reopen in Container**. Initial setup restores the AppHost, restores optional repository
+tools, and installs the pinned RabbitMQ delayed-message plugin used by the queue. AppHost data, Aspire parameter
+secrets, and the HTTPS development certificate persist in repository-isolated Docker volumes across container
+rebuilds. Aspire discovers and forwards dashboard and resource ports automatically; the template does not pin
+stale application ports in `devcontainer.json`.
 <!--#if (Maui) -->
-- .NET MAUI workload plus the SDK/toolchain required by each native target you build
+
+The Linux Dev Container supports the server, Web, and shared-client projects. Build and run native Windows,
+Android, iOS, and Mac Catalyst targets on a compatible host with the corresponding .NET MAUI workload,
+SDK or emulator, and platform toolchain.
 <!--#endif -->
 
 Ruya dependencies restore from NuGet packages by default in every build configuration. To develop
@@ -117,8 +129,18 @@ Diagram authoring and manual rendering are documented under [PlantUML diagrams](
 
 ### Run
 
-The Aspire AppHost owns the lifecycle of `mssql`, `redis`, and `rabbitmq` containers — never start
-or stop them manually with `docker` commands.
+Visual Studio Code provides both orchestration and project-by-project debugging:
+
+- **Aspire: Launch AppHost** starts the AppHost, dashboard, infrastructure, and resources configured for
+  automatic startup. While using this mode, let the AppHost own the `mssql`, `redis`, and `rabbitmq` containers.
+- **Individual: Gateway + Host** starts only the two server projects. When selected, separate Web and MAUI
+  compounds add the corresponding client. Each checked-in project configuration can also be launched on its own.
+
+The individual compounds do not start the AppHost or provision infrastructure. Make the Development
+connection-string dependencies available first; the standalone profiles then use fixed local application ports
+so the Gateway can reach the Host and selected Web client without Aspire service-discovery variables.
+
+From a terminal, run the orchestrated mode with:
 
 ```pwsh
 aspire start --apphost src/BurcinCo.BurcinApp.AppHost
@@ -132,7 +154,8 @@ The selected Web runner is available through the Gateway at `/portal`. See the
 <!--#endif -->
 <!--#if (Maui) -->
 
-Start the MAUI target supported by your machine explicitly from the Aspire dashboard. See
+For the individual MAUI compound, choose a target supported by the current machine when the .NET MAUI
+extension prompts. In orchestrated mode, start that target explicitly from the Aspire dashboard. See
 [Native client startup](docs/architectures/system.md#native-client-startup) for its orchestration and publishing
 boundary. Restore the workload and build or package the target platform explicitly; for example, on Windows:
 

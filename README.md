@@ -88,6 +88,10 @@ Gateway exposes that runner at `/portal`. MAUI owns its native shell and the app
 required by `BlazorWebView`; it maps the shared `Routes` component directly and does not duplicate the
 shared UI.
 
+Every generated repository includes a modern .NET 10 + Aspire Dev Container with Docker-in-Docker. See the
+[generated-project setup instructions](dist/README.md#prerequisites) for its host requirements, persistent
+development state, and native-MAUI boundary.
+
 DocFX is opt-in. Add `--DocFx` to generate a searchable site containing the canonical Markdown documentation,
 ADRs, and curated managed .NET API reference. The API reference is part of DocFX rather than a separate template
 option. Authored Markdown under `docs/` is generated with or without the site tooling.

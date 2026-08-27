@@ -1,15 +1,54 @@
 {
-	"image": "mcr.microsoft.com/dotnet/sdk:10.0",
-	"postCreateCommand": "pwsh -Command \"Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted -Force; .devcontainer/init.ps1\"",
-	"forwardPorts": [
-		5000,
-		5001
+	"$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+	"name": "BurcinCo.BurcinApp",
+	"image": "mcr.microsoft.com/devcontainers/dotnet:2-10.0-noble",
+	"features": {
+		"ghcr.io/microsoft/aspire-devcontainer-feature/aspire:2": {},
+		"ghcr.io/devcontainers/features/docker-in-docker:4": {},
+		"ghcr.io/devcontainers/features/powershell:2": {}
+	},
+	"hostRequirements": {
+		"cpus": 8,
+		"memory": "32gb",
+		"storage": "64gb"
+	},
+	"mounts": [
+		{
+			"type": "volume",
+			"source": "burcin-apphost-${devcontainerId}",
+			"target": "/home/vscode/.docker/volumes"
+		},
+		{
+			"type": "volume",
+			"source": "burcin-user-secrets-${devcontainerId}",
+			"target": "/home/vscode/.microsoft/usersecrets"
+		},
+		{
+			"type": "volume",
+			"source": "burcin-development-certificates-${devcontainerId}",
+			"target": "/home/vscode/.dotnet/corefx/cryptography/x509stores"
+		}
+	],
+	"postCreateCommand": [
+		"pwsh",
+		"-NoLogo",
+		"-NoProfile",
+		"-File",
+		".devcontainer/bootstrap.ps1"
+	],
+	"postStartCommand": [
+		"dotnet",
+		"dev-certs",
+		"https",
+		"--trust"
 	],
 	"customizations": {
 		"vscode": {
-			"extensions": [
-				"ms-dotnettools.csharp"
-			]
+			"settings": {
+				"remote.otherPortsAttributes": {
+					"onAutoForward": "silent"
+				}
+			}
 		}
 	}
 }

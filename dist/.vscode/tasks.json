@@ -7,35 +7,63 @@
 			"type": "process",
 			"args": [
 				"build",
-				"${workspaceFolder}/src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj",
-				"/property:GenerateFullPaths=true",
-				"/consoleloggerparameters:NoSummary"
+				"${workspaceFolder}/src/BurcinCo.BurcinApp.AppHost/BurcinCo.BurcinApp.AppHost.csproj",
+				"--nologo"
 			],
-			"problemMatcher": "$msCompile"
+			"problemMatcher": "$msCompile",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "run",
+			"command": "aspire",
+			"type": "process",
+			"args": [
+				"run"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true
+			}
+		},
+		{
+			"label": "stop",
+			"command": "aspire",
+			"type": "process",
+			"args": [
+				"stop"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": []
 		},
 		{
 			"label": "publish",
-			"command": "dotnet",
+			"command": "aspire",
 			"type": "process",
 			"args": [
 				"publish",
-				"${workspaceFolder}/src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj",
-				"/property:GenerateFullPaths=true",
-				"/consoleloggerparameters:NoSummary"
+				"--non-interactive",
+				"--output-path",
+				"${workspaceFolder}/artifacts"
 			],
-			"problemMatcher": "$msCompile"
-		},
-		{
-			"label": "watch",
-			"command": "dotnet",
-			"type": "process",
-			"args": [
-				"watch",
-				"run",
-				"--project",
-				"${workspaceFolder}/src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj"
-			],
-			"problemMatcher": "$msCompile"
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": true
+			}
 		}
 	]
 }

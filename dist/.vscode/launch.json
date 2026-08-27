@@ -1,46 +1,75 @@
 {
-	// Use IntelliSense to find out which attributes exist for C# debugging
-	// Use hover for the description of the existing attributes
-	// For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
 	"version": "0.2.0",
 	"compounds": [
+		//#if (Web)
 		{
-			"name": "Web and API",
+			"name": "Individual: Gateway + Host + Web",
 			"configurations": [
-				".NET Core Launch"
-			]
+				".NET Core Launch (Gateway)",
+				".NET Core Launch (Host)",
+				".NET Core Launch (Client Web)"
+			],
+			"stopAll": true
+		},
+		//#endif
+		//#if (Maui)
+		{
+			"name": "Individual: Gateway + Host + MAUI",
+			"configurations": [
+				".NET Core Launch (Gateway)",
+				".NET Core Launch (Host)",
+				".NET MAUI Launch (Client MAUI)"
+			],
+			"stopAll": true
+		},
+		//#endif
+		{
+			"name": "Individual: Gateway + Host",
+			"configurations": [
+				".NET Core Launch (Gateway)",
+				".NET Core Launch (Host)"
+			],
+			"stopAll": true
 		}
 	],
 	"configurations": [
 		{
-			"name": ".NET Core Launch",
-			"type": "coreclr",
+			"type": "aspire",
 			"request": "launch",
-			"preLaunchTask": "build",
-			// If you have changed target frameworks, make sure to update the program path.
-			"program": "${workspaceFolder}/src/BurcinCo.BurcinApp.Host/bin/Debug/net8.0/BurcinCo.BurcinApp.Host.dll",
-			"args": [],
-			"cwd": "${workspaceFolder}/src/BurcinCo.BurcinApp.Host",
-			// For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
-			"console": "internalConsole",
-			"launchSettingsProfile": "https",
-			"stopAtEntry": false,
-			// Enable launching a web browser when ASP.NET Core starts. For more information: https://aka.ms/VSCode-CS-LaunchJson-WebBrowser
-			"serverReadyAction": {
-				"action": "openExternally",
-				"pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-			},
-			"internalConsoleOptions": "openOnSessionStart",
-			"env": {
-				"ASPNETCORE_ENVIRONMENT": "Development",
-				"ASPNETCORE_URLS": "https://+:5001;http://+:5000"
-			},
-			"sourceFileMap": {
-				"/Views": "${workspaceFolder}/src/BurcinCo.BurcinApp.Host/Views"
-			}
+			"name": "Aspire: Launch AppHost",
+			"program": "${workspaceFolder}"
 		},
 		{
-			"name": ".NET Core Attach",
+			"name": ".NET Core Launch (Gateway)",
+			"type": "dotnet",
+			"request": "launch",
+			"projectPath": "${workspaceFolder}/src/BurcinCo.BurcinApp.Gateway/BurcinCo.BurcinApp.Gateway.csproj"
+		},
+		{
+			"name": ".NET Core Launch (Host)",
+			"type": "dotnet",
+			"request": "launch",
+			"projectPath": "${workspaceFolder}/src/BurcinCo.BurcinApp.Host/BurcinCo.BurcinApp.Host.csproj"
+		},
+		//#if (Web)
+		{
+			"name": ".NET Core Launch (Client Web)",
+			"type": "dotnet",
+			"request": "launch",
+			"projectPath": "${workspaceFolder}/src/BurcinCo.BurcinApp.Client.Web/BurcinCo.BurcinApp.Client.Web.csproj"
+		},
+		//#endif
+		//#if (Maui)
+		{
+			"name": ".NET MAUI Launch (Client MAUI)",
+			"type": "maui",
+			"request": "launch",
+			"project": "${workspaceFolder}/src/BurcinCo.BurcinApp.Client.Maui/BurcinCo.BurcinApp.Client.Maui.csproj",
+			"preLaunchTask": "maui: Build"
+		},
+		//#endif
+		{
+			"name": ".NET: Attach to Process",
 			"type": "coreclr",
 			"request": "attach",
 			"processId": "${command:pickProcess}"
