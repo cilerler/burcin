@@ -14,7 +14,7 @@ on:
   repository_dispatch:
     types: []
   push:
-    branches: [master, release-preview, release-qa, develop]
+    branches: [main, release-preview, release-qa, develop]
     paths:
     - '.github/workflows/ci.yml'
     - 'burcin.nuspec'
@@ -23,7 +23,7 @@ on:
 
 env:
   version: '10.0'
-  productionBranch: 'master'
+  productionBranch: 'main'
   stagingBranch: 'release-preview'
   testingBranch: 'release-qa'
   integrationBranch: 'develop'
@@ -133,7 +133,7 @@ jobs:
           Add-Content $env:GITHUB_ENV "version=$version"
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v5
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
