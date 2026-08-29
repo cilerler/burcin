@@ -73,7 +73,7 @@
 		"template": [
 			"default",
 			"modern",
-			"templates/burcin"
+			"templates/burcinapp"
 		],
 		"postProcessors": [
 			"ExtractSearchIndex"

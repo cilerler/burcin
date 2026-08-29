@@ -95,7 +95,8 @@
 			"type": "derived",
 			"valueSource": "ProjectName",
 			"valueTransform": "lowerCase",
-			"replaces": "burcinapp"
+			"replaces": "burcinapp",
+			"fileRename": "burcinapp"
 		},
 		"ProjectNameUpper": {
 			"type": "derived",
